@@ -1,70 +1,73 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
-#include <opencv2/ml/ml.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <iostream>
 
 using namespace cv;
+using namespace std;
+
+
+
+template <typename _Tp>
+void ELBP_(const Mat& src, Mat& dst, int radius, int neighbors)
+{
+    neighbors = max(min(neighbors,31),1); // set bounds...
+    // Note: alternatively you can switch to the new OpenCV Mat_
+    // type system to define an unsigned int matrix... I am probably
+    // mistaken here, but I didn't see an unsigned int representation
+    // in OpenCV's classic typesystem...
+    dst = Mat::zeros(src.rows-2*radius, src.cols-2*radius, CV_32SC1);
+    for(int n=0; n<neighbors; n++) {
+        // sample points
+        float x = static_cast<float>(radius) * cos(2.0*M_PI*n/static_cast<float>(neighbors));
+        float y = static_cast<float>(radius) * -sin(2.0*M_PI*n/static_cast<float>(neighbors));
+        // relative indices
+        int fx = static_cast<int>(floor(x));
+        int fy = static_cast<int>(floor(y));
+        int cx = static_cast<int>(ceil(x));
+        int cy = static_cast<int>(ceil(y));
+        // fractional part
+        float ty = y - fy;
+        float tx = x - fx;
+        // set interpolation weights
+        float w1 = (1 - tx) * (1 - ty);
+        float w2 =      tx  * (1 - ty);
+        float w3 = (1 - tx) *      ty;
+        float w4 =      tx  *      ty;
+        // iterate through your data
+        for(int i=radius; i < src.rows-radius;i++) {
+            for(int j=radius;j < src.cols-radius;j++) {
+                float t = w1*src.at<_Tp>(i+fy,j+fx) + w2*src.at<_Tp>(i+fy,j+cx) + w3*src.at<_Tp>(i+cy,j+fx) + w4*src.at<_Tp>(i+cy,j+cx);
+                // we are dealing with floating point precision, so add some little tolerance
+                dst.at<unsigned int>(i-radius,j-radius) += ((t > src.at<_Tp>(i,j)) && (abs(t-src.at<_Tp>(i,j)) > std::numeric_limits<float>::epsilon())) << n;
+            }
+        }
+    }
+}
 
 int main()
 {
-    // Data for visual representation
-    int width = 512, height = 512;
-    Mat image = Mat::zeros(height, width, CV_8UC3);
+    Mat image, gray, lbp;
 
-    // Set up training data
-    float labels[4] = {1.0, -1.0, -1.0, -1.0};
-    Mat labelsMat(4, 1, CV_32FC1, labels);
+    image = imread("./zebra.jpg", CV_LOAD_IMAGE_COLOR);
+    lbp = Mat::zeros(image.rows, image.cols, CV_8UC3);
 
-    float trainingData[4][2] = { {501, 10}, {255, 10}, {501, 255}, {10, 501} };
-    Mat trainingDataMat(4, 2, CV_32FC1, trainingData);
-
-    // Set up SVM's parameters
-    CvSVMParams params;
-	params.svm_type = CvSVM::C_SVC;
-	params.kernel_type = CvSVM::POLY;
-	params.degree = 1;
-    params.term_crit = cvTermCriteria(CV_TERMCRIT_ITER, 100, 1e-6);
-
-    // Train the SVM
-    CvSVM SVM;
-    SVM.train(trainingDataMat, labelsMat, Mat(), Mat(), params);
-
-    Vec3b green(0,255,0), blue (255,0,0);
-    // Show the decision regions given by the SVM
-    for (int i = 0; i < image.rows; ++i)
-        for (int j = 0; j < image.cols; ++j)
-        {
-            Mat sampleMat = (Mat_<float>(1,2) << j,i);
-            float response = SVM.predict(sampleMat);
-
-            if (response == 1)
-                image.at<Vec3b>(i,j)  = green;
-            else if (response == -1)
-                 image.at<Vec3b>(i,j)  = blue;
-        }
-
-    // Show the training data
-    int thickness = -1;
-    int lineType = 8;
-    circle( image, Point(501,  10), 5, Scalar(  0,   0,   0), thickness, lineType);
-    circle( image, Point(255,  10), 5, Scalar(255, 255, 255), thickness, lineType);
-    circle( image, Point(501, 255), 5, Scalar(255, 255, 255), thickness, lineType);
-    circle( image, Point( 10, 501), 5, Scalar(255, 255, 255), thickness, lineType);
-
-    // Show support vectors
-    thickness = 2;
-    lineType  = 8;
-    int c     = SVM.get_support_vector_count();
-
-    for (int i = 0; i < c; ++i)
+    if(! image.data )
     {
-        const float* v = SVM.get_support_vector(i);
-		std::cout << "Circle at: " << v[0] << ", " << v[1] << std::endl;
-        circle( image,  Point( (int) v[0], (int) v[1]),   6,  Scalar(128, 128, 128), thickness, lineType);
+        cout <<  "Could not open or find the image" << std::endl ;
+        return -1;
     }
 
-    imwrite("result.png", image);        // save the image
+    // convert to gray image
+    cv::cvtColor(image, gray, CV_BGR2GRAY);
 
-    imshow("SVM Simple Example", image); // show it to the user
+    // create ELBP
+    ELBP_<uchar>(gray, lbp, 16, 16);
+
+    namedWindow("Display window", WINDOW_AUTOSIZE);
+    imshow("Display window", lbp);
+
     waitKey(0);
+    return 0;
 
 }
