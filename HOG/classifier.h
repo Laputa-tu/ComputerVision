@@ -13,10 +13,10 @@ class Classifier {
 
 public:
     /// Constructor
-    HOG();
+    Classifier();
 
     /// Destructor
-    ~HOG();
+    ~Classifier();
 
     /// Start the training.  This resets/initializes the model.
     void startTraining();
@@ -25,7 +25,7 @@ public:
     ///
     /// @param img:  input image
     /// @param float: probability-value which specifies if img represents the class 
-    void train(const cv::Mat3b& img, float label);
+    void train(const cv::Mat3b& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow);
 
     /// Finish the training.  This finalizes the model.  Do not call
     /// train() afterwards anymore.
@@ -36,7 +36,7 @@ public:
     ///
     /// @param img: unknown test image
     /// @return:    probability of human likelihood
-    double classify(const cv::Mat3b& img);
+    double classify(const cv::Mat3b& img, cv::Rect slidingWindow);
 
 private:
     double calculateOverlap(ClipperLib::Path labelPolygon, ClipperLib::Path slidingWindow);

@@ -1,4 +1,4 @@
-#include "hog.h"
+#include "classifier.h"
 
 using namespace std;
 using namespace ClipperLib;
@@ -7,8 +7,7 @@ class Classifier::HOGPimpl {
 public:
 
 	cv::Mat1f descriptors;
-	cv::Mat1f responses;
-	
+	cv::Mat1f responses;	
 	cv::SVM svm;
 	cv::HOGDescriptor hog;
 };
@@ -25,6 +24,7 @@ Classifier::~Classifier()
 {
 }
 
+
 double Classifier::calculateOverlap(ClipperLib::Path labelPolygon, ClipperLib::Path slidingWindow)
 {
 	ClipperLib::Paths clippedPolygon;
@@ -34,8 +34,12 @@ double Classifier::calculateOverlap(ClipperLib::Path labelPolygon, ClipperLib::P
 	c.AddPath(labelPolygon, ptSubject, true);
 	c.AddPath(slidingWindow, ptClip, true);
 	c.Execute(ctIntersection, clippedPolygon, pftNonZero, pftNonZero);
+	cout << clippedPolygon;
 
-	double area_clippedPolygon = Area(clippedPolygon[0]);
+	double area_clippedPolygon = 0;
+	if (clippedPolygon.size() > 0) 
+		area_clippedPolygon = Area(clippedPolygon[0]);
+
 	double area_slidingWindow = Area(slidingWindow);
 	double overlap = area_clippedPolygon / area_slidingWindow;
 	
@@ -58,17 +62,19 @@ void Classifier::startTraining()
 	
 }
 
-/// Add a new training image.
+/// Train with a new sliding window section of a training image.
 ///
 /// @param img:  input image
-/// @param float: probability-value which specifies if img represents the class 
-void Classifier::train(const cv::Mat3b& img, float labelk)   // ClipperLib::Path labelPolygon, cv::Rect slidingWindow)
+/// @param labelPolygon: a set of points which enwrap the target object
+/// @param slidingWindow: the window section of the image that has to be trained
+void Classifier::train(const cv::Mat3b& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow)
 {	
+	/*
 	ClipperLib::Path labelPolygon;
 	labelPolygon << IntPoint(0, 0) << IntPoint(70, 0) << IntPoint(100, 60) << IntPoint(70, 100) << IntPoint(0, 50);	
 	//slidingWindow << IntPoint(20, 20) << IntPoint(120, 20) << IntPoint(120, 80) << IntPoint(20, 80);
 	cv::Rect slidingWindow = cv::Rect(0, 0, 64, 128);
-
+	*/
 
 	//extract slidingWindow out of the image
 	cv::Mat3b img2 = img(slidingWindow);
@@ -77,6 +83,7 @@ void Classifier::train(const cv::Mat3b& img, float labelk)   // ClipperLib::Path
 
 	//calculate Feature-Descriptor
 	vector<float> vDescriptor;
+	
 	HOG->hog.compute(img2, vDescriptor);	
 	cv::Mat1f descriptor(1,vDescriptor.size(),&vDescriptor[0]);    
 	HOG->descriptors.push_back(descriptor);
@@ -92,6 +99,7 @@ void Classifier::train(const cv::Mat3b& img, float labelk)   // ClipperLib::Path
 	HOG->responses.push_back(cv::Mat1f(1,1,label));
 }
 
+
 /// Finish the training. This finalizes the model. Do not call train() afterwards anymore.
 void Classifier::finishTraining()
 {
@@ -99,19 +107,29 @@ void Classifier::finishTraining()
 	HOG->svm.train( HOG->descriptors, HOG->responses, cv::Mat(), cv::Mat(), params );
 }
 
+
 /// Classify an unknown test image.  The result is a floating point
-/// value directly proportional to the probability of being a person.
+/// value directly proportional to the probability of having a match inside the sliding window.
 ///
 /// @param img: unknown test image
-/// @return:    probability of human likelihood
-double Classifier::classify(const cv::Mat3b& img) //
-{
-	cv::Mat3b img2 = img(cv::Rect((img.cols-64)/2,(img.rows-128)/2,64,128));
+/// @param slidingWindow: the window section of the image that has to be classified
+/// @return: probability of having a match for the target object inside the sliding window section
+double Classifier::classify(const cv::Mat3b& img, cv::Rect slidingWindow)
+{		
+	//cv::Rect slidingWindow = cv::Rect(0, 0, 64, 128);
 
+	//extract slidingWindow out of the image
+	cv::Mat3b img2 = img(slidingWindow);
+	cout << "Sliding Window:         " << slidingWindow << endl;
+
+	//calculate Feature-Descriptor
 	vector<float> vDescriptor;
 	HOG->hog.compute(img2, vDescriptor);	
 	cv::Mat1f descriptor(1,vDescriptor.size(),&vDescriptor[0]);
 
-	return -1.0 * HOG->svm.predict(descriptor, true);
+	//predict Result
+	double result = -1.0 * HOG->svm.predict(descriptor, true);
+	cout << "Result:          " << result << endl << endl;
+	return result;
 }
 
