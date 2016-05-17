@@ -13,7 +13,7 @@ using namespace std;
 using namespace cv;
 
 
-void printFilesInDirectory(char *path, int depth = 1)
+void searchSlothFilesInDirectory(char *path, char *name, int depth = 1)
 {
     DIR *dirp = opendir(path);
     struct dirent *dp;
@@ -34,15 +34,18 @@ void printFilesInDirectory(char *path, int depth = 1)
                 continue;
 
             if(stat(newpath, &sb) == 0 && S_ISDIR(sb.st_mode))
-                printFilesInDirectory(newpath, depth+1);
+                searchSlothFilesInDirectory(newpath, name, depth+1);
             else
             {
                 cout << "\t";
-                for(int i=0; i<depth; i++) cout << " - ";
-                cout << path << "/" << dp->d_name << endl;
+                for(int i=0; i<depth; i++) cout << " =";
+                cout << "> " << path << "/" << dp->d_name;
+
+                if(strcmp(dp->d_name, name) == 0)
+                    cout << "\t\t<=== Found JSON File!" << endl;
+                else
+                    cout << endl;
             }
-
-
         }
     }
 
@@ -59,7 +62,7 @@ int main(int argc, char* argv[])
     }
 
     // print the directory
-    cout << "Searching for \"" << argv[1] << "\" ..." << endl;
+    cout << "Searching in \"" << argv[1] << "\" ..." << endl;
 
     // search for directory
     struct stat sb;
@@ -70,7 +73,8 @@ int main(int argc, char* argv[])
     }
 
     // print files
-    printFilesInDirectory(argv[1]);
+    char sloth[100] = "sloth.json";
+    searchSlothFilesInDirectory(argv[1], sloth);
 
     return 0;
 }
