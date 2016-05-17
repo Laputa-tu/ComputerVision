@@ -13,13 +13,17 @@ opencv2/highgui/highgui.hpp
 -
 opencv2/imgproc/imgproc.hpp
 -
-iostream
--
 sys/stat.h
 -
 sys/types.h
 -
+stdio.h
+-
 dirent.h
+-
+iostream
+-
+string
 -
 
 /home/kevin/opencv-2.4.9/modules/core/include/opencv2/core/core.hpp
