@@ -3,27 +3,21 @@
 using namespace std;
 using namespace ClipperLib;
 
-class Classifier::HOGPimpl {
-public:
-
-	cv::Mat1f descriptors;
-	cv::Mat1f responses;	
-	cv::SVM svm;
-	cv::HOGDescriptor hog;
-};
+cv::Mat1f descriptors;
+cv::Mat1f responses;	
+cv::SVM svm;
+cv::HOGDescriptor hog;
 
 
 /// Constructor
 Classifier::Classifier()
 {
-	HOG = std::shared_ptr<HOGPimpl>(new HOGPimpl());
 }
 
 /// Destructor
 Classifier::~Classifier() 
 {
 }
-
 
 double Classifier::calculateOverlap(ClipperLib::Path labelPolygon, ClipperLib::Path slidingWindow)
 {
@@ -34,7 +28,6 @@ double Classifier::calculateOverlap(ClipperLib::Path labelPolygon, ClipperLib::P
 	c.AddPath(labelPolygon, ptSubject, true);
 	c.AddPath(slidingWindow, ptClip, true);
 	c.Execute(ctIntersection, clippedPolygon, pftNonZero, pftNonZero);
-	cout << clippedPolygon;
 
 	double area_clippedPolygon = 0;
 	if (clippedPolygon.size() > 0) 
@@ -46,7 +39,8 @@ double Classifier::calculateOverlap(ClipperLib::Path labelPolygon, ClipperLib::P
 	
 	cout << "Sliding Window:         " << slidingWindow;
 	//cout << "Window-Area:          " << area_slidingWindow << endl;
-	cout << "Clipped Label-Polygon:  " << clippedPolygon[0];
+	if (clippedPolygon.size() > 0) 
+		cout << "Clipped Label-Polygon:  " << clippedPolygon[0];
 	//cout << "Overlap-Area:         " << area_clippedPolygon << endl;
 	cout << "Overlap-Percentage:     " << overlap << endl << endl;		
 	
@@ -84,9 +78,9 @@ void Classifier::train(const cv::Mat3b& img, ClipperLib::Path labelPolygon, cv::
 	//calculate Feature-Descriptor
 	vector<float> vDescriptor;
 	
-	HOG->hog.compute(img2, vDescriptor);	
+	hog.compute(img2, vDescriptor);	
 	cv::Mat1f descriptor(1,vDescriptor.size(),&vDescriptor[0]);    
-	HOG->descriptors.push_back(descriptor);
+	descriptors.push_back(descriptor);
 
 
 	//calculate Label
@@ -96,7 +90,7 @@ void Classifier::train(const cv::Mat3b& img, ClipperLib::Path labelPolygon, cv::
 			<< IntPoint(slidingWindow.x + slidingWindow.width, slidingWindow.y + slidingWindow.height)
 			<< IntPoint(slidingWindow.x, slidingWindow.y + slidingWindow.height); 
 	float label = (float) calculateOverlap(labelPolygon, slidingWindowPath);
-	HOG->responses.push_back(cv::Mat1f(1,1,label));
+	responses.push_back(cv::Mat1f(1,1,label));
 }
 
 
@@ -104,7 +98,7 @@ void Classifier::train(const cv::Mat3b& img, ClipperLib::Path labelPolygon, cv::
 void Classifier::finishTraining()
 {
 	cv::SVMParams params;
-	HOG->svm.train( HOG->descriptors, HOG->responses, cv::Mat(), cv::Mat(), params );
+	svm.train( descriptors, responses, cv::Mat(), cv::Mat(), params );
 }
 
 
@@ -120,16 +114,16 @@ double Classifier::classify(const cv::Mat3b& img, cv::Rect slidingWindow)
 
 	//extract slidingWindow out of the image
 	cv::Mat3b img2 = img(slidingWindow);
-	cout << "Sliding Window:         " << slidingWindow << endl;
+	cout << "Sliding Window:      " << slidingWindow << endl;
 
 	//calculate Feature-Descriptor
 	vector<float> vDescriptor;
-	HOG->hog.compute(img2, vDescriptor);	
+	hog.compute(img2, vDescriptor);	
 	cv::Mat1f descriptor(1,vDescriptor.size(),&vDescriptor[0]);
 
 	//predict Result
-	double result = -1.0 * HOG->svm.predict(descriptor, true);
-	cout << "Result:          " << result << endl << endl;
+	double result = -1.0 * svm.predict(descriptor, true);
+	cout << "Result:              " << result << endl << endl;
 	return result;
 }
 
