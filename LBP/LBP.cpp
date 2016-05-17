@@ -6,8 +6,6 @@
 using namespace cv;
 using namespace std;
 
-
-
 template <typename _Tp>
 void ELBP_(const Mat& src, Mat& dst, int radius, int neighbors)
 {

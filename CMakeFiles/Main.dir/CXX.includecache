@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/kevin/ComputerVision/LBP/LBP.cpp
+/home/kevin/ComputerVision/Main.cpp
 opencv2/core/core.hpp
 -
 opencv2/highgui/highgui.hpp

@@ -10,5 +10,6 @@ CMakeFiles/LBP.dir/LBP.cpp.o: /home/kevin/opencv-2.4.9/modules/core/include/open
 CMakeFiles/LBP.dir/LBP.cpp.o: /home/kevin/opencv-2.4.9/modules/core/include/opencv2/core/version.hpp
 CMakeFiles/LBP.dir/LBP.cpp.o: /home/kevin/opencv-2.4.9/modules/highgui/include/opencv2/highgui/highgui.hpp
 CMakeFiles/LBP.dir/LBP.cpp.o: /home/kevin/opencv-2.4.9/modules/highgui/include/opencv2/highgui/highgui_c.h
-CMakeFiles/LBP.dir/LBP.cpp.o: /home/kevin/opencv-2.4.9/modules/ml/include/opencv2/ml/ml.hpp
+CMakeFiles/LBP.dir/LBP.cpp.o: /home/kevin/opencv-2.4.9/modules/imgproc/include/opencv2/imgproc/imgproc.hpp
+CMakeFiles/LBP.dir/LBP.cpp.o: /home/kevin/opencv-2.4.9/modules/imgproc/include/opencv2/imgproc/types_c.h
 
