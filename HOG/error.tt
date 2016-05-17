@@ -1,0 +1,1 @@
+g++ -o assignment2 assignment2.cc hog.cc -std=c++0x -Wall -Wextra -pedantic -Ofast `pkg-config opencv --cflags --libs` -lboost_system -lboost_program_options -lboost_serialization -lboost_filesystem
