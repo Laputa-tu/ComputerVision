@@ -15,6 +15,12 @@ opencv2/imgproc/imgproc.hpp
 -
 iostream
 -
+sys/stat.h
+-
+sys/types.h
+-
+dirent.h
+-
 
 /home/kevin/opencv-2.4.9/modules/core/include/opencv2/core/core.hpp
 opencv2/core/types_c.h
