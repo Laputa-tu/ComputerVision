@@ -8,7 +8,7 @@ FLAGS +=  `pkg-config opencv --cflags --libs`
 FLAGS +=  -lboost_system -lboost_program_options -lboost_serialization -lboost_filesystem
 
 assignment2: *.cc *.h
-	$(CXX) -o $@ assignment2.cc classifier.cc clipper.cpp $(FLAGS)
+	$(CXX) -o $@ assignment2.cc hog.cc clipper.cpp $(FLAGS)
 
 .PHONY : clean
 clean:

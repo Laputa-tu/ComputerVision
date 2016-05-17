@@ -14,10 +14,11 @@
 
 #include <fstream>
 
-#include "hog.h"
+#include "classifier.h"
 #include "ROC.h"
-using namespace std;
 
+using namespace std;
+using namespace ClipperLib;
 
 
 int main(int argc, char* argv[]) {
@@ -72,7 +73,7 @@ int main(int argc, char* argv[]) {
 	random_shuffle(testImgs.begin(), testImgs.end());
 
     /// create person classification model instance
-    HOG model;
+    Classifier model;
 
     /// train model with all images in the train folder
 	cout << "Start Training" << endl;
@@ -81,7 +82,17 @@ int main(int argc, char* argv[]) {
 	for (auto &f:trainImgs) {
 		cout << "Training on Image " << path+"/train/"+"np"[f.second]+"/"+f.first << endl;
 		cv::Mat3b img = cv::imread(path+"/train/"+"np"[f.second]+"/"+f.first,-1);
-		model.train( img, float(f.second) );
+
+
+		ClipperLib::Path labelPolygon;
+		if (f.second == 1)
+			labelPolygon << IntPoint(0, 0) << IntPoint(img.cols-1, 0) << IntPoint(img.cols-1, img.rows-1) << IntPoint(0, img.rows-1);	
+		else		
+			labelPolygon << IntPoint(0, 0) << IntPoint(1, 0) << IntPoint(0, 1);	
+
+		cv::Rect slidingWindow = cv::Rect((img.cols-64)/2,(img.rows-128)/2,64,128);
+
+		model.train( img, labelPolygon, slidingWindow);
 	}
 	
 	cout << "Finish Training" << endl;
@@ -91,7 +102,8 @@ int main(int argc, char* argv[]) {
 	ROC<double> roc;
 	for (auto &f:testImgs) {
 		cv::Mat3b img = cv::imread(path+"/test/"+"np"[f.second]+"/"+f.first,-1);
-		double hyp = model.classify(img);
+		cv::Rect slidingWindow = cv::Rect((img.cols-64)/2,(img.rows-128)/2,64,128);
+		double hyp = model.classify(img, slidingWindow);
 		roc.add(f.second, hyp);
 		cout << "Testing Image " << f.second << " " << hyp << " " << path+"/test/"+"np"[f.second]+"/"+f.first << endl;
 	}
