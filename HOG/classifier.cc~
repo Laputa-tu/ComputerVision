@@ -71,7 +71,7 @@ void Classifier::train(const cv::Mat3b& img, ClipperLib::Path labelPolygon, cv::
 	*/
 	
 	//scale labelPolygon
-	for (int i = 0; i < labelPolygon.size(); i++)
+	for (unsigned i = 0; i < labelPolygon.size(); i++)
 	{
 		labelPolygon[i].X = labelPolygon[i].X * imageScaleFactor;
 		labelPolygon[i].Y = labelPolygon[i].Y * imageScaleFactor;

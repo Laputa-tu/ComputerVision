@@ -38,10 +38,12 @@ double Classifier::calculateOverlap(ClipperLib::Path labelPolygon, ClipperLib::P
 	
 	
 	cout << "Sliding Window:         " << slidingWindow;
-	//cout << "Window-Area:          " << area_slidingWindow << endl;
+	cout << "Window-Area:          " << area_slidingWindow << endl;
+	cout << "Polygon:                " << labelPolygon;
+	
 	if (clippedPolygon.size() > 0) 
 		cout << "Clipped Label-Polygon:  " << clippedPolygon[0];
-	//cout << "Overlap-Area:         " << area_clippedPolygon << endl;
+	cout << "Overlap-Area:         " << area_clippedPolygon << endl;
 	cout << "Overlap-Percentage:     " << overlap << endl << endl;		
 	
 	return overlap;
