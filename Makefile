@@ -111,6 +111,54 @@ Main/fast:
 	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/build
 .PHONY : Main/fast
 
+HOG/classifier.o: HOG/classifier.cc.o
+.PHONY : HOG/classifier.o
+
+# target to build an object file
+HOG/classifier.cc.o:
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/HOG/classifier.cc.o
+.PHONY : HOG/classifier.cc.o
+
+HOG/classifier.i: HOG/classifier.cc.i
+.PHONY : HOG/classifier.i
+
+# target to preprocess a source file
+HOG/classifier.cc.i:
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/HOG/classifier.cc.i
+.PHONY : HOG/classifier.cc.i
+
+HOG/classifier.s: HOG/classifier.cc.s
+.PHONY : HOG/classifier.s
+
+# target to generate assembly for a file
+HOG/classifier.cc.s:
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/HOG/classifier.cc.s
+.PHONY : HOG/classifier.cc.s
+
+HOG/clipper.o: HOG/clipper.cpp.o
+.PHONY : HOG/clipper.o
+
+# target to build an object file
+HOG/clipper.cpp.o:
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/HOG/clipper.cpp.o
+.PHONY : HOG/clipper.cpp.o
+
+HOG/clipper.i: HOG/clipper.cpp.i
+.PHONY : HOG/clipper.i
+
+# target to preprocess a source file
+HOG/clipper.cpp.i:
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/HOG/clipper.cpp.i
+.PHONY : HOG/clipper.cpp.i
+
+HOG/clipper.s: HOG/clipper.cpp.s
+.PHONY : HOG/clipper.s
+
+# target to generate assembly for a file
+HOG/clipper.cpp.s:
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/HOG/clipper.cpp.s
+.PHONY : HOG/clipper.cpp.s
+
 Main.o: Main.cpp.o
 .PHONY : Main.o
 
@@ -144,6 +192,12 @@ help:
 	@echo "... Main"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... HOG/classifier.o"
+	@echo "... HOG/classifier.i"
+	@echo "... HOG/classifier.s"
+	@echo "... HOG/clipper.o"
+	@echo "... HOG/clipper.i"
+	@echo "... HOG/clipper.s"
 	@echo "... Main.o"
 	@echo "... Main.i"
 	@echo "... Main.s"

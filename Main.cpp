@@ -18,6 +18,8 @@
 #include <iostream>
 #include <string>
 
+#include "HOG/classifier.h"
+
 using namespace std;
 using namespace cv;
 
@@ -114,6 +116,16 @@ class JSONImage
             else
                 return false;
         }
+
+        ClipperLib::Path getLabelPolygon()
+        {
+            ClipperLib::Path labelPolygon;
+            for(int i=0; i<xn.size(); i++)
+            {
+                labelPolygon << ClipperLib::IntPoint(xn.at(i), yn.at(i));
+            }
+            return labelPolygon;
+        }
 };
 
 // more functions
@@ -157,48 +169,50 @@ int main(int argc, char* argv[])
     for(int i=0; i<json_images.size(); i++)
     {
         cout << "\tImage: "<<json_images.at(i).getName() << endl;
-    }
 
-    // read image
-    Mat image, rescaled;
-    image = imread(json_images.at(0).getPath(), CV_LOAD_IMAGE_COLOR);
+        // read image
+        Mat image, rescaled;
+        image = imread(json_images.at(i).getPath(), CV_LOAD_IMAGE_COLOR);
 
-    if(! image.data ) // Check for invalid input
-    {
-        cout <<  "Could not open or find the image" << std::endl ;
-        return -1;
-    }
-
-
-
-    int scale_n_times = 3;
-    rescaled = image;
-    for(int i=0; i<scale_n_times; i++)
-    {
-        resize(rescaled, rescaled, Size(), 0.5, 0.5, INTER_CUBIC);
-        cout << "Width: " << rescaled.cols << endl;
-        cout << "Height: " << rescaled.rows << endl;
-        imshow( "Rescaled", rescaled );
-
-        // build sliding window
-        int windows_n_rows = 128;
-        int windows_n_cols = 64;
-        int step_slide_row = windows_n_rows/3;
-        int step_slide_col = windows_n_cols/3;
-
-        for(int row = 0; row <= rescaled.rows - windows_n_rows; row += step_slide_row)
+        if(! image.data ) // Check for invalid input
         {
-            for(int col = 0; col <= rescaled.cols - windows_n_cols; col += step_slide_col )
+            cout <<  "Could not open or find the image" << std::endl ;
+            return -1;
+        }
+
+        // start training
+        Classifier model;
+        model.startTraining();
+
+        rescaled = image;
+        int scale_n_times = 3;
+        float current_scaling = 1;
+        float scaling_factor = 0.5;
+
+        for(int i=0; i<scale_n_times; i++)
+        {
+            current_scaling = current_scaling * scaling_factor;
+            resize(rescaled, rescaled, Size(), scaling_factor, scaling_factor, INTER_CUBIC);
+            cout << "Width: " << rescaled.cols << endl;
+            cout << "Height: " << rescaled.rows << endl;
+
+            // build sliding window
+            int windows_n_rows = 128;
+            int windows_n_cols = 64;
+            int step_slide_row = windows_n_rows/3;
+            int step_slide_col = windows_n_cols/3;
+
+            for(int row = 0; row <= rescaled.rows - windows_n_rows; row += step_slide_row)
             {
-                Rect windows(col, row, windows_n_cols, windows_n_rows);
-                Mat Roi = rescaled(windows);
+                for(int col = 0; col <= rescaled.cols - windows_n_cols; col += step_slide_col )
+                {
+                    Rect windows(col, row, windows_n_cols, windows_n_rows);
+                    //Mat Roi = rescaled(windows);
 
-                cout << "Width: " << Roi.cols << endl;
-                cout << "Height: " << Roi.rows << endl;
-
-                namedWindow( "Sliding Window", WINDOW_AUTOSIZE );
-                imshow( "Sliding Window", Roi );
-                waitKey(0);
+                    cout << json_images.at(i).getLabelPolygon() << endl;
+                    //train
+                    //model.train(rescaled, json_images.at(i).getLabelPolygon(), windows);
+                }
             }
         }
     }

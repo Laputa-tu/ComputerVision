@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 project( Main )
 find_package( OpenCV REQUIRED )
-add_executable( Main Main.cpp )
+include_directories(${HOG})
+add_executable( Main Main.cpp HOG/classifier.h HOG/classifier.cc HOG/clipper.hpp HOG/clipper.cpp)
 target_link_libraries( Main ${OpenCV_LIBS} )
