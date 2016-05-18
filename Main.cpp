@@ -165,6 +165,8 @@ int main(int argc, char* argv[])
 
     // get images from json
     vector<JSONImage> json_images = getJSONImages(files);
+
+
     cout << "Found " << json_images.size() << " labled images in json files:" << endl;
     for(int i=0; i<json_images.size(); i++)
     {
@@ -209,9 +211,9 @@ int main(int argc, char* argv[])
                     Rect windows(col, row, windows_n_cols, windows_n_rows);
                     //Mat Roi = rescaled(windows);
 
-                    cout << json_images.at(i).getLabelPolygon() << endl;
+                    //cout << json_images.at(i).getLabelPolygon() << endl;
                     //train
-                    //model.train(rescaled, json_images.at(i).getLabelPolygon(), windows);
+                    model.train(rescaled, json_images.at(i).getLabelPolygon(), windows, current_scaling);
                 }
             }
         }
@@ -255,23 +257,35 @@ vector<JSONImage> getJSONImages(vector<string> *files)
                 JSONImage currentImage;
                 BOOST_FOREACH(boost::property_tree::ptree::value_type& i, v.second)
                 {
-                    // get and print name
-                    string name = i.second.get_value("filename");
-                    currentImage.setName(name);
-                    currentImage.setPath(file_directory + name);
-
-                    // get labeled polygons
-                    BOOST_FOREACH(boost::property_tree::ptree::value_type& j, i.second)
+                    if(i.first == "filename")
                     {
-                        BOOST_FOREACH(boost::property_tree::ptree::value_type& k, j.second)
-                        {
-                            string xn = k.second.get_value("xn");
-                            string yn = k.second.get_value("yn");
+                        string name = i.second.get_value<string>();
+                        currentImage.setName(name);
+                        currentImage.setPath(file_directory + name);
+                    }
 
-                            if(!xn.empty() && !yn.empty())
+                    if(i.first == "annotations")
+                    {
+                        BOOST_FOREACH(boost::property_tree::ptree::value_type& j, i.second)
+                        {
+                            BOOST_FOREACH(boost::property_tree::ptree::value_type& h, j.second)
                             {
-                                currentImage.setXn(xn);
-                                currentImage.setYn(yn);
+
+                                if(h.first == "xn")
+                                {
+                                    string xn = h.second.get_value<string>();
+
+                                    if(!xn.empty())
+                                        currentImage.setXn(xn);
+                                }
+
+                                if(h.first == "yn")
+                                {
+                                    string yn = h.second.get_value<string>();
+
+                                    if(!yn.empty())
+                                        currentImage.setYn(yn);
+                                }
                             }
                         }
                     }
