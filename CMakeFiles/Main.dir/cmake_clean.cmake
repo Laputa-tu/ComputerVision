@@ -1,5 +1,7 @@
 FILE(REMOVE_RECURSE
   "CMakeFiles/Main.dir/Main.cpp.o"
+  "CMakeFiles/Main.dir/HOG/classifier.cc.o"
+  "CMakeFiles/Main.dir/HOG/clipper.cpp.o"
   "Main.pdb"
   "Main"
 )
