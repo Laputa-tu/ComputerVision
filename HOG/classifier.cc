@@ -36,15 +36,18 @@ double Classifier::calculateOverlap(ClipperLib::Path labelPolygon, ClipperLib::P
 	double area_slidingWindow = Area(slidingWindow);
 	double overlap = area_clippedPolygon / area_slidingWindow;
 	
-	
-	cout << "Sliding Window:         " << slidingWindow;
-	cout << "Window-Area:          " << area_slidingWindow << endl;
-	cout << "Polygon:                " << labelPolygon;
-	
-	if (clippedPolygon.size() > 0) 
-		cout << "Clipped Label-Polygon:  " << clippedPolygon[0];
-	cout << "Overlap-Area:         " << area_clippedPolygon << endl;
-	cout << "Overlap-Percentage:     " << overlap << endl << endl;		
+    if(overlap > 0.05)
+    {
+        //cout << "Sliding Window:         " << slidingWindow;
+        //cout << "Window-Area:          " << area_slidingWindow << endl;
+        //cout << "Polygon:                " << labelPolygon;
+
+        //if (clippedPolygon.size() > 0)
+            //cout << "Clipped Label-Polygon:  " << clippedPolygon[0];
+        //cout << "Overlap-Area:         " << area_clippedPolygon << endl;
+        cout << "Overlap-Percentage:     " << overlap << endl << endl;
+    }
+
 	
 	return overlap;
 }
@@ -98,6 +101,8 @@ void Classifier::train(const cv::Mat3b& img, ClipperLib::Path labelPolygon, cv::
 			<< IntPoint(slidingWindow.x + slidingWindow.width, slidingWindow.y + slidingWindow.height)
 			<< IntPoint(slidingWindow.x, slidingWindow.y + slidingWindow.height); 
 	float label = (float) calculateOverlap(labelPolygon, slidingWindowPath);
+    if (label > 0.05) label = 1.0;
+    else label = 0.0;
 	responses.push_back(cv::Mat1f(1,1,label));
 }
 

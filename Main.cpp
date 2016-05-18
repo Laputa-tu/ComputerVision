@@ -166,6 +166,9 @@ int main(int argc, char* argv[])
     // get images from json
     vector<JSONImage> json_images = getJSONImages(files);
 
+    // start training
+    Classifier model;
+    model.startTraining();
 
     cout << "Found " << json_images.size() << " labled images in json files:" << endl;
     for(int i=0; i<json_images.size(); i++)
@@ -181,10 +184,6 @@ int main(int argc, char* argv[])
             cout <<  "Could not open or find the image" << std::endl ;
             return -1;
         }
-
-        // start training
-        Classifier model;
-        model.startTraining();
 
         rescaled = image;
         int scale_n_times = 3;
@@ -218,6 +217,65 @@ int main(int argc, char* argv[])
             }
         }
     }
+
+    cout << "Finishing Training ..." << endl;
+    model.finishTraining();
+
+    cout << "Found " << json_images.size() << " labled images in json files:" << endl;
+    for(int i=0; i<json_images.size(); i++)
+    {
+        cout << "\tImage: "<<json_images.at(i).getName() << endl;
+
+        // read image
+        Mat image, rescaled;
+        image = imread(json_images.at(i).getPath(), CV_LOAD_IMAGE_COLOR);
+
+        if(! image.data ) // Check for invalid input
+        {
+            cout <<  "Could not open or find the image" << std::endl ;
+            return -1;
+        }
+
+        rescaled = image;
+        int scale_n_times = 3;
+        float current_scaling = 1;
+        float scaling_factor = 0.5;
+
+        for(int i=0; i<scale_n_times; i++)
+        {
+            current_scaling = current_scaling * scaling_factor;
+            resize(rescaled, rescaled, Size(), scaling_factor, scaling_factor, INTER_CUBIC);
+            cout << "Width: " << rescaled.cols << endl;
+            cout << "Height: " << rescaled.rows << endl;
+
+            // build sliding window
+            int windows_n_rows = 128;
+            int windows_n_cols = 64;
+            int step_slide_row = windows_n_rows/3;
+            int step_slide_col = windows_n_cols/3;
+
+            for(int row = 0; row <= rescaled.rows - windows_n_rows; row += step_slide_row)
+            {
+                for(int col = 0; col <= rescaled.cols - windows_n_cols; col += step_slide_col )
+                {
+                    Rect windows(col, row, windows_n_cols, windows_n_rows);
+                    //Mat Roi = rescaled(windows);
+
+                    //cout << json_images.at(i).getLabelPolygon() << endl;
+                    //train
+                    double result = model.classify(rescaled, windows);
+
+                    cout << "result: " << result << endl;
+                }
+            }
+        }
+    }
+
+
+
+
+
+
 
     waitKey(0);
     return 0;
