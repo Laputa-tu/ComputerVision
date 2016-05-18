@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
 
 		cv::Rect slidingWindow = cv::Rect((img.cols-64)/2,(img.rows-128)/2,64,128);
 
-		model.train( img, labelPolygon, slidingWindow);
+		model.train( img, labelPolygon, slidingWindow, 1.0);
 	}
 	
 	cout << "Finish Training" << endl;

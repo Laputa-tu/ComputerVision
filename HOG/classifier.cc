@@ -61,7 +61,7 @@ void Classifier::startTraining()
 /// @param img:  input image
 /// @param labelPolygon: a set of points which enwrap the target object
 /// @param slidingWindow: the window section of the image that has to be trained
-void Classifier::train(const cv::Mat3b& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow)
+void Classifier::train(const cv::Mat3b& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor)
 {	
 	/*
 	ClipperLib::Path labelPolygon;
@@ -69,6 +69,13 @@ void Classifier::train(const cv::Mat3b& img, ClipperLib::Path labelPolygon, cv::
 	//slidingWindow << IntPoint(20, 20) << IntPoint(120, 20) << IntPoint(120, 80) << IntPoint(20, 80);
 	cv::Rect slidingWindow = cv::Rect(0, 0, 64, 128);
 	*/
+	
+	//scale labelPolygon
+	for (unsigned i = 0; i < labelPolygon.size(); i++)
+	{
+		labelPolygon[i].X = labelPolygon[i].X * imageScaleFactor;
+		labelPolygon[i].Y = labelPolygon[i].Y * imageScaleFactor;
+	}	
 
 	//extract slidingWindow out of the image
 	cv::Mat3b img2 = img(slidingWindow);
@@ -76,8 +83,7 @@ void Classifier::train(const cv::Mat3b& img, ClipperLib::Path labelPolygon, cv::
 
 
 	//calculate Feature-Descriptor
-	vector<float> vDescriptor;
-	
+	vector<float> vDescriptor;	
 	hog.compute(img2, vDescriptor);	
 	cv::Mat1f descriptor(1,vDescriptor.size(),&vDescriptor[0]);    
 	descriptors.push_back(descriptor);

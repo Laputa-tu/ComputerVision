@@ -21,7 +21,7 @@ public:
     	Classifier();
     	~Classifier();
     	void startTraining();
-    	void train(const cv::Mat3b& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow);
+    	void train(const cv::Mat3b& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor);
     	void finishTraining();
     	double classify(const cv::Mat3b& img, cv::Rect slidingWindow);
 

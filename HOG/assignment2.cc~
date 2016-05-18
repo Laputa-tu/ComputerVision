@@ -85,19 +85,12 @@ int main(int argc, char* argv[]) {
 
 
 		ClipperLib::Path labelPolygon;
-		
-		/*if (f.second == 1)
+		if (f.second == 1)
 			labelPolygon << IntPoint(0, 0) << IntPoint(img.cols-1, 0) << IntPoint(img.cols-1, img.rows-1) << IntPoint(0, img.rows-1);	
 		else		
 			labelPolygon << IntPoint(0, 0) << IntPoint(1, 0) << IntPoint(0, 1);	
 
-
-*/
 		cv::Rect slidingWindow = cv::Rect((img.cols-64)/2,(img.rows-128)/2,64,128);
-
-
-		labelPolygon << IntPoint(0, 0) << IntPoint(10, 0) << IntPoint(0, 10);
-		//cv::Rect slidingWindow = cv::Rect(0, 0, 64, 128);
 
 		model.train( img, labelPolygon, slidingWindow);
 	}
