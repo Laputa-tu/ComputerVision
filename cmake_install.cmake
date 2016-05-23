@@ -1,4 +1,4 @@
-# Install script for directory: /home/kevin/ComputerVision
+# Install script for directory: /home/kevin/home/Praktikum_ComputerVision/ComputerVision
 
 # Set the install prefix
 IF(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -38,7 +38,7 @@ ELSE(CMAKE_INSTALL_COMPONENT)
   SET(CMAKE_INSTALL_MANIFEST "install_manifest.txt")
 ENDIF(CMAKE_INSTALL_COMPONENT)
 
-FILE(WRITE "/home/kevin/ComputerVision/${CMAKE_INSTALL_MANIFEST}" "")
+FILE(WRITE "/home/kevin/home/Praktikum_ComputerVision/ComputerVision/${CMAKE_INSTALL_MANIFEST}" "")
 FOREACH(file ${CMAKE_INSTALL_MANIFEST_FILES})
-  FILE(APPEND "/home/kevin/ComputerVision/${CMAKE_INSTALL_MANIFEST}" "${file}\n")
+  FILE(APPEND "/home/kevin/home/Praktikum_ComputerVision/ComputerVision/${CMAKE_INSTALL_MANIFEST}" "${file}\n")
 ENDFOREACH(file)

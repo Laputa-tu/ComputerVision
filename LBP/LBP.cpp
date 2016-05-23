@@ -55,6 +55,8 @@ int main()
         cout <<  "Could not open or find the image" << std::endl ;
         return -1;
     }
+	
+	cv::resize(image, image, Size(), 0.5, 0.5, CV_INTER_CUBIC);
 
     // convert to gray image
     cv::cvtColor(image, gray, CV_BGR2GRAY);

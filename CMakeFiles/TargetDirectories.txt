@@ -1,1 +1,1 @@
-/home/kevin/ComputerVision/CMakeFiles/Main.dir
+/home/kevin/home/Praktikum_ComputerVision/ComputerVision/CMakeFiles/Main.dir

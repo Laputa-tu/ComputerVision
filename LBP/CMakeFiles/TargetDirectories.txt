@@ -1,1 +1,1 @@
-/home/kevin/ComputerVision/LBP/CMakeFiles/LBP.dir
+/home/kevin/home/Praktikum_ComputerVision/ComputerVision/LBP/CMakeFiles/LBP.dir

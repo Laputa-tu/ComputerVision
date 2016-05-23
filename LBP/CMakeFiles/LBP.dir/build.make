@@ -34,11 +34,14 @@ RM = /usr/bin/cmake -E remove -f
 # Escaping for special characters.
 EQUALS = =
 
+# The program to use to edit the cache.
+CMAKE_EDIT_COMMAND = /usr/bin/cmake-gui
+
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/kevin/ComputerVision/LBP
+CMAKE_SOURCE_DIR = /home/kevin/home/Praktikum_ComputerVision/ComputerVision/LBP
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/kevin/ComputerVision/LBP
+CMAKE_BINARY_DIR = /home/kevin/home/Praktikum_ComputerVision/ComputerVision/LBP
 
 # Include any dependencies generated for this target.
 include CMakeFiles/LBP.dir/depend.make
@@ -51,17 +54,17 @@ include CMakeFiles/LBP.dir/flags.make
 
 CMakeFiles/LBP.dir/LBP.cpp.o: CMakeFiles/LBP.dir/flags.make
 CMakeFiles/LBP.dir/LBP.cpp.o: LBP.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/kevin/ComputerVision/LBP/CMakeFiles $(CMAKE_PROGRESS_1)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/kevin/home/Praktikum_ComputerVision/ComputerVision/LBP/CMakeFiles $(CMAKE_PROGRESS_1)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/LBP.dir/LBP.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/LBP.dir/LBP.cpp.o -c /home/kevin/ComputerVision/LBP/LBP.cpp
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/LBP.dir/LBP.cpp.o -c /home/kevin/home/Praktikum_ComputerVision/ComputerVision/LBP/LBP.cpp
 
 CMakeFiles/LBP.dir/LBP.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/LBP.dir/LBP.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/kevin/ComputerVision/LBP/LBP.cpp > CMakeFiles/LBP.dir/LBP.cpp.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/kevin/home/Praktikum_ComputerVision/ComputerVision/LBP/LBP.cpp > CMakeFiles/LBP.dir/LBP.cpp.i
 
 CMakeFiles/LBP.dir/LBP.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/LBP.dir/LBP.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/kevin/ComputerVision/LBP/LBP.cpp -o CMakeFiles/LBP.dir/LBP.cpp.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/kevin/home/Praktikum_ComputerVision/ComputerVision/LBP/LBP.cpp -o CMakeFiles/LBP.dir/LBP.cpp.s
 
 CMakeFiles/LBP.dir/LBP.cpp.o.requires:
 .PHONY : CMakeFiles/LBP.dir/LBP.cpp.o.requires
@@ -81,39 +84,46 @@ LBP_EXTERNAL_OBJECTS =
 
 LBP: CMakeFiles/LBP.dir/LBP.cpp.o
 LBP: CMakeFiles/LBP.dir/build.make
-LBP: /home/kevin/opencv-2.4.9/lib/libopencv_videostab.so.2.4.9
-LBP: /home/kevin/opencv-2.4.9/lib/libopencv_video.so.2.4.9
-LBP: /home/kevin/opencv-2.4.9/lib/libopencv_ts.a
-LBP: /home/kevin/opencv-2.4.9/lib/libopencv_superres.so.2.4.9
-LBP: /home/kevin/opencv-2.4.9/lib/libopencv_stitching.so.2.4.9
-LBP: /home/kevin/opencv-2.4.9/lib/libopencv_photo.so.2.4.9
-LBP: /home/kevin/opencv-2.4.9/lib/libopencv_ocl.so.2.4.9
-LBP: /home/kevin/opencv-2.4.9/lib/libopencv_objdetect.so.2.4.9
-LBP: /home/kevin/opencv-2.4.9/lib/libopencv_nonfree.so.2.4.9
-LBP: /home/kevin/opencv-2.4.9/lib/libopencv_ml.so.2.4.9
-LBP: /home/kevin/opencv-2.4.9/lib/libopencv_legacy.so.2.4.9
-LBP: /home/kevin/opencv-2.4.9/lib/libopencv_imgproc.so.2.4.9
-LBP: /home/kevin/opencv-2.4.9/lib/libopencv_highgui.so.2.4.9
-LBP: /home/kevin/opencv-2.4.9/lib/libopencv_gpu.so.2.4.9
-LBP: /home/kevin/opencv-2.4.9/lib/libopencv_flann.so.2.4.9
-LBP: /home/kevin/opencv-2.4.9/lib/libopencv_features2d.so.2.4.9
-LBP: /home/kevin/opencv-2.4.9/lib/libopencv_core.so.2.4.9
-LBP: /home/kevin/opencv-2.4.9/lib/libopencv_contrib.so.2.4.9
-LBP: /home/kevin/opencv-2.4.9/lib/libopencv_calib3d.so.2.4.9
-LBP: /home/kevin/opencv-2.4.9/lib/libopencv_nonfree.so.2.4.9
-LBP: /home/kevin/opencv-2.4.9/lib/libopencv_ocl.so.2.4.9
-LBP: /home/kevin/opencv-2.4.9/lib/libopencv_gpu.so.2.4.9
-LBP: /home/kevin/opencv-2.4.9/lib/libopencv_photo.so.2.4.9
-LBP: /home/kevin/opencv-2.4.9/lib/libopencv_objdetect.so.2.4.9
-LBP: /home/kevin/opencv-2.4.9/lib/libopencv_legacy.so.2.4.9
-LBP: /home/kevin/opencv-2.4.9/lib/libopencv_video.so.2.4.9
-LBP: /home/kevin/opencv-2.4.9/lib/libopencv_ml.so.2.4.9
-LBP: /home/kevin/opencv-2.4.9/lib/libopencv_calib3d.so.2.4.9
-LBP: /home/kevin/opencv-2.4.9/lib/libopencv_features2d.so.2.4.9
-LBP: /home/kevin/opencv-2.4.9/lib/libopencv_highgui.so.2.4.9
-LBP: /home/kevin/opencv-2.4.9/lib/libopencv_imgproc.so.2.4.9
-LBP: /home/kevin/opencv-2.4.9/lib/libopencv_flann.so.2.4.9
-LBP: /home/kevin/opencv-2.4.9/lib/libopencv_core.so.2.4.9
+LBP: /usr/local/lib/libopencv_viz.so.2.4.9
+LBP: /usr/local/lib/libopencv_videostab.so.2.4.9
+LBP: /usr/local/lib/libopencv_video.so.2.4.9
+LBP: /usr/local/lib/libopencv_ts.a
+LBP: /usr/local/lib/libopencv_superres.so.2.4.9
+LBP: /usr/local/lib/libopencv_stitching.so.2.4.9
+LBP: /usr/local/lib/libopencv_photo.so.2.4.9
+LBP: /usr/local/lib/libopencv_ocl.so.2.4.9
+LBP: /usr/local/lib/libopencv_objdetect.so.2.4.9
+LBP: /usr/local/lib/libopencv_nonfree.so.2.4.9
+LBP: /usr/local/lib/libopencv_ml.so.2.4.9
+LBP: /usr/local/lib/libopencv_legacy.so.2.4.9
+LBP: /usr/local/lib/libopencv_imgproc.so.2.4.9
+LBP: /usr/local/lib/libopencv_highgui.so.2.4.9
+LBP: /usr/local/lib/libopencv_gpu.so.2.4.9
+LBP: /usr/local/lib/libopencv_flann.so.2.4.9
+LBP: /usr/local/lib/libopencv_features2d.so.2.4.9
+LBP: /usr/local/lib/libopencv_core.so.2.4.9
+LBP: /usr/local/lib/libopencv_contrib.so.2.4.9
+LBP: /usr/local/lib/libopencv_calib3d.so.2.4.9
+LBP: /usr/lib/x86_64-linux-gnu/libGLU.so
+LBP: /usr/lib/x86_64-linux-gnu/libGL.so
+LBP: /usr/lib/x86_64-linux-gnu/libSM.so
+LBP: /usr/lib/x86_64-linux-gnu/libICE.so
+LBP: /usr/lib/x86_64-linux-gnu/libX11.so
+LBP: /usr/lib/x86_64-linux-gnu/libXext.so
+LBP: /usr/local/lib/libopencv_nonfree.so.2.4.9
+LBP: /usr/local/lib/libopencv_ocl.so.2.4.9
+LBP: /usr/local/lib/libopencv_gpu.so.2.4.9
+LBP: /usr/local/lib/libopencv_photo.so.2.4.9
+LBP: /usr/local/lib/libopencv_objdetect.so.2.4.9
+LBP: /usr/local/lib/libopencv_legacy.so.2.4.9
+LBP: /usr/local/lib/libopencv_video.so.2.4.9
+LBP: /usr/local/lib/libopencv_ml.so.2.4.9
+LBP: /usr/local/lib/libopencv_calib3d.so.2.4.9
+LBP: /usr/local/lib/libopencv_features2d.so.2.4.9
+LBP: /usr/local/lib/libopencv_highgui.so.2.4.9
+LBP: /usr/local/lib/libopencv_imgproc.so.2.4.9
+LBP: /usr/local/lib/libopencv_flann.so.2.4.9
+LBP: /usr/local/lib/libopencv_core.so.2.4.9
 LBP: CMakeFiles/LBP.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --red --bold "Linking CXX executable LBP"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/LBP.dir/link.txt --verbose=$(VERBOSE)
@@ -130,6 +140,6 @@ CMakeFiles/LBP.dir/clean:
 .PHONY : CMakeFiles/LBP.dir/clean
 
 CMakeFiles/LBP.dir/depend:
-	cd /home/kevin/ComputerVision/LBP && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/kevin/ComputerVision/LBP /home/kevin/ComputerVision/LBP /home/kevin/ComputerVision/LBP /home/kevin/ComputerVision/LBP /home/kevin/ComputerVision/LBP/CMakeFiles/LBP.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/kevin/home/Praktikum_ComputerVision/ComputerVision/LBP && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/kevin/home/Praktikum_ComputerVision/ComputerVision/LBP /home/kevin/home/Praktikum_ComputerVision/ComputerVision/LBP /home/kevin/home/Praktikum_ComputerVision/ComputerVision/LBP /home/kevin/home/Praktikum_ComputerVision/ComputerVision/LBP /home/kevin/home/Praktikum_ComputerVision/ComputerVision/LBP/CMakeFiles/LBP.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/LBP.dir/depend
 

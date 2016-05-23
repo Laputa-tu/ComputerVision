@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/kevin/ComputerVision/LBP/LBP.cpp
+/home/kevin/home/Praktikum_ComputerVision/ComputerVision/LBP/LBP.cpp
 opencv2/core/core.hpp
 -
 opencv2/highgui/highgui.hpp
@@ -16,11 +16,11 @@ opencv2/imgproc/imgproc.hpp
 iostream
 -
 
-/home/kevin/opencv-2.4.9/modules/core/include/opencv2/core/core.hpp
+/usr/local/include/opencv2/core/core.hpp
 opencv2/core/types_c.h
-/home/kevin/opencv-2.4.9/modules/core/include/opencv2/core/opencv2/core/types_c.h
+/usr/local/include/opencv2/core/opencv2/core/types_c.h
 opencv2/core/version.hpp
-/home/kevin/opencv-2.4.9/modules/core/include/opencv2/core/opencv2/core/version.hpp
+/usr/local/include/opencv2/core/opencv2/core/version.hpp
 limits.h
 -
 algorithm
@@ -42,21 +42,21 @@ vector
 sstream
 -
 opencv2/core/operations.hpp
-/home/kevin/opencv-2.4.9/modules/core/include/opencv2/core/opencv2/core/operations.hpp
+/usr/local/include/opencv2/core/opencv2/core/operations.hpp
 opencv2/core/mat.hpp
-/home/kevin/opencv-2.4.9/modules/core/include/opencv2/core/opencv2/core/mat.hpp
+/usr/local/include/opencv2/core/opencv2/core/mat.hpp
 
-/home/kevin/opencv-2.4.9/modules/core/include/opencv2/core/core_c.h
+/usr/local/include/opencv2/core/core_c.h
 opencv2/core/types_c.h
-/home/kevin/opencv-2.4.9/modules/core/include/opencv2/core/opencv2/core/types_c.h
+/usr/local/include/opencv2/core/opencv2/core/types_c.h
 
-/home/kevin/opencv-2.4.9/modules/core/include/opencv2/core/mat.hpp
+/usr/local/include/opencv2/core/mat.hpp
 limits.h
 -
 string.h
 -
 
-/home/kevin/opencv-2.4.9/modules/core/include/opencv2/core/operations.hpp
+/usr/local/include/opencv2/core/operations.hpp
 string.h
 -
 limits.h
@@ -68,7 +68,7 @@ bits/atomicity.h
 limits
 -
 
-/home/kevin/opencv-2.4.9/modules/core/include/opencv2/core/types_c.h
+/usr/local/include/opencv2/core/types_c.h
 assert.h
 -
 stdlib.h
@@ -92,29 +92,29 @@ ipl.h
 ipl/ipl.h
 -
 tegra_round.hpp
-/home/kevin/opencv-2.4.9/modules/core/include/opencv2/core/tegra_round.hpp
+/usr/local/include/opencv2/core/tegra_round.hpp
 emmintrin.h
-/home/kevin/opencv-2.4.9/modules/core/include/opencv2/core/emmintrin.h
+/usr/local/include/opencv2/core/emmintrin.h
 
-/home/kevin/opencv-2.4.9/modules/core/include/opencv2/core/version.hpp
+/usr/local/include/opencv2/core/version.hpp
 
-/home/kevin/opencv-2.4.9/modules/highgui/include/opencv2/highgui/highgui.hpp
+/usr/local/include/opencv2/highgui/highgui.hpp
 opencv2/core/core.hpp
-/home/kevin/opencv-2.4.9/modules/highgui/include/opencv2/highgui/opencv2/core/core.hpp
+/usr/local/include/opencv2/highgui/opencv2/core/core.hpp
 opencv2/highgui/highgui_c.h
-/home/kevin/opencv-2.4.9/modules/highgui/include/opencv2/highgui/opencv2/highgui/highgui_c.h
+/usr/local/include/opencv2/highgui/opencv2/highgui/highgui_c.h
 
-/home/kevin/opencv-2.4.9/modules/highgui/include/opencv2/highgui/highgui_c.h
+/usr/local/include/opencv2/highgui/highgui_c.h
 opencv2/core/core_c.h
-/home/kevin/opencv-2.4.9/modules/highgui/include/opencv2/highgui/opencv2/core/core_c.h
+/usr/local/include/opencv2/highgui/opencv2/core/core_c.h
 
-/home/kevin/opencv-2.4.9/modules/imgproc/include/opencv2/imgproc/imgproc.hpp
+/usr/local/include/opencv2/imgproc/imgproc.hpp
 opencv2/core/core.hpp
-/home/kevin/opencv-2.4.9/modules/imgproc/include/opencv2/imgproc/opencv2/core/core.hpp
+/usr/local/include/opencv2/imgproc/opencv2/core/core.hpp
 opencv2/imgproc/types_c.h
-/home/kevin/opencv-2.4.9/modules/imgproc/include/opencv2/imgproc/opencv2/imgproc/types_c.h
+/usr/local/include/opencv2/imgproc/opencv2/imgproc/types_c.h
 
-/home/kevin/opencv-2.4.9/modules/imgproc/include/opencv2/imgproc/types_c.h
+/usr/local/include/opencv2/imgproc/types_c.h
 opencv2/core/core_c.h
-/home/kevin/opencv-2.4.9/modules/imgproc/include/opencv2/imgproc/opencv2/core/core_c.h
+/usr/local/include/opencv2/imgproc/opencv2/core/core_c.h
 
