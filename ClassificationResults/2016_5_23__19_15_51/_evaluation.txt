@@ -1,8 +1,0 @@
-True Positives:           0
-False Positives:          2007
-True Negatives:           0
-False Negatives:          40
-Classified:               2047
-Accuracy (TP + TN) / All: 0
-Recall    TP / (TP + FN): 0
-Precision TP / (TP + FP): 0
