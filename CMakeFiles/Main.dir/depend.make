@@ -124,6 +124,7 @@ CMakeFiles/Main.dir/Helper/FileManager.cpp.o: HOG/classifier.h
 CMakeFiles/Main.dir/Helper/FileManager.cpp.o: HOG/clipper.hpp
 CMakeFiles/Main.dir/Helper/FileManager.cpp.o: Helper/FileManager.cpp
 CMakeFiles/Main.dir/Helper/FileManager.cpp.o: Helper/FileManager.h
+CMakeFiles/Main.dir/Helper/FileManager.cpp.o: error.h
 CMakeFiles/Main.dir/Helper/FileManager.cpp.o: /home/kevin/opencv-2.4.9/include/opencv/cv.h
 CMakeFiles/Main.dir/Helper/FileManager.cpp.o: /home/kevin/opencv-2.4.9/include/opencv/highgui.h
 CMakeFiles/Main.dir/Helper/FileManager.cpp.o: /home/kevin/opencv-2.4.9/modules/calib3d/include/opencv2/calib3d/calib3d.hpp
@@ -183,6 +184,7 @@ CMakeFiles/Main.dir/Main.cpp.o: HOG/classifier.h
 CMakeFiles/Main.dir/Main.cpp.o: HOG/clipper.hpp
 CMakeFiles/Main.dir/Main.cpp.o: Helper/FileManager.h
 CMakeFiles/Main.dir/Main.cpp.o: Main.cpp
+CMakeFiles/Main.dir/Main.cpp.o: error.h
 CMakeFiles/Main.dir/Main.cpp.o: /home/kevin/opencv-2.4.9/include/opencv/cv.h
 CMakeFiles/Main.dir/Main.cpp.o: /home/kevin/opencv-2.4.9/include/opencv/highgui.h
 CMakeFiles/Main.dir/Main.cpp.o: /home/kevin/opencv-2.4.9/modules/calib3d/include/opencv2/calib3d/calib3d.hpp

@@ -48,10 +48,6 @@ functional
 queue
 -
 
-/home/kevin/ComputerVision/Helper/FileManager.cpp
-FileManager.h
-/home/kevin/ComputerVision/Helper/FileManager.h
-
 /home/kevin/ComputerVision/Helper/FileManager.h
 boost/config/compiler/visualc.hpp
 -
@@ -79,6 +75,8 @@ string
 -
 ../Data/JSONImage.h
 /home/kevin/ComputerVision/Data/JSONImage.h
+../error.h
+/home/kevin/ComputerVision/error.h
 
 /home/kevin/ComputerVision/Main.cpp
 opencv2/core/core.hpp
@@ -93,6 +91,10 @@ stdlib.h
 -
 Helper/FileManager.h
 /home/kevin/ComputerVision/Helper/FileManager.h
+error.h
+/home/kevin/ComputerVision/error.h
+
+/home/kevin/ComputerVision/error.h
 
 /home/kevin/opencv-2.4.9/include/opencv/cv.h
 opencv2/core/core_c.h

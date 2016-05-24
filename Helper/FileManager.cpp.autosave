@@ -154,7 +154,7 @@ vector<JSONImage> FileManager::GetJSONImages(char* path)
 
 vector<JSONImage> FileManager::GetTrainingSet(vector<string> *files)
 {
-
+    
 }
 
 vector<JSONImage> FileManager::GetTestSet(vector<string> *files)

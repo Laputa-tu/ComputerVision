@@ -6,52 +6,36 @@
 #include <stdlib.h>     /* abs */
 
 #include "Helper/FileManager.h"
+#include "error.h"
 
 using namespace std;
 using namespace cv;
 
-
 int main(int argc, char* argv[])
 {
+    char* path = argv[1];
+    vector<JSONImage> trainingSet, validationSet, testSet, json_images;
+    Mat image, rescaled;
+
     // check the number of parameters
     if (argc < 2)
     {
-        cerr << "Usage: " << argv[0] << " <DirectoyOfTrainingImages>" << endl;
-        return 1;
-    }
-
-    // print the directory
-    cout << "Searching in \"" << argv[1] << "\" ..." << endl;
-
-    // search for directory
-    struct stat sb;
-    if(stat(argv[1], &sb) != 0 || !S_ISDIR(sb.st_mode))
-    {
-        cerr << "Error: \"" << argv[1] <<"\" is not a valid directory." << endl;
-        return 1;
-    }
-
-    // search & get files
-    vector<string> files[100];
-    FileManager::GetFilesInDirectory(argv[1], SLOTH_ZEBRA, files);
-
-    cout << "Found the following JSON files: " << endl;
-    for(vector<string>::iterator it = files->begin(); it != files->end(); ++it)
-    {
-        cout << "\tFile: " << *it << endl;
+        cerr << "Usage: " << argv[0] << " <DirTrainingImages> <DirTestImages>" << endl;
+        return WRONG_ARG;
     }
 
     // get images from json
-    vector<JSONImage> json_images = FileManager::GetJSONImages(files);
+    json_images = FileManager::GetJSONImages(path);
+    if(json_images.empty())
+    {
+        cerr << "No training images found." << endl;
+        return DAT_INVAL;
+    }
+
 
     // start training
     Classifier model;
     model.startTraining();
-
-    cout << "Found " << json_images.size() << " labled images in json files:" << endl;
-
-
-    Mat image, hsv, rescaled; 
 
     for(int i=0; i<json_images.size(); i++)
     {
@@ -113,7 +97,7 @@ int main(int argc, char* argv[])
 
         // read image        
         image = imread(json_images.at(i).getPath(), CV_LOAD_IMAGE_COLOR);
-	cout << json_images.at(i).getPath() << endl;
+        cout << json_images.at(i).getPath() << endl;
         if(! image.data ) // Check for invalid input
         {
             cout <<  "Could not open or find the image" << std::endl ;

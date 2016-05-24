@@ -125,6 +125,7 @@ CMakeFiles/Main.dir/Helper/FileManager.cpp.o
  /home/kevin/ComputerVision/HOG/clipper.hpp
  /home/kevin/ComputerVision/Helper/FileManager.cpp
  /home/kevin/ComputerVision/Helper/FileManager.h
+ /home/kevin/ComputerVision/error.h
  /home/kevin/opencv-2.4.9/include/opencv/cv.h
  /home/kevin/opencv-2.4.9/include/opencv/highgui.h
  /home/kevin/opencv-2.4.9/modules/calib3d/include/opencv2/calib3d/calib3d.hpp
@@ -184,6 +185,7 @@ CMakeFiles/Main.dir/Main.cpp.o
  /home/kevin/ComputerVision/HOG/clipper.hpp
  /home/kevin/ComputerVision/Helper/FileManager.h
  /home/kevin/ComputerVision/Main.cpp
+ /home/kevin/ComputerVision/error.h
  /home/kevin/opencv-2.4.9/include/opencv/cv.h
  /home/kevin/opencv-2.4.9/include/opencv/highgui.h
  /home/kevin/opencv-2.4.9/modules/calib3d/include/opencv2/calib3d/calib3d.hpp

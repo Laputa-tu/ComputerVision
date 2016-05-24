@@ -15,7 +15,7 @@
 #include <string>
 
 #include "../Data/JSONImage.h"
-#include "../error.h"
+#include "error.h"
 
 //definitions
 #define SLOTH_ZEBRA "zebra.json"
