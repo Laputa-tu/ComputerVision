@@ -38,22 +38,19 @@ RM = /usr/bin/cmake -E remove -f
 # Escaping for special characters.
 EQUALS = =
 
-# The program to use to edit the cache.
-CMAKE_EDIT_COMMAND = /usr/bin/cmake-gui
-
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/kevin/home/Praktikum_ComputerVision/ComputerVision
+CMAKE_SOURCE_DIR = /home/kevin/ComputerVision
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/kevin/home/Praktikum_ComputerVision/ComputerVision
+CMAKE_BINARY_DIR = /home/kevin/ComputerVision
 
 #=============================================================================
 # Targets provided globally by CMake.
 
 # Special rule for the target edit_cache
 edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
-	/usr/bin/cmake-gui -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running interactive CMake command-line interface..."
+	/usr/bin/cmake -i .
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -72,9 +69,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/kevin/home/Praktikum_ComputerVision/ComputerVision/CMakeFiles /home/kevin/home/Praktikum_ComputerVision/ComputerVision/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/kevin/ComputerVision/CMakeFiles /home/kevin/ComputerVision/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/kevin/home/Praktikum_ComputerVision/ComputerVision/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/kevin/ComputerVision/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -113,6 +110,30 @@ Main: cmake_check_build_system
 Main/fast:
 	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/build
 .PHONY : Main/fast
+
+Data/JSONImage.o: Data/JSONImage.cpp.o
+.PHONY : Data/JSONImage.o
+
+# target to build an object file
+Data/JSONImage.cpp.o:
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/Data/JSONImage.cpp.o
+.PHONY : Data/JSONImage.cpp.o
+
+Data/JSONImage.i: Data/JSONImage.cpp.i
+.PHONY : Data/JSONImage.i
+
+# target to preprocess a source file
+Data/JSONImage.cpp.i:
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/Data/JSONImage.cpp.i
+.PHONY : Data/JSONImage.cpp.i
+
+Data/JSONImage.s: Data/JSONImage.cpp.s
+.PHONY : Data/JSONImage.s
+
+# target to generate assembly for a file
+Data/JSONImage.cpp.s:
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/Data/JSONImage.cpp.s
+.PHONY : Data/JSONImage.cpp.s
 
 HOG/classifier.o: HOG/classifier.cc.o
 .PHONY : HOG/classifier.o
@@ -162,6 +183,30 @@ HOG/clipper.cpp.s:
 	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/HOG/clipper.cpp.s
 .PHONY : HOG/clipper.cpp.s
 
+Helper/FileManager.o: Helper/FileManager.cpp.o
+.PHONY : Helper/FileManager.o
+
+# target to build an object file
+Helper/FileManager.cpp.o:
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/Helper/FileManager.cpp.o
+.PHONY : Helper/FileManager.cpp.o
+
+Helper/FileManager.i: Helper/FileManager.cpp.i
+.PHONY : Helper/FileManager.i
+
+# target to preprocess a source file
+Helper/FileManager.cpp.i:
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/Helper/FileManager.cpp.i
+.PHONY : Helper/FileManager.cpp.i
+
+Helper/FileManager.s: Helper/FileManager.cpp.s
+.PHONY : Helper/FileManager.s
+
+# target to generate assembly for a file
+Helper/FileManager.cpp.s:
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/Helper/FileManager.cpp.s
+.PHONY : Helper/FileManager.cpp.s
+
 Main.o: Main.cpp.o
 .PHONY : Main.o
 
@@ -195,12 +240,18 @@ help:
 	@echo "... Main"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... Data/JSONImage.o"
+	@echo "... Data/JSONImage.i"
+	@echo "... Data/JSONImage.s"
 	@echo "... HOG/classifier.o"
 	@echo "... HOG/classifier.i"
 	@echo "... HOG/classifier.s"
 	@echo "... HOG/clipper.o"
 	@echo "... HOG/clipper.i"
 	@echo "... HOG/clipper.s"
+	@echo "... Helper/FileManager.o"
+	@echo "... Helper/FileManager.i"
+	@echo "... Helper/FileManager.s"
 	@echo "... Main.o"
 	@echo "... Main.i"
 	@echo "... Main.s"

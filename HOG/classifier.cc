@@ -330,13 +330,13 @@ void Classifier::showTaggedOverlapImage(const cv::Mat3b& img, ClipperLib::Path l
 	putText(img_show, s.str(), cv::Point(10, 35), cv::FONT_HERSHEY_DUPLEX, 1.3, cv::Scalar( 0, 0, 255 ), 2, CV_AA);
 
 	//Print information to console
-	cout << "Sliding Window: " << slidingWindow << endl;
-	cout << "Polygon: " << labelPolygon << endl;
+    cout << "Sliding Window: " << slidingWindow << endl;
+    cout << "Polygon: " << labelPolygon << endl;
 
 
 	//show image with shapes
-	cv::imshow("Overlap Image", img_show);
-	cv::waitKey(0);
+    cv::imshow("Overlap Image", img_show);
+    cv::waitKey(0);
 }
 
 

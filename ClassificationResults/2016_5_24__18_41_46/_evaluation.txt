@@ -1,0 +1,8 @@
+True Positives:           3923
+False Positives:          10649
+True Negatives:           42674
+False Negatives:          70
+Classified:               57316
+Accuracy (TP + TN) / All: 0.812984
+Recall    TP / (TP + FN): 0.982469
+Precision TP / (TP + FP): 0.269215
