@@ -20,6 +20,7 @@
 
 #include "HOG/classifier.h"
 #include <time.h>
+#include <stdlib.h>     /* abs */
 
 using namespace std;
 using namespace cv;
@@ -131,7 +132,7 @@ class JSONImage
 
 // more functions
 vector<JSONImage> getJSONImages(vector<string> *);
-
+void eliminateSky(Mat& inputHSV, Mat& outputRGB);
 
 
 int main(int argc, char* argv[])
@@ -172,12 +173,15 @@ int main(int argc, char* argv[])
     model.startTraining();
 
     cout << "Found " << json_images.size() << " labled images in json files:" << endl;
+
+
+    Mat image, hsv, rescaled; 
+
     for(int i=0; i<json_images.size(); i++)
     {
         cout << "\tImage: "<<json_images.at(i).getName() << endl;
 	
-        // read image
-        Mat image, rescaled;
+        // read image        
         image = imread(json_images.at(i).getPath(), CV_LOAD_IMAGE_COLOR);
 
         if(! image.data ) // Check for invalid input
@@ -185,6 +189,13 @@ int main(int argc, char* argv[])
             cout <<  "Could not open or find the image" << std::endl ;
             return -1;
         }
+	
+
+	//eliminate sky
+	cvtColor(image, hsv, CV_BGR2HSV);
+	eliminateSky(hsv, image);
+
+
 
         rescaled = image;
         int scale_n_times = 1;
@@ -231,8 +242,7 @@ int main(int argc, char* argv[])
     {
         cout << "\tImage: "<<json_images.at(i).getName() << endl;
 
-        // read image
-        Mat image, rescaled;
+        // read image        
         image = imread(json_images.at(i).getPath(), CV_LOAD_IMAGE_COLOR);
 	cout << json_images.at(i).getPath() << endl;
         if(! image.data ) // Check for invalid input
@@ -240,6 +250,12 @@ int main(int argc, char* argv[])
             cout <<  "Could not open or find the image" << std::endl ;
             return -1;
         }
+
+
+	//eliminate sky
+	cvtColor(image, hsv, CV_BGR2HSV);
+	eliminateSky(hsv, image);
+
 
         rescaled = image;
         int scale_n_times = 1;
@@ -301,6 +317,48 @@ int main(int argc, char* argv[])
     //slidingWindow << IntPoint(20, 20) << IntPoint(120, 20) << IntPoint(120, 80) << IntPoint(20, 80);
     cv::Rect slidingWindow = cv::Rect(0, 0, 64, 128);
     */
+
+
+void eliminateSky(Mat& inputHSV, Mat& outputRGB)
+{
+	/*for (int row = 0; row < image.rows; ++row) 
+	{
+		for (int col = 0; col < image.cols; ++col) 
+		{			
+			int blue = image.at<Vec3b>(row, col)[0];
+			int green = image.at<Vec3b>(row, col)[1];			
+			int red = image.at<Vec3b>(row, col)[2];
+			//cout << blue << "  " << green << "   " << red << endl;
+	
+			//if (blue > red && blue > green  && abs(red - green) < 5 && abs(green - blue) < 5 && blue > 50 && blue < 230 ) 
+			if (blue > red && blue > green && blue > 50 && blue < 230 ) 
+			{
+				image.at<Vec3b>(row, col)[0] = 0;
+				image.at<Vec3b>(row, col)[1] = 0;			
+				image.at<Vec3b>(row, col)[2] = 255;
+			}
+		}
+	}*/
+	
+	
+	int hue, sat, val;
+	for (int row = 0; row < outputRGB.rows; row++) 
+	{
+		for (int col = 0; col < outputRGB.cols; col++) 
+		{
+			hue = 2 * inputHSV.at<Vec3b>(row, col)[0];
+			sat = inputHSV.at<Vec3b>(row, col)[1];			
+			val = inputHSV.at<Vec3b>(row, col)[2];
+			//if ((sat < 13 && val > 216) || (sat < 25 && val > 204 && hue > 190 && hue < 250) || (sat < 128 && val > 153 && hue > 200 && hue < 230) || (val > 88 && hue > 210 && hue < 220) )
+			if ( (sat < 13 && val > 216) //helle weiße wolken				
+				|| (val > 200 && hue > 170 && hue < 250) ) //blauer himmel	
+			{
+				outputRGB.at<Vec3b>(row, col) = Vec3b(0, 0, 0);
+			}
+		}
+	}
+}
+
 
 
 vector<JSONImage> getJSONImages(vector<string> *files)

@@ -102,7 +102,7 @@ double Classifier::classify(const cv::Mat3b& img, cv::Rect slidingWindow, float 
 
 	//predict Result
 	double result = -svm.predict(descriptor, true);
-	//cout << "Result:              " << result << endl;
+	//cout << "Result:  " << result << endl;
 	
 	if(result > 0) //svm prediction: -1 to +1
 	{
@@ -123,8 +123,8 @@ void Classifier::evaluate(double prediction, ClipperLib::Path labelPolygon, cv::
 {	
 	//calculate Label
 	cv::Mat3b emptyMat;
-	float label = calculateLabel(emptyMat, labelPolygon, slidingWindow, imageScaleFactor, false);
-	
+	float label = calculateLabel(emptyMat, labelPolygon, slidingWindow, imageScaleFactor, false);	
+	//cout << "Desired:  " << label << "    -> Prediction: " << prediction << endl;
 
 	if (prediction > 0.5)
 	{
@@ -248,14 +248,19 @@ void Classifier::generateTaggedResultImage(const cv::Mat3b& img, string imgName,
 	//clone image for drawing shapes
 	cv::Mat3b img_show = img.clone(); 
 
+
+	cv::Mat mask = cv::Mat::zeros(img.rows, img.cols, CV_8U); 
+	cv::Mat segmented;
 	//draw sliding predicted sliding windows
 	for(int i=0; i < predictedSlidingWindows.size(); i++){
-	   rectangle( img_show, predictedSlidingWindows[i], cv::Scalar( 0, 255, 0 ), 2, CV_AA, 0 );
-	}	
-	
+		rectangle( img_show, predictedSlidingWindows[i], cv::Scalar( 0, 255, 0 ), 2, CV_AA, 0 );
+
+		mask(predictedSlidingWindows[i]) += 10;
+		threshold(mask, segmented, 30, 255, cv::THRESH_BINARY);		
+	}
 	if(showResult)
 	{
-		cv::imshow("Tagged Image: " + imgName, img_show);	
+		cv::imshow("Tagged Image: " + imgName, img_show);		
 		cv::waitKey(0);
 	}
 	if(saveResult)
@@ -266,8 +271,18 @@ void Classifier::generateTaggedResultImage(const cv::Mat3b& img, string imgName,
 		dir = ("./ClassificationResults/" + startTime.str()).c_str();
 		mkdir(dir.c_str(), 0777);
 		cv::imwrite( dir + "/" + imgName, img_show );
+		cv::imwrite( dir + "/mask_" + imgName, mask );
 	}
 		
+
+
+
+
+
+
+
+
+
 	// reset sliding window array for next image
 	predictedSlidingWindows.clear();
 }
