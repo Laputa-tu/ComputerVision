@@ -102,7 +102,7 @@ double Classifier::classify(const cv::Mat3b& img, cv::Rect slidingWindow, float 
 
 	//predict Result
 	double result = -svm.predict(descriptor, true);
-	cout << "Result:              " << result << endl;
+	//cout << "Result:              " << result << endl;
 	
 	if(result > 0) //svm prediction: -1 to +1
 	{
