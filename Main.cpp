@@ -8,14 +8,23 @@
 #include "Helper/FileManager.h"
 #include "error.h"
 
+#define OPERATE_TRAIN 1
+#define OPERATE_CLASSIFY 2
+
+int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale_n, float scale_factor,
+                       int w_rows, int w_cols, int step_rows, int step_cols, const int operation);
+
 using namespace std;
 using namespace cv;
 
 int main(int argc, char* argv[])
 {
-    char* path = argv[1];
-    vector<JSONImage> trainingSet, validationSet, testSet, json_images;
     Mat image, rescaled;
+    Classifier model;
+    char* trainingPath = argv[1];
+    char* testPath = argv[2];
+    bool saveResult = true;
+    vector<JSONImage> trainingSet, validationSet, testSet;
 
     // check the number of parameters
     if (argc < 2)
@@ -25,127 +34,116 @@ int main(int argc, char* argv[])
     }
 
     // get images from json
-    json_images = FileManager::GetJSONImages(path);
-    if(json_images.empty())
+    trainingSet = FileManager::GetJSONImages(trainingPath);
+    if(trainingSet.empty())
     {
         cerr << "No training images found." << endl;
         return DAT_INVAL;
     }
 
+    // get images from json
+    testSet = FileManager::GetJSONImages(testPath);
+    if(testSet.empty())
+    {
+        cerr << "No test images found." << endl;
+        return DAT_INVAL;
+    }
 
-    // start training
-    Classifier model;
+    cout << "\nStarting training..." << endl;
     model.startTraining();
 
-    for(int i=0; i<json_images.size(); i++)
+    // training parameters
+    int windows_n_rows = 128;
+    int windows_n_cols = 64;
+    int step_slide_row = windows_n_rows/3;
+    int step_slide_col = windows_n_cols/3;
+    int scale_n_times = 1;
+    float scaling_factor = 1.0;
+
+    //train
+    int res_train = doSlidingOperation(model, trainingSet, scale_n_times, scaling_factor, windows_n_rows,
+                                       windows_n_cols, step_slide_row, step_slide_col, OPERATE_TRAIN);
+    if(res_train != 0)
     {
-        cout << "\tImage: "<<json_images.at(i).getName() << endl;
-	
-        // read image        
-        image = imread(json_images.at(i).getPath(), CV_LOAD_IMAGE_COLOR);
-
-        if(! image.data ) // Check for invalid input
-        {
-            cout <<  "Could not open or find the image" << std::endl ;
-            return -1;
-        }
-
-        rescaled = image;
-        int scale_n_times = 1;
-        float current_scaling = 1;
-        float scaling_factor = 1.0;
-
-        for(int j=0; j<scale_n_times; j++)
-        {
-            current_scaling = current_scaling * scaling_factor;
-            resize(rescaled, rescaled, Size(), scaling_factor, scaling_factor, INTER_CUBIC);
-            cout << "Width: " << rescaled.cols << endl;
-            cout << "Height: " << rescaled.rows << endl;
-
-            // build sliding window
-            int windows_n_rows = 128;
-            int windows_n_cols = 64;
-            int step_slide_row = windows_n_rows/3;
-            int step_slide_col = windows_n_cols/3;
-
-            for(int row = 0; row <= rescaled.rows - windows_n_rows; row += step_slide_row)
-            {
-                for(int col = 0; col <= rescaled.cols - windows_n_cols; col += step_slide_col )
-                {
-                    Rect windows(col, row, windows_n_cols, windows_n_rows);
-                    //Mat Roi = rescaled(windows);
-
-                    //cout << "Pol " << json_images.at(i).getLabelPolygon() << endl;
-                    //train
-		    bool showTaggedImage = false;
-                    model.train(rescaled, json_images.at(i).getLabelPolygon(), windows, current_scaling, showTaggedImage);
-                }
-            }
-        }	
-	bool showResult = false;
-	bool saveResult = true;
-	model.generateTaggedResultImage(image, "t_" + json_images.at(i).getName(), showResult, saveResult);
+        cerr << "Error occured during training, errorcode: " << res_train;
+        return res_train;
     }
 
-    cout << "Finishing Training ..." << endl;
+    cout << "\nFinishing Training ..." << endl;
     model.finishTraining();
 
-    cout << "Found " << json_images.size() << " labled images in json files:" << endl;
-    for(int i=0; i<json_images.size(); i++)
-    {
-        cout << "\tImage: "<<json_images.at(i).getName() << endl;
 
-        // read image        
-        image = imread(json_images.at(i).getPath(), CV_LOAD_IMAGE_COLOR);
-        cout << json_images.at(i).getPath() << endl;
-        if(! image.data ) // Check for invalid input
+    cout << "Classifying..." << endl;
+    int res_class = doSlidingOperation(model, testSet, scale_n_times, scaling_factor, windows_n_rows,
+                                       windows_n_cols, step_slide_row, step_slide_col, OPERATE_CLASSIFY);
+
+    if(res_class != 0)
+    {
+        cerr << "Error occured during classification, errorcode: " << res_class;
+        return res_class;
+    }
+
+    model.printEvaluation(true);
+
+    waitKey(0);
+    return 0;
+}
+
+
+int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale_n, float scale_factor,
+                       int w_rows, int w_cols, int step_rows, int step_cols, const int operation)
+{
+    Mat image, rescaled;
+    string result_tag;
+    float current_scaling;
+    bool showTaggedImage = false;
+    bool showResult = false;
+    bool saveResult = true;
+
+    for(int i=0; i<imageSet.size(); i++)
+    {
+        // read image
+        image = imread(imageSet.at(i).getPath(), CV_LOAD_IMAGE_COLOR);
+        if(!image.data) // Check for invalid input
         {
             cout <<  "Could not open or find the image" << std::endl ;
-            return -1;
+            return IMG_INVAL;
         }
 
         rescaled = image;
-        int scale_n_times = 1;
-        float current_scaling = 1;
-        float scaling_factor = 1.0;
-
-        for(int j=0; j<scale_n_times; j++)
+        current_scaling = 1;
+        for(int j=0; j<scale_n; j++)
         {
-            current_scaling = current_scaling * scaling_factor;
-            resize(rescaled, rescaled, Size(), scaling_factor, scaling_factor, INTER_CUBIC);
-            cout << "Width: " << rescaled.cols << endl;
-            cout << "Height: " << rescaled.rows << endl;
+            current_scaling = current_scaling*scale_factor;
+            resize(rescaled, rescaled, Size(), scale_factor, scale_factor, INTER_CUBIC);
+            cout << "\tImage: "<<imageSet.at(i).getName() << " (" << rescaled.cols << " x "
+                 << rescaled.rows << ", scale " << current_scaling << ")" << endl;
 
             // build sliding window
-            int windows_n_rows = 128;
-            int windows_n_cols = 64;
-            int step_slide_row = windows_n_rows/3;
-            int step_slide_col = windows_n_cols/3;
-
-            for(int row = 0; row <= rescaled.rows - windows_n_rows; row += step_slide_row)
+            for(int row = 0; row <= rescaled.rows - w_rows; row += step_rows)
             {
-                for(int col = 0; col <= rescaled.cols - windows_n_cols; col += step_slide_col )
+                for(int col = 0; col <= rescaled.cols - w_cols; col += step_cols )
                 {
-                    Rect windows(col, row, windows_n_cols, windows_n_rows);
-                    //Mat Roi = rescaled(windows);
+                    Rect windows(col, row, w_cols, w_rows);
 
-                    //cout << json_images.at(i).getLabelPolygon() << endl;
-                    //train
-                    double prediction = model.classify(rescaled, windows, current_scaling);
-                    model.evaluate(prediction, json_images.at(i).getLabelPolygon(), windows, current_scaling);
+                    switch (operation)
+                    {
+                        case OPERATE_TRAIN:
+                            model.train(rescaled, imageSet.at(i).getLabelPolygon(), windows, current_scaling, showTaggedImage);
+                            break;
+                        case OPERATE_CLASSIFY:
+                            double prediction = model.classify(rescaled, windows, current_scaling);
+                            model.evaluate(prediction, imageSet.at(i).getLabelPolygon(), windows, current_scaling);
+                            break;
+                    }
 
-                    //cout << "prediction: " << prediction << endl;
                 }
             }
         }
-	bool showResult = false;
-	bool saveResult = true;
-	model.generateTaggedResultImage(image, "c_" + json_images.at(i).getName(), showResult, saveResult);
+
+        result_tag = (operation == OPERATE_TRAIN) ? "t_" : "c_";
+        model.generateTaggedResultImage(image, result_tag + imageSet.at(i).getName(), showResult, saveResult);
     }
 
-    bool saveResult = true;
-    model.printEvaluation(saveResult);
-
-    waitKey(0);
     return 0;
 }
