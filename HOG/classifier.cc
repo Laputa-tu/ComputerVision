@@ -4,23 +4,37 @@ using namespace std;
 using namespace ClipperLib;
 
 cv::Mat1f descriptors;
-cv::Mat1f responses;	
+cv::Mat1f labels;	
 cv::SVM svm;
 cv::HOGDescriptor hog;
-std::vector<cv::Rect> predictedSlidingWindows;
-ostringstream startTime;
 
+
+std::vector<cv::Rect> predictedSlidingWindows;
+std::vector<float> classificationPredictions;
+std::vector<float> classificationLabels;
+
+ostringstream startTime;
 int cnt_Classified;
 int cnt_TP, cnt_TN, cnt_FP, cnt_FN;
+
+int positiveTrainingWindows, negativeTrainingWindows, discardedTrainingWindows;
+float overlapThreshold, predictionThreshold;
 
 /// Constructor
 Classifier::Classifier()
 {
+	overlapThreshold = 0.5;		// label = Percentage of overlap -> 0 to 1.0
+	predictionThreshold = 0;	// svm prediction: -1 to +1
+
 	cnt_Classified = 0;
 	cnt_TP = 0;
 	cnt_TN = 0; 
 	cnt_FP = 0; 
-	cnt_FN = 0;
+	cnt_FN = 0;	
+
+	positiveTrainingWindows = 0;
+	negativeTrainingWindows = 0;
+	discardedTrainingWindows = 0;
 }
 
 /// Destructor
@@ -42,31 +56,39 @@ void Classifier::startTraining()
 /// @param labelPolygon: a set of points which enwrap the target object
 /// @param slidingWindow: the window section of the image that has to be trained
 void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor, bool showImage)
-{	
-	//set default values manually
-	//ClipperLib::Path labelPolygon;
-	//labelPolygon << IntPoint(0, 0) << IntPoint(70, 0) << IntPoint(100, 60) << IntPoint(70, 100) << IntPoint(0, 50);	
-	//labelPolygon << IntPoint(0, 0) << IntPoint(1000, 0) << IntPoint(1000, 800) << IntPoint(0, 800);
-	//slidingWindow << IntPoint(20, 20) << IntPoint(120, 20) << IntPoint(120, 80) << IntPoint(20, 80);
-	//cv::Rect slidingWindow = cv::Rect(0, 0, 64, 128);
-	
-
+{		
 	//extract slidingWindow out of the image
-    cv::Mat img2 = img(slidingWindow);
+    	cv::Mat img2 = img(slidingWindow);
 
 	//calculate Feature-Descriptor
 	vector<float> vDescriptor;	
 	hog.compute(img2, vDescriptor);	
-    cout << vDescriptor.size() <<endl;
-	cv::Mat1f descriptor(1,vDescriptor.size(),&vDescriptor[0]);    
-	descriptors.push_back(descriptor);
-
+	cv::Mat1f descriptor(1,vDescriptor.size(),&vDescriptor[0]);    	
 	
 	//calculate Label
 	float label = calculateLabel(img, labelPolygon, slidingWindow, imageScaleFactor, showImage);
-	responses.push_back(cv::Mat1f(1,1,label));
 
-	if(label == 1.0)
+
+	// do not train with windows which contain only small parts of the object
+	// Only train if sliding window is either a strong positive or a strong negative
+	if ( label < 0.1 || label > overlapThreshold ) 
+	{		
+		float svmLabel = (label > overlapThreshold) ? 1.0 : 0.0;
+		labels.push_back(cv::Mat1f(1, 1, svmLabel));
+
+		descriptors.push_back(descriptor);
+
+		if(label > overlapThreshold) 
+			positiveTrainingWindows++;
+		else 
+			negativeTrainingWindows++;
+	}
+	else
+	{
+		discardedTrainingWindows++;
+	}
+
+	if(label > overlapThreshold)
 	{
 		cv::Rect r = cv::Rect(slidingWindow.x / imageScaleFactor, 
 				slidingWindow.y / imageScaleFactor, 
@@ -81,7 +103,8 @@ void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Re
 void Classifier::finishTraining()
 {
 	cv::SVMParams params;
-	svm.train( descriptors, responses, cv::Mat(), cv::Mat(), params );
+	svm.train( descriptors, labels, cv::Mat(), cv::Mat(), params );
+	cout << "SVM has been trained" << endl;
 }
 
 
@@ -94,64 +117,72 @@ void Classifier::finishTraining()
 double Classifier::classify(const cv::Mat& img, cv::Rect slidingWindow, float imageScaleFactor)
 {		
 	//extract slidingWindow out of the image
-    cv::Mat img2 = img(slidingWindow);
+    	cv::Mat img2 = img(slidingWindow);
 
 	//calculate Feature-Descriptor
 	vector<float> vDescriptor;
 	hog.compute(img2, vDescriptor);	
-	cv::Mat1f descriptor(1,vDescriptor.size(),&vDescriptor[0]);
+	cv::Mat1f descriptor(1, vDescriptor.size(), &vDescriptor[0]);
 
 	//predict Result
-	double result = -svm.predict(descriptor, true);
-    cout << "Result:  " << result << endl;
+	double prediction = -svm.predict(descriptor, true);
+    	//cout << "Prediction Result:  " << result << endl;
 	
-	if(result > 0) //svm prediction: -1 to +1
+	if(prediction > predictionThreshold) 
 	{
 		cv::Rect r = cv::Rect(slidingWindow.x / imageScaleFactor, 
 				slidingWindow.y / imageScaleFactor, 
 				slidingWindow.width / imageScaleFactor, 
 				slidingWindow.height / imageScaleFactor);
-		predictedSlidingWindows.push_back ( r );	
-		result = 1;
+		predictedSlidingWindows.push_back ( r );
 	}
-	else result = 0;
 
-	return result;
+	return prediction;
 }
 
 
 void Classifier::evaluate(double prediction, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor)
 {	
 	//calculate Label
-    cv::Mat emptyMat;
-	float label = calculateLabel(emptyMat, labelPolygon, slidingWindow, imageScaleFactor, false);	
-	//cout << "Desired:  " << label << "    -> Prediction: " << prediction << endl;
+	cv::Mat emptyMat;
+	float label = calculateLabel(emptyMat, labelPolygon, slidingWindow, imageScaleFactor, false);
+	classificationLabels.push_back ( label );	
+	classificationPredictions.push_back ( prediction );	
 
-	if (prediction > 0.5)
+	if (prediction > predictionThreshold)
 	{
-		if(label > 0.5) cnt_TP += 1;
-		else      	cnt_FP += 1; 
+		if(label > overlapThreshold ) 
+			cnt_TP += 1;
+		else	cnt_FP += 1; 
 	}
 	else
 	{
-		if(label > 0.5) cnt_FN += 1;
-		else     	cnt_TN += 1;
+		if(label > overlapThreshold ) 
+			cnt_FN += 1;
+		else	cnt_TN += 1;
 	}
 	cnt_Classified += 1;
 }
 
 
 void Classifier::printEvaluation(bool saveResult)
-{
-	cout << "True Positives:           " << cnt_TP << endl;
-	cout << "False Positives:          " << cnt_FP << endl;
-	cout << "True Negatives:           " << cnt_TN << endl;
-	cout << "False Negatives:          " << cnt_FN << endl;
-	cout << "Classified:               " << cnt_Classified << endl;	
-	cout << "Accuracy (TP + TN) / All: " << (cnt_TP + cnt_TN) / (1.0 * cnt_Classified) << endl;
-	cout << "Recall    TP / (TP + FN): " << cnt_TP / (1.0 * (cnt_TP + cnt_FN)) << endl;
-	cout << "Precision TP / (TP + FP): " << cnt_TP / (1.0 * (cnt_TP + cnt_FP)) << endl;
-	
+{	
+	cout << "Training:" << endl;
+	cout << " -> positiveTrainingWindows:  " << positiveTrainingWindows << endl;
+	cout << " -> negativeTrainingWindows:  " << negativeTrainingWindows << endl;
+	cout << " -> discardedTrainingWindows: " << discardedTrainingWindows << endl;
+	cout << endl;
+
+	cout << "Classification: " << endl;
+	cout << " -> True Positives:           " << cnt_TP << endl;
+	cout << " -> False Positives:          " << cnt_FP << endl;
+	cout << " -> True Negatives:           " << cnt_TN << endl;
+	cout << " -> False Negatives:          " << cnt_FN << endl;
+	cout << " -> Classified:               " << cnt_Classified << endl;	
+	cout << " -> Accuracy (TP + TN) / All: " << (cnt_TP + cnt_TN) / (1.0 * cnt_Classified) << endl;
+	cout << " -> Recall    TP / (TP + FN): " << cnt_TP / (1.0 * (cnt_TP + cnt_FN)) << endl;
+	cout << " -> Precision TP / (TP + FP): " << cnt_TP / (1.0 * (cnt_TP + cnt_FP)) << endl;
+
 	if(saveResult)
 	{	
 		string dir;
@@ -161,17 +192,113 @@ void Classifier::printEvaluation(bool saveResult)
 		mkdir(dir.c_str(), 0777);
 
 		std::ofstream out( (dir + "/" + "_evaluation.txt").c_str() );
-		out << "True Positives:           " << cnt_TP << endl;
-		out << "False Positives:          " << cnt_FP << endl;
-		out << "True Negatives:           " << cnt_TN << endl;
-		out << "False Negatives:          " << cnt_FN << endl;
-		out << "Classified:               " << cnt_Classified << endl;	
-		out << "Accuracy (TP + TN) / All: " << (cnt_TP + cnt_TN) / (1.0 * cnt_Classified) << endl;
-		out << "Recall    TP / (TP + FN): " << cnt_TP / (1.0 * (cnt_TP + cnt_FN)) << endl;
-		out << "Precision TP / (TP + FP): " << cnt_TP / (1.0 * (cnt_TP + cnt_FP)) << endl;
+		out << "Training:" << endl;
+		out << " -> positiveTrainingWindows:  " << positiveTrainingWindows << endl;
+		out << " -> negativeTrainingWindows:  " << negativeTrainingWindows << endl;
+		out << " -> discardedTrainingWindows: " << discardedTrainingWindows << endl;
+		out << endl;
+
+		out << "Classification: " << endl;
+		out << " -> True Positives:           " << cnt_TP << endl;
+		out << " -> False Positives:          " << cnt_FP << endl;
+		out << " -> True Negatives:           " << cnt_TN << endl;
+		out << " -> False Negatives:          " << cnt_FN << endl;
+		out << " -> Classified:               " << cnt_Classified << endl;	
+		out << " -> Accuracy (TP + TN) / All: " << (cnt_TP + cnt_TN) / (1.0 * cnt_Classified) << endl;
+		out << " -> Recall    TP / (TP + FN): " << cnt_TP / (1.0 * (cnt_TP + cnt_FN)) << endl;
+		out << " -> Precision TP / (TP + FP): " << cnt_TP / (1.0 * (cnt_TP + cnt_FP)) << endl;
+		out << endl << endl << endl;
+
+
+		out << "Classification Results:" << endl;
+		for (unsigned i = 0; i < classificationLabels.size(); i++)
+		{			
+			out << "Desired:        " << (classificationLabels[i] > overlapThreshold)          << "  ( " << classificationLabels[i]        << " )  " << endl;
+			out << " -> Prediction: " << (classificationPredictions[i] > predictionThreshold)  << "  ( " << classificationPredictions[i]   << " )  " << endl;
+		}
 		out.close();
 	}		
 }
+
+
+
+void Classifier::showROC(bool saveROC)
+{
+	cout << endl << endl;
+	cout << "ROC:" << endl;
+
+	int rocSize = 500;
+	int TP, TN, FP, FN;
+	std::ofstream out;
+
+	cv::Mat3b roc(rocSize + 20, rocSize + 20, cv::Vec3b(255,255,255));
+	cv::line(roc, cv::Point2f(10, 10), cv::Point2f(10, rocSize + 10), cv::Scalar(0, 0, 0));
+	cv::line(roc, cv::Point2f(10, rocSize + 10), cv::Point2f(rocSize + 10, rocSize + 10), cv::Scalar(0, 0, 0));
+
+	if(saveROC)
+	{
+		string dir;
+		dir = "./ClassificationResults/";
+		mkdir(dir.c_str(), 0777);
+		dir = ("./ClassificationResults/" + startTime.str()).c_str();
+		mkdir(dir.c_str(), 0777);
+		out.open( (dir + "/" + "_ROC.txt").c_str() );		
+	}
+	
+	for (float rocThreshold = -1.0; rocThreshold <= 1.0; rocThreshold += 0.1)
+	{
+		// reset counter values
+		TP = TN = FP = FN = 0;
+		
+		for (unsigned i = 0; i < classificationLabels.size(); i++)
+		{
+			if (classificationPredictions[i] > rocThreshold)
+			{
+				if(classificationLabels[i] > overlapThreshold ) 
+					TP += 1;
+				else	FP += 1; 
+			}
+			else
+			{
+				if(classificationLabels[i] > overlapThreshold ) 
+					FN += 1;
+				else	TN += 1;
+			}
+		}
+
+		float TP_Rate = TP / (1.0 * TP + FN);
+		float FP_Rate = FP / (1.0 * FP + TN);
+
+		if(saveROC)
+		{
+			
+			out << "ROC Threshold: " << rocThreshold << endl;
+			out << " -> True Positives:           " << TP << endl;
+			out << " -> False Positives:          " << FP << endl;
+			out << " -> True Negatives:           " << TN << endl;
+			out << " -> False Negatives:          " << FN << endl;	
+			out << " -> True Positive Rate    TP / (TP + FN): " << TP_Rate << endl;
+			out << " -> False Positive Rate   FP / (FP + TN): " << FP_Rate << endl;
+			out << endl;
+		}
+				
+		cv::circle(roc, cv::Point2f(rocSize * FP_Rate + 10, rocSize * (1 - TP_Rate) + 10) , 3, cv::Scalar(0, 0, 255), 1.5, CV_AA);
+	}
+
+	// show ROC graphics
+	cv::imshow("ROC", roc);
+
+
+	if(saveROC)
+	{
+		out.close();
+		
+		string dir;
+		dir = ("./ClassificationResults/" + startTime.str()).c_str();
+		cv::imwrite( dir + "/_ROC.jpg", roc );
+	}	
+}
+
 
 
 ClipperLib::Paths Classifier::clipPolygon(ClipperLib::Path labelPolygon, ClipperLib::Path slidingWindow)
@@ -194,15 +321,6 @@ float Classifier::calculateOverlapPercentage(ClipperLib::Paths clippedPolygon, C
 	double area_slidingWindow = Area(slidingWindow);
 	double overlap = area_clippedPolygon / area_slidingWindow;
 
-	if(overlap > 0)
-	{
-		//cout << "Sliding Window:         " << slidingWindow;
-		//cout << "Window-Area:          " << area_slidingWindow << endl;
-		//cout << "Polygon:                " << labelPolygon;		
-		//cout << "Overlap-Area:         " << area_clippedPolygon << endl;
-		//cout << "Overlap-Percentage:     " << overlap << endl;
-	}
-	
 	return (float) overlap;
 }
 
@@ -232,13 +350,9 @@ float Classifier::calculateLabel(const cv::Mat& img, ClipperLib::Path labelPolyg
 		showTaggedOverlapImage(img, labelPolygon, clippedPolygon[0], slidingWindow, overlapPercentage);
 		cout << "Clipped Polygon:    " << clippedPolygon[0];
 		cout << "Overlap-Percentage: " << overlapPercentage << endl << endl;
-	}
+	}	
 
-	//calculate Label
-	float label = 0.0;
-    if (overlapPercentage > 0.5) label = 1.0;
-
-	return label;	
+	return overlapPercentage;	
 }
 
 
@@ -247,13 +361,14 @@ float Classifier::calculateLabel(const cv::Mat& img, ClipperLib::Path labelPolyg
 void Classifier::generateTaggedResultImage(const cv::Mat& img, string imgName, bool showResult, bool saveResult)
 {
 	//clone image for drawing shapes
-    cv::Mat img_show = img.clone();
+	cv::Mat img_show = img.clone();
 
 
 	cv::Mat mask = cv::Mat::zeros(img.rows, img.cols, CV_8U); 
 	cv::Mat segmented;
+
 	//draw sliding predicted sliding windows
-	for(int i=0; i < predictedSlidingWindows.size(); i++){
+	for(int i = 0; i < predictedSlidingWindows.size(); i++){
 		rectangle( img_show, predictedSlidingWindows[i], cv::Scalar( 0, 255, 0 ), 2, CV_AA, 0 );
 
 		mask(predictedSlidingWindows[i]) += 10;
@@ -274,15 +389,6 @@ void Classifier::generateTaggedResultImage(const cv::Mat& img, string imgName, b
 		cv::imwrite( dir + "/" + imgName, img_show );
 		cv::imwrite( dir + "/mask_" + imgName, mask );
 	}
-		
-
-
-
-
-
-
-
-
 
 	// reset sliding window array for next image
 	predictedSlidingWindows.clear();
@@ -294,7 +400,7 @@ void Classifier::generateTaggedResultImage(const cv::Mat& img, string imgName, b
 void Classifier::showTaggedOverlapImage(const cv::Mat& img, ClipperLib::Path labelPolygon, ClipperLib::Path clippedPolygon, cv::Rect slidingWindow, float overlap)
 {
 	//clone image for drawing shapes
-    cv::Mat img_show = img.clone();
+	cv::Mat img_show = img.clone();
 
 
 	//draw labelPolygon
@@ -330,14 +436,15 @@ void Classifier::showTaggedOverlapImage(const cv::Mat& img, ClipperLib::Path lab
 	s << "Overlap: " << (floor(overlap * 10000.0) / 100.0) << " %";
 	putText(img_show, s.str(), cv::Point(10, 35), cv::FONT_HERSHEY_DUPLEX, 1.3, cv::Scalar( 0, 0, 255 ), 2, CV_AA);
 
+
 	//Print information to console
-    cout << "Sliding Window: " << slidingWindow << endl;
-    cout << "Polygon: " << labelPolygon << endl;
+	cout << "Sliding Window: " << slidingWindow << endl;
+	cout << "Polygon: " << labelPolygon << endl;
 
 
 	//show image with shapes
-    cv::imshow("Overlap Image", img_show);
-    cv::waitKey(0);
+	cv::imshow("Overlap Image", img_show);
+	cv::waitKey(0);
 }
 
 
