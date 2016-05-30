@@ -12,6 +12,9 @@
 #define OPERATE_TRAIN 1
 #define OPERATE_CLASSIFY 2
 
+
+int cnt_TrainingImages, cnt_DiscardedTrainingImages;
+
 int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale_n, float scale_factor,
                        float initial_scale, int w_rows, int w_cols, int step_rows, int step_cols, const int operation);
 
@@ -20,6 +23,8 @@ using namespace cv;
 
 int main(int argc, char* argv[])
 {
+    cnt_TrainingImages = 0;
+    cnt_DiscardedTrainingImages = 0;
     Mat image, rescaled;
     Classifier model;
     char* trainingPath = argv[1];
@@ -89,6 +94,10 @@ int main(int argc, char* argv[])
         return res_class;
     }
 
+    cout << endl;
+    cout << "Used Training Images:      " << cnt_TrainingImages << endl;
+    cout << "Discarded Training Images: " << cnt_DiscardedTrainingImages << endl << endl;
+
     model.printEvaluation(true);
     model.showROC(true);
 
@@ -107,19 +116,24 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
     bool showResult = false;
     bool saveResult = true;
     float labelPolygonArea;
-    float slidingWindowArea = w_rows * w_cols;
+    float slidingWindowArea = w_rows * w_cols;    
 
     for(int i=0; i<imageSet.size(); i++)
-    {
+    {	
 	if (operation == OPERATE_TRAIN)
 	{
 		// check size of LabelPolygon area
 		labelPolygonArea = initial_scale * Area(imageSet.at(i).getLabelPolygon());
 		if(labelPolygonArea < 0.5 * slidingWindowArea)
 		{
+			cnt_DiscardedTrainingImages++;
 			cout << "Discarded image due to small polygon area" << endl;
 			cout << " -> Polygon Area: " << labelPolygonArea << "    Sliding Window Area: " << slidingWindowArea << endl;
 			continue; // skip training this image to reduce negative training samples
+		}
+		else
+		{
+			cnt_TrainingImages++;
 		}
 	}
 

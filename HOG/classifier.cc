@@ -90,7 +90,6 @@ void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Re
 		}			
 		else 
 		{
-			cout << 1.0 * rand() / RAND_MAX << endl;
 			if( (1.0 * rand() / RAND_MAX) < 0.2) // is statistically every 5th time true
 			{
 				labels.push_back(cv::Mat1f(1, 1, svmLabel));
