@@ -4,6 +4,7 @@
 
 #include <time.h>
 #include <stdlib.h>     /* abs */
+#include <math.h>       /* pow */
 
 #include "Helper/FileManager.h"
 #include "error.h"
@@ -53,13 +54,17 @@ int main(int argc, char* argv[])
     model.startTraining();
 
     // training parameters
-    int windows_n_rows = 1080*0.125; //128
-    int windows_n_cols = 1000*0.125;
-    int step_slide_row = windows_n_rows/3; //3
-    int step_slide_col = windows_n_cols/3; //3
     int scale_n_times = 3;
     float scaling_factor = 0.75;
     float initial_scale = 0.25;
+    int originalImageHeight = 1080;
+    int windows_n_rows = originalImageHeight * initial_scale * pow(scaling_factor, scale_n_times); //114
+    int windows_n_cols = originalImageHeight * initial_scale * pow(scaling_factor, scale_n_times); //114
+    windows_n_rows = max(windows_n_rows, 128); // if lower than 128, set to 128
+    windows_n_cols = max(windows_n_cols, 128); // if lower than 128, set to 128
+    int step_slide_row = windows_n_rows/5; 
+    int step_slide_col = windows_n_cols/5; 
+	
 
     //train
     int res_train = doSlidingOperation(model, trainingSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
@@ -85,6 +90,7 @@ int main(int argc, char* argv[])
     }
 
     model.printEvaluation(true);
+    model.showROC(true);
 
     waitKey(0);
     return 0;
@@ -100,9 +106,23 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
     bool showTaggedImage = false;
     bool showResult = false;
     bool saveResult = true;
+    float labelPolygonArea;
+    float slidingWindowArea = w_rows * w_cols;
 
     for(int i=0; i<imageSet.size(); i++)
     {
+	if (operation == OPERATE_TRAIN)
+	{
+		// check size of LabelPolygon area
+		labelPolygonArea = initial_scale * Area(imageSet.at(i).getLabelPolygon());
+		if(labelPolygonArea < 0.5 * slidingWindowArea)
+		{
+			cout << "Discarded image due to small polygon area" << endl;
+			cout << " -> Polygon Area: " << labelPolygonArea << "    Sliding Window Area: " << slidingWindowArea << endl;
+			continue; // skip training this image to reduce negative training samples
+		}
+	}
+
         // read image
         image = imread(imageSet.at(i).getPath(), CV_LOAD_IMAGE_GRAYSCALE);
         if(!image.data) // Check for invalid input
@@ -140,8 +160,11 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
                 }
             }
 
-            resize(rescaled, rescaled, Size(), scale_factor, scale_factor, INTER_CUBIC);
-            current_scaling = current_scaling*scale_factor;
+            if(j + 1 < scale_n) // only scale if necessary
+            {
+		    resize(rescaled, rescaled, Size(), scale_factor, scale_factor, INTER_CUBIC);
+		    current_scaling = current_scaling*scale_factor;
+            }
         }
 
         result_tag = (operation == OPERATE_TRAIN) ? "t_" : "c_";

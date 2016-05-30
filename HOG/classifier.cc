@@ -71,31 +71,39 @@ void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Re
 
 	// do not train with windows which contain only small parts of the object
 	// Only train if sliding window is either a strong positive or a strong negative
-	if ( label < 0.1 || label > overlapThreshold ) 
+	if ( label < 0.01 || label > overlapThreshold ) 
 	{		
-		float svmLabel = (label > overlapThreshold) ? 1.0 : 0.0;
-		labels.push_back(cv::Mat1f(1, 1, svmLabel));
-
-		descriptors.push_back(descriptor);
+		float svmLabel = (label > overlapThreshold) ? 1.0 : 0.0;				
 
 		if(label > overlapThreshold) 
-			positiveTrainingWindows++;
-		else 
-			negativeTrainingWindows++;
-	}
-	else
-	{
-		discardedTrainingWindows++;
-	}
+		{
+			labels.push_back(cv::Mat1f(1, 1, svmLabel));
+			descriptors.push_back(descriptor);
 
-	if(label > overlapThreshold)
-	{
-		cv::Rect r = cv::Rect(slidingWindow.x / imageScaleFactor, 
+			cv::Rect r = cv::Rect(slidingWindow.x / imageScaleFactor, 
 				slidingWindow.y / imageScaleFactor, 
 				slidingWindow.width / imageScaleFactor, 
 				slidingWindow.height / imageScaleFactor);
-		predictedSlidingWindows.push_back ( r );
-	}		
+			predictedSlidingWindows.push_back ( r );
+
+			positiveTrainingWindows++;
+		}			
+		else 
+		{
+			cout << 1.0 * rand() / RAND_MAX << endl;
+			if( (1.0 * rand() / RAND_MAX) < 0.2) // is statistically every 5th time true
+			{
+				labels.push_back(cv::Mat1f(1, 1, svmLabel));
+				descriptors.push_back(descriptor); // reduce negative training samples
+
+				negativeTrainingWindows++;
+			}
+			else
+			{
+				discardedTrainingWindows++;
+			}			
+		}			
+	}	
 }
 
 
