@@ -27,17 +27,17 @@ private:
     	//double calculateOverlap(ClipperLib::Path labelPolygon, ClipperLib::Path slidingWindow);
 	ClipperLib::Paths clipPolygon(ClipperLib::Path labelolygon, ClipperLib::Path slidingWindow);
 	float calculateOverlapPercentage(ClipperLib::Paths clippedPolygon, ClipperLib::Path slidingWindow);
-	float calculateLabel(const cv::Mat3b& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor, bool showImage);
-	void showTaggedOverlapImage(const cv::Mat3b& img, ClipperLib::Path labelPolygon, ClipperLib::Path clippedPolygon, cv::Rect slidingWindow, float overlap);
+    float calculateLabel(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor, bool showImage);
+    void showTaggedOverlapImage(const cv::Mat& img, ClipperLib::Path labelPolygon, ClipperLib::Path clippedPolygon, cv::Rect slidingWindow, float overlap);
 public:
     	Classifier();
     	~Classifier();
     	void startTraining();
-    	void train(const cv::Mat3b& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor, bool showImage);
+        void train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor, bool showImage);
     	void finishTraining();
-    	double classify(const cv::Mat3b& img, cv::Rect slidingWindow, float imageScaleFactor);
+        double classify(const cv::Mat& img, cv::Rect slidingWindow, float imageScaleFactor);
 	void evaluate(double prediction, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor);
 	void printEvaluation(bool saveResult);
 	
-	void generateTaggedResultImage(const cv::Mat3b& img, string imgName, bool showResult, bool saveResult);
+    void generateTaggedResultImage(const cv::Mat& img, string imgName, bool showResult, bool saveResult);
 };

@@ -41,7 +41,7 @@ void Classifier::startTraining()
 /// @param img:  input image
 /// @param labelPolygon: a set of points which enwrap the target object
 /// @param slidingWindow: the window section of the image that has to be trained
-void Classifier::train(const cv::Mat3b& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor, bool showImage)
+void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor, bool showImage)
 {	
 	//set default values manually
 	//ClipperLib::Path labelPolygon;
@@ -52,11 +52,12 @@ void Classifier::train(const cv::Mat3b& img, ClipperLib::Path labelPolygon, cv::
 	
 
 	//extract slidingWindow out of the image
-	cv::Mat3b img2 = img(slidingWindow);
+    cv::Mat img2 = img(slidingWindow);
 
 	//calculate Feature-Descriptor
 	vector<float> vDescriptor;	
 	hog.compute(img2, vDescriptor);	
+    cout << vDescriptor.size() <<endl;
 	cv::Mat1f descriptor(1,vDescriptor.size(),&vDescriptor[0]);    
 	descriptors.push_back(descriptor);
 
@@ -90,10 +91,10 @@ void Classifier::finishTraining()
 /// @param img: unknown test image
 /// @param slidingWindow: the window section of the image that has to be classified
 /// @return: probability of having a match for the target object inside the sliding window section
-double Classifier::classify(const cv::Mat3b& img, cv::Rect slidingWindow, float imageScaleFactor)
+double Classifier::classify(const cv::Mat& img, cv::Rect slidingWindow, float imageScaleFactor)
 {		
 	//extract slidingWindow out of the image
-	cv::Mat3b img2 = img(slidingWindow);
+    cv::Mat img2 = img(slidingWindow);
 
 	//calculate Feature-Descriptor
 	vector<float> vDescriptor;
@@ -102,7 +103,7 @@ double Classifier::classify(const cv::Mat3b& img, cv::Rect slidingWindow, float 
 
 	//predict Result
 	double result = -svm.predict(descriptor, true);
-	//cout << "Result:  " << result << endl;
+    cout << "Result:  " << result << endl;
 	
 	if(result > 0) //svm prediction: -1 to +1
 	{
@@ -122,7 +123,7 @@ double Classifier::classify(const cv::Mat3b& img, cv::Rect slidingWindow, float 
 void Classifier::evaluate(double prediction, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor)
 {	
 	//calculate Label
-	cv::Mat3b emptyMat;
+    cv::Mat emptyMat;
 	float label = calculateLabel(emptyMat, labelPolygon, slidingWindow, imageScaleFactor, false);	
 	//cout << "Desired:  " << label << "    -> Prediction: " << prediction << endl;
 
@@ -206,7 +207,7 @@ float Classifier::calculateOverlapPercentage(ClipperLib::Paths clippedPolygon, C
 }
 
 
-float Classifier::calculateLabel(const cv::Mat3b& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor, bool showImage)
+float Classifier::calculateLabel(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor, bool showImage)
 {	
 	//scale labelPolygon
 	int labelPolygonSize = labelPolygon.size();
@@ -235,7 +236,7 @@ float Classifier::calculateLabel(const cv::Mat3b& img, ClipperLib::Path labelPol
 
 	//calculate Label
 	float label = 0.0;
-	if (overlapPercentage > 0.6) label = 1.0;
+    if (overlapPercentage > 0.5) label = 1.0;
 
 	return label;	
 }
@@ -243,10 +244,10 @@ float Classifier::calculateLabel(const cv::Mat3b& img, ClipperLib::Path labelPol
 
 
 // generate Image with markers for ALL Sliding Windows that are labeled/classified  
-void Classifier::generateTaggedResultImage(const cv::Mat3b& img, string imgName, bool showResult, bool saveResult)
+void Classifier::generateTaggedResultImage(const cv::Mat& img, string imgName, bool showResult, bool saveResult)
 {
 	//clone image for drawing shapes
-	cv::Mat3b img_show = img.clone(); 
+    cv::Mat img_show = img.clone();
 
 
 	cv::Mat mask = cv::Mat::zeros(img.rows, img.cols, CV_8U); 
@@ -290,10 +291,10 @@ void Classifier::generateTaggedResultImage(const cv::Mat3b& img, string imgName,
 
 
 // generate Image which shows the clipped polygon and overlap of a single Sliding Window
-void Classifier::showTaggedOverlapImage(const cv::Mat3b& img, ClipperLib::Path labelPolygon, ClipperLib::Path clippedPolygon, cv::Rect slidingWindow, float overlap)
+void Classifier::showTaggedOverlapImage(const cv::Mat& img, ClipperLib::Path labelPolygon, ClipperLib::Path clippedPolygon, cv::Rect slidingWindow, float overlap)
 {
 	//clone image for drawing shapes
-	cv::Mat3b img_show = img.clone(); 	
+    cv::Mat img_show = img.clone();
 
 
 	//draw labelPolygon

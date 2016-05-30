@@ -1,6 +1,6 @@
 #include "FileManager.h"
 
-#define MAX_NUMBER_FILES 5000
+#define MAX_NUMBER_FILES 100000
 
 bool FileManager::IsValidDirectory(char *path)
 {

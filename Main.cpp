@@ -12,7 +12,7 @@
 #define OPERATE_CLASSIFY 2
 
 int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale_n, float scale_factor,
-                       int w_rows, int w_cols, int step_rows, int step_cols, const int operation);
+                       float initial_scale, int w_rows, int w_cols, int step_rows, int step_cols, const int operation);
 
 using namespace std;
 using namespace cv;
@@ -53,16 +53,17 @@ int main(int argc, char* argv[])
     model.startTraining();
 
     // training parameters
-    int windows_n_rows = 128;
-    int windows_n_cols = 64;
-    int step_slide_row = windows_n_rows/3;
-    int step_slide_col = windows_n_cols/3;
-    int scale_n_times = 1;
-    float scaling_factor = 1.0;
+    int windows_n_rows = 1080*0.125; //128
+    int windows_n_cols = 1000*0.125;
+    int step_slide_row = windows_n_rows/3; //3
+    int step_slide_col = windows_n_cols/3; //3
+    int scale_n_times = 3;
+    float scaling_factor = 0.75;
+    float initial_scale = 0.25;
 
     //train
-    int res_train = doSlidingOperation(model, trainingSet, scale_n_times, scaling_factor, windows_n_rows,
-                                       windows_n_cols, step_slide_row, step_slide_col, OPERATE_TRAIN);
+    int res_train = doSlidingOperation(model, trainingSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
+                                        windows_n_cols, step_slide_row, step_slide_col, OPERATE_TRAIN);
     if(res_train != 0)
     {
         cerr << "Error occured during training, errorcode: " << res_train;
@@ -74,7 +75,7 @@ int main(int argc, char* argv[])
 
 
     cout << "Classifying..." << endl;
-    int res_class = doSlidingOperation(model, testSet, scale_n_times, scaling_factor, windows_n_rows,
+    int res_class = doSlidingOperation(model, testSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
                                        windows_n_cols, step_slide_row, step_slide_col, OPERATE_CLASSIFY);
 
     if(res_class != 0)
@@ -91,7 +92,7 @@ int main(int argc, char* argv[])
 
 
 int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale_n, float scale_factor,
-                       int w_rows, int w_cols, int step_rows, int step_cols, const int operation)
+                       float initial_scale, int w_rows, int w_cols, int step_rows, int step_cols, const int operation)
 {
     Mat image, rescaled;
     string result_tag;
@@ -103,7 +104,7 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
     for(int i=0; i<imageSet.size(); i++)
     {
         // read image
-        image = imread(imageSet.at(i).getPath(), CV_LOAD_IMAGE_COLOR);
+        image = imread(imageSet.at(i).getPath(), CV_LOAD_IMAGE_GRAYSCALE);
         if(!image.data) // Check for invalid input
         {
             cout <<  "Could not open or find the image" << std::endl ;
@@ -111,11 +112,10 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
         }
 
         rescaled = image;
-        current_scaling = 1;
+        resize(rescaled, rescaled, Size(), initial_scale, initial_scale, INTER_CUBIC);
+        current_scaling = initial_scale;
         for(int j=0; j<scale_n; j++)
         {
-            current_scaling = current_scaling*scale_factor;
-            resize(rescaled, rescaled, Size(), scale_factor, scale_factor, INTER_CUBIC);
             cout << "\tImage: "<<imageSet.at(i).getName() << " (" << rescaled.cols << " x "
                  << rescaled.rows << ", scale " << current_scaling << ")" << endl;
 
@@ -139,6 +139,9 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
 
                 }
             }
+
+            resize(rescaled, rescaled, Size(), scale_factor, scale_factor, INTER_CUBIC);
+            current_scaling = current_scaling*scale_factor;
         }
 
         result_tag = (operation == OPERATE_TRAIN) ? "t_" : "c_";
