@@ -59,17 +59,20 @@ void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Re
 	//extract slidingWindow out of the image
     cv::Mat img2 = img(slidingWindow);
 
+
 	//calculate Feature-Descriptor
 	vector<float> vDescriptor;	
     hog.compute(img2, vDescriptor);
+
+
     //lbp.compute(img2, vDescriptor);
 
 
-	cv::Mat1f descriptor(1,vDescriptor.size(),&vDescriptor[0]);    	
+    cv::Mat1f descriptor(1,vDescriptor.size(),&vDescriptor[0]);
+
 	
 	//calculate Label
 	float label = calculateLabel(img, labelPolygon, slidingWindow, imageScaleFactor, showImage);
-
 
 	// do not train with windows which contain only small parts of the object
 	// Only train if sliding window is either a strong positive or a strong negative
@@ -105,6 +108,8 @@ void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Re
 			}			
 		}			
     }
+
+    cout << "Descriptors: " << descriptors.size() << endl;
 
     img2.release();
 }

@@ -61,14 +61,14 @@ int main(int argc, char* argv[])
     // training parameters
     int scale_n_times = 3;
     float scaling_factor = 0.75;
-    float initial_scale = 0.5;
+    float initial_scale = 0.25;
     int originalImageHeight = 1080;
     int windows_n_rows = originalImageHeight * initial_scale * pow(scaling_factor, scale_n_times); //114
     int windows_n_cols = originalImageHeight * initial_scale * pow(scaling_factor, scale_n_times); //114
     windows_n_rows = max(windows_n_rows, 128); // if lower than 128, set to 128
     windows_n_cols = max(windows_n_cols, 128); // if lower than 128, set to 128
-    int step_slide_row = windows_n_rows/5; 
-    int step_slide_col = windows_n_cols/5; 
+    int step_slide_row = windows_n_rows/3;
+    int step_slide_col = windows_n_cols/3;
 
     //train
     int res_train = doSlidingOperation(model, trainingSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
@@ -151,6 +151,9 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
         current_scaling = initial_scale;
         for(int j=0; j<scale_n; j++)
         {
+            imshow("rescaled", rescaled);
+            waitKey(0);
+
             cout << "\tImage: "<<imageSet.at(i).getName() << " (" << rescaled.cols << " x "
                  << rescaled.rows << ", scale " << current_scaling << ")" << endl;
 
@@ -175,8 +178,9 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
                 }
             }
 
+
             if(j + 1 < scale_n) // only scale if necessary
-            {
+            {                
                 rescaled.release();
                 current_scaling = current_scaling*scale_factor;
                 resize(image, rescaled, Size(), current_scaling, current_scaling, INTER_CUBIC);
