@@ -57,11 +57,14 @@ void Classifier::startTraining()
 void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor, bool showImage)
 {		
 	//extract slidingWindow out of the image
-    	cv::Mat img2 = img(slidingWindow);
+    cv::Mat img2 = img(slidingWindow);
 
 	//calculate Feature-Descriptor
 	vector<float> vDescriptor;	
-	hog.compute(img2, vDescriptor);	
+    hog.compute(img2, vDescriptor);
+    //lbp.compute(img2, vDescriptor);
+
+
 	cv::Mat1f descriptor(1,vDescriptor.size(),&vDescriptor[0]);    	
 	
 	//calculate Label
@@ -101,7 +104,9 @@ void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Re
 				discardedTrainingWindows++;
 			}			
 		}			
-	}	
+    }
+
+    img2.release();
 }
 
 

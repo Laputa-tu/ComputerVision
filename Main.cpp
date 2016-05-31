@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
     // training parameters
     int scale_n_times = 3;
     float scaling_factor = 0.75;
-    float initial_scale = 0.25;
+    float initial_scale = 0.5;
     int originalImageHeight = 1080;
     int windows_n_rows = originalImageHeight * initial_scale * pow(scaling_factor, scale_n_times); //114
     int windows_n_cols = originalImageHeight * initial_scale * pow(scaling_factor, scale_n_times); //114
@@ -69,7 +69,6 @@ int main(int argc, char* argv[])
     windows_n_cols = max(windows_n_cols, 128); // if lower than 128, set to 128
     int step_slide_row = windows_n_rows/5; 
     int step_slide_col = windows_n_cols/5; 
-	
 
     //train
     int res_train = doSlidingOperation(model, trainingSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
@@ -109,7 +108,7 @@ int main(int argc, char* argv[])
 int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale_n, float scale_factor,
                        float initial_scale, int w_rows, int w_cols, int step_rows, int step_cols, const int operation)
 {
-    Mat image, rescaled;
+    Mat image, rescaled, rescaled2;
     string result_tag;
     float current_scaling;
     bool showTaggedImage = false;
@@ -120,22 +119,22 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
 
     for(int i=0; i<imageSet.size(); i++)
     {	
-	if (operation == OPERATE_TRAIN)
-	{
-		// check size of LabelPolygon area
-		labelPolygonArea = initial_scale * Area(imageSet.at(i).getLabelPolygon());
-        if(abs(labelPolygonArea) < 0.5 * slidingWindowArea)
-		{
-			cnt_DiscardedTrainingImages++;
-			cout << "Discarded image due to small polygon area" << endl;
-			cout << " -> Polygon Area: " << labelPolygonArea << "    Sliding Window Area: " << slidingWindowArea << endl;
-			continue; // skip training this image to reduce negative training samples
-		}
-		else
-		{
-			cnt_TrainingImages++;
-		}
-	}
+        if (operation == OPERATE_TRAIN)
+        {
+            // check size of LabelPolygon area
+            labelPolygonArea = initial_scale * Area(imageSet.at(i).getLabelPolygon());
+            if(abs(labelPolygonArea) < 0.5 * slidingWindowArea)
+            {
+                cnt_DiscardedTrainingImages++;
+                cout << "Discarded image due to small polygon area" << endl;
+                cout << " -> Polygon Area: " << labelPolygonArea << "    Sliding Window Area: " << slidingWindowArea << endl;
+                continue; // skip training this image to reduce negative training samples
+            }
+            else
+            {
+                cnt_TrainingImages++;
+            }
+        }
 
         // read image
         image = imread(imageSet.at(i).getPath(), CV_LOAD_IMAGE_GRAYSCALE);
@@ -144,6 +143,8 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
             cout <<  "Could not open or find the image" << std::endl ;
             return IMG_INVAL;
         }
+
+        //imshow("Image", image);
 
         rescaled = image;
         resize(rescaled, rescaled, Size(), initial_scale, initial_scale, INTER_CUBIC);
@@ -176,13 +177,18 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
 
             if(j + 1 < scale_n) // only scale if necessary
             {
-		    resize(rescaled, rescaled, Size(), scale_factor, scale_factor, INTER_CUBIC);
-		    current_scaling = current_scaling*scale_factor;
+                rescaled.release();
+                current_scaling = current_scaling*scale_factor;
+                resize(image, rescaled, Size(), current_scaling, current_scaling, INTER_CUBIC);
             }
+
+
         }
 
         result_tag = (operation == OPERATE_TRAIN) ? "t_" : "c_";
         model.generateTaggedResultImage(image, result_tag + imageSet.at(i).getName(), showResult, saveResult);
+        rescaled.release();
+        image.release();
     }
 
     return 0;

@@ -17,7 +17,19 @@ void LBP::getDescriptor(vector<float>& dst)
 
 void LBP::compute(Mat& img, vector<float>& dst)
 {
+    Mat lbp;
+    int width = img.cols;
+    int height = img.rows;
 
+    cout << "LBP: Sliding window size is " << width << " x " << height << endl;
+
+    // calculate lbp
+    ELBP_<uchar>(img, lbp, 2, 16);
+
+    namedWindow("Display window", WINDOW_AUTOSIZE);
+    imshow("Display window", lbp);
+
+    waitKey(0);
 }
 
 template <typename _Tp>
