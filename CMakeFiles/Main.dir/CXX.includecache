@@ -6,11 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/kevin/ComputerVision/Data/JSONImage.h
-../HOG/classifier.h
-/home/kevin/ComputerVision/HOG/classifier.h
-
-/home/kevin/ComputerVision/HOG/classifier.h
+/home/kevin/ComputerVision/Classifier/classifier.h
 opencv/cv.h
 -
 opencv/highgui.h
@@ -18,7 +14,9 @@ opencv/highgui.h
 opencv2/ml/ml.hpp
 -
 clipper.hpp
-/home/kevin/ComputerVision/HOG/clipper.hpp
+/home/kevin/ComputerVision/Classifier/clipper.hpp
+../LBP/LBP.h
+/home/kevin/ComputerVision/LBP/LBP.h
 memory
 -
 string
@@ -30,7 +28,7 @@ sys/stat.h
 fstream
 -
 
-/home/kevin/ComputerVision/HOG/clipper.hpp
+/home/kevin/ComputerVision/Classifier/clipper.hpp
 vector
 -
 set
@@ -47,6 +45,14 @@ functional
 -
 queue
 -
+
+/home/kevin/ComputerVision/Data/JSONImage.cpp
+JSONImage.h
+/home/kevin/ComputerVision/Data/JSONImage.h
+
+/home/kevin/ComputerVision/Data/JSONImage.h
+../Classifier/classifier.h
+/home/kevin/ComputerVision/Classifier/classifier.h
 
 /home/kevin/ComputerVision/Helper/FileManager.cpp
 FileManager.h
@@ -82,6 +88,14 @@ string
 ../error.h
 /home/kevin/ComputerVision/error.h
 
+/home/kevin/ComputerVision/LBP/LBP.h
+opencv2/core/core.hpp
+-
+opencv2/highgui/highgui.hpp
+-
+opencv2/imgproc/imgproc.hpp
+-
+
 /home/kevin/ComputerVision/Main.cpp
 opencv2/core/core.hpp
 -
@@ -92,6 +106,8 @@ opencv2/imgproc/imgproc.hpp
 time.h
 -
 stdlib.h
+-
+math.h
 -
 Helper/FileManager.h
 /home/kevin/ComputerVision/Helper/FileManager.h

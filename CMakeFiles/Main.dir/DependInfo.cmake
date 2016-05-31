@@ -4,10 +4,11 @@ SET(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 SET(CMAKE_DEPENDS_CHECK_CXX
+  "/home/kevin/ComputerVision/Classifier/classifier.cc" "/home/kevin/ComputerVision/CMakeFiles/Main.dir/Classifier/classifier.cc.o"
+  "/home/kevin/ComputerVision/Classifier/clipper.cpp" "/home/kevin/ComputerVision/CMakeFiles/Main.dir/Classifier/clipper.cpp.o"
   "/home/kevin/ComputerVision/Data/JSONImage.cpp" "/home/kevin/ComputerVision/CMakeFiles/Main.dir/Data/JSONImage.cpp.o"
-  "/home/kevin/ComputerVision/HOG/classifier.cc" "/home/kevin/ComputerVision/CMakeFiles/Main.dir/HOG/classifier.cc.o"
-  "/home/kevin/ComputerVision/HOG/clipper.cpp" "/home/kevin/ComputerVision/CMakeFiles/Main.dir/HOG/clipper.cpp.o"
   "/home/kevin/ComputerVision/Helper/FileManager.cpp" "/home/kevin/ComputerVision/CMakeFiles/Main.dir/Helper/FileManager.cpp.o"
+  "/home/kevin/ComputerVision/LBP/LBP.cpp" "/home/kevin/ComputerVision/CMakeFiles/Main.dir/LBP/LBP.cpp.o"
   "/home/kevin/ComputerVision/Main.cpp" "/home/kevin/ComputerVision/CMakeFiles/Main.dir/Main.cpp.o"
   )
 SET(CMAKE_CXX_COMPILER_ID "GNU")

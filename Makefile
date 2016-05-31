@@ -111,6 +111,54 @@ Main/fast:
 	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/build
 .PHONY : Main/fast
 
+Classifier/classifier.o: Classifier/classifier.cc.o
+.PHONY : Classifier/classifier.o
+
+# target to build an object file
+Classifier/classifier.cc.o:
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/Classifier/classifier.cc.o
+.PHONY : Classifier/classifier.cc.o
+
+Classifier/classifier.i: Classifier/classifier.cc.i
+.PHONY : Classifier/classifier.i
+
+# target to preprocess a source file
+Classifier/classifier.cc.i:
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/Classifier/classifier.cc.i
+.PHONY : Classifier/classifier.cc.i
+
+Classifier/classifier.s: Classifier/classifier.cc.s
+.PHONY : Classifier/classifier.s
+
+# target to generate assembly for a file
+Classifier/classifier.cc.s:
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/Classifier/classifier.cc.s
+.PHONY : Classifier/classifier.cc.s
+
+Classifier/clipper.o: Classifier/clipper.cpp.o
+.PHONY : Classifier/clipper.o
+
+# target to build an object file
+Classifier/clipper.cpp.o:
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/Classifier/clipper.cpp.o
+.PHONY : Classifier/clipper.cpp.o
+
+Classifier/clipper.i: Classifier/clipper.cpp.i
+.PHONY : Classifier/clipper.i
+
+# target to preprocess a source file
+Classifier/clipper.cpp.i:
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/Classifier/clipper.cpp.i
+.PHONY : Classifier/clipper.cpp.i
+
+Classifier/clipper.s: Classifier/clipper.cpp.s
+.PHONY : Classifier/clipper.s
+
+# target to generate assembly for a file
+Classifier/clipper.cpp.s:
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/Classifier/clipper.cpp.s
+.PHONY : Classifier/clipper.cpp.s
+
 Data/JSONImage.o: Data/JSONImage.cpp.o
 .PHONY : Data/JSONImage.o
 
@@ -135,54 +183,6 @@ Data/JSONImage.cpp.s:
 	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/Data/JSONImage.cpp.s
 .PHONY : Data/JSONImage.cpp.s
 
-HOG/classifier.o: HOG/classifier.cc.o
-.PHONY : HOG/classifier.o
-
-# target to build an object file
-HOG/classifier.cc.o:
-	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/HOG/classifier.cc.o
-.PHONY : HOG/classifier.cc.o
-
-HOG/classifier.i: HOG/classifier.cc.i
-.PHONY : HOG/classifier.i
-
-# target to preprocess a source file
-HOG/classifier.cc.i:
-	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/HOG/classifier.cc.i
-.PHONY : HOG/classifier.cc.i
-
-HOG/classifier.s: HOG/classifier.cc.s
-.PHONY : HOG/classifier.s
-
-# target to generate assembly for a file
-HOG/classifier.cc.s:
-	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/HOG/classifier.cc.s
-.PHONY : HOG/classifier.cc.s
-
-HOG/clipper.o: HOG/clipper.cpp.o
-.PHONY : HOG/clipper.o
-
-# target to build an object file
-HOG/clipper.cpp.o:
-	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/HOG/clipper.cpp.o
-.PHONY : HOG/clipper.cpp.o
-
-HOG/clipper.i: HOG/clipper.cpp.i
-.PHONY : HOG/clipper.i
-
-# target to preprocess a source file
-HOG/clipper.cpp.i:
-	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/HOG/clipper.cpp.i
-.PHONY : HOG/clipper.cpp.i
-
-HOG/clipper.s: HOG/clipper.cpp.s
-.PHONY : HOG/clipper.s
-
-# target to generate assembly for a file
-HOG/clipper.cpp.s:
-	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/HOG/clipper.cpp.s
-.PHONY : HOG/clipper.cpp.s
-
 Helper/FileManager.o: Helper/FileManager.cpp.o
 .PHONY : Helper/FileManager.o
 
@@ -206,6 +206,30 @@ Helper/FileManager.s: Helper/FileManager.cpp.s
 Helper/FileManager.cpp.s:
 	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/Helper/FileManager.cpp.s
 .PHONY : Helper/FileManager.cpp.s
+
+LBP/LBP.o: LBP/LBP.cpp.o
+.PHONY : LBP/LBP.o
+
+# target to build an object file
+LBP/LBP.cpp.o:
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/LBP/LBP.cpp.o
+.PHONY : LBP/LBP.cpp.o
+
+LBP/LBP.i: LBP/LBP.cpp.i
+.PHONY : LBP/LBP.i
+
+# target to preprocess a source file
+LBP/LBP.cpp.i:
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/LBP/LBP.cpp.i
+.PHONY : LBP/LBP.cpp.i
+
+LBP/LBP.s: LBP/LBP.cpp.s
+.PHONY : LBP/LBP.s
+
+# target to generate assembly for a file
+LBP/LBP.cpp.s:
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/LBP/LBP.cpp.s
+.PHONY : LBP/LBP.cpp.s
 
 Main.o: Main.cpp.o
 .PHONY : Main.o
@@ -240,18 +264,21 @@ help:
 	@echo "... Main"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... Classifier/classifier.o"
+	@echo "... Classifier/classifier.i"
+	@echo "... Classifier/classifier.s"
+	@echo "... Classifier/clipper.o"
+	@echo "... Classifier/clipper.i"
+	@echo "... Classifier/clipper.s"
 	@echo "... Data/JSONImage.o"
 	@echo "... Data/JSONImage.i"
 	@echo "... Data/JSONImage.s"
-	@echo "... HOG/classifier.o"
-	@echo "... HOG/classifier.i"
-	@echo "... HOG/classifier.s"
-	@echo "... HOG/clipper.o"
-	@echo "... HOG/clipper.i"
-	@echo "... HOG/clipper.s"
 	@echo "... Helper/FileManager.o"
 	@echo "... Helper/FileManager.i"
 	@echo "... Helper/FileManager.s"
+	@echo "... LBP/LBP.o"
+	@echo "... LBP/LBP.i"
+	@echo "... LBP/LBP.s"
 	@echo "... Main.o"
 	@echo "... Main.i"
 	@echo "... Main.s"

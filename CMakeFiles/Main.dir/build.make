@@ -72,51 +72,51 @@ CMakeFiles/Main.dir/Main.cpp.o.provides: CMakeFiles/Main.dir/Main.cpp.o.requires
 
 CMakeFiles/Main.dir/Main.cpp.o.provides.build: CMakeFiles/Main.dir/Main.cpp.o
 
-CMakeFiles/Main.dir/HOG/classifier.cc.o: CMakeFiles/Main.dir/flags.make
-CMakeFiles/Main.dir/HOG/classifier.cc.o: HOG/classifier.cc
+CMakeFiles/Main.dir/Classifier/classifier.cc.o: CMakeFiles/Main.dir/flags.make
+CMakeFiles/Main.dir/Classifier/classifier.cc.o: Classifier/classifier.cc
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/kevin/ComputerVision/CMakeFiles $(CMAKE_PROGRESS_2)
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/Main.dir/HOG/classifier.cc.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/Main.dir/HOG/classifier.cc.o -c /home/kevin/ComputerVision/HOG/classifier.cc
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/Main.dir/Classifier/classifier.cc.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/Main.dir/Classifier/classifier.cc.o -c /home/kevin/ComputerVision/Classifier/classifier.cc
 
-CMakeFiles/Main.dir/HOG/classifier.cc.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Main.dir/HOG/classifier.cc.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/kevin/ComputerVision/HOG/classifier.cc > CMakeFiles/Main.dir/HOG/classifier.cc.i
+CMakeFiles/Main.dir/Classifier/classifier.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Main.dir/Classifier/classifier.cc.i"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/kevin/ComputerVision/Classifier/classifier.cc > CMakeFiles/Main.dir/Classifier/classifier.cc.i
 
-CMakeFiles/Main.dir/HOG/classifier.cc.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Main.dir/HOG/classifier.cc.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/kevin/ComputerVision/HOG/classifier.cc -o CMakeFiles/Main.dir/HOG/classifier.cc.s
+CMakeFiles/Main.dir/Classifier/classifier.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Main.dir/Classifier/classifier.cc.s"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/kevin/ComputerVision/Classifier/classifier.cc -o CMakeFiles/Main.dir/Classifier/classifier.cc.s
 
-CMakeFiles/Main.dir/HOG/classifier.cc.o.requires:
-.PHONY : CMakeFiles/Main.dir/HOG/classifier.cc.o.requires
+CMakeFiles/Main.dir/Classifier/classifier.cc.o.requires:
+.PHONY : CMakeFiles/Main.dir/Classifier/classifier.cc.o.requires
 
-CMakeFiles/Main.dir/HOG/classifier.cc.o.provides: CMakeFiles/Main.dir/HOG/classifier.cc.o.requires
-	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/HOG/classifier.cc.o.provides.build
-.PHONY : CMakeFiles/Main.dir/HOG/classifier.cc.o.provides
+CMakeFiles/Main.dir/Classifier/classifier.cc.o.provides: CMakeFiles/Main.dir/Classifier/classifier.cc.o.requires
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/Classifier/classifier.cc.o.provides.build
+.PHONY : CMakeFiles/Main.dir/Classifier/classifier.cc.o.provides
 
-CMakeFiles/Main.dir/HOG/classifier.cc.o.provides.build: CMakeFiles/Main.dir/HOG/classifier.cc.o
+CMakeFiles/Main.dir/Classifier/classifier.cc.o.provides.build: CMakeFiles/Main.dir/Classifier/classifier.cc.o
 
-CMakeFiles/Main.dir/HOG/clipper.cpp.o: CMakeFiles/Main.dir/flags.make
-CMakeFiles/Main.dir/HOG/clipper.cpp.o: HOG/clipper.cpp
+CMakeFiles/Main.dir/Classifier/clipper.cpp.o: CMakeFiles/Main.dir/flags.make
+CMakeFiles/Main.dir/Classifier/clipper.cpp.o: Classifier/clipper.cpp
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/kevin/ComputerVision/CMakeFiles $(CMAKE_PROGRESS_3)
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/Main.dir/HOG/clipper.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/Main.dir/HOG/clipper.cpp.o -c /home/kevin/ComputerVision/HOG/clipper.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/Main.dir/Classifier/clipper.cpp.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/Main.dir/Classifier/clipper.cpp.o -c /home/kevin/ComputerVision/Classifier/clipper.cpp
 
-CMakeFiles/Main.dir/HOG/clipper.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Main.dir/HOG/clipper.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/kevin/ComputerVision/HOG/clipper.cpp > CMakeFiles/Main.dir/HOG/clipper.cpp.i
+CMakeFiles/Main.dir/Classifier/clipper.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Main.dir/Classifier/clipper.cpp.i"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/kevin/ComputerVision/Classifier/clipper.cpp > CMakeFiles/Main.dir/Classifier/clipper.cpp.i
 
-CMakeFiles/Main.dir/HOG/clipper.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Main.dir/HOG/clipper.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/kevin/ComputerVision/HOG/clipper.cpp -o CMakeFiles/Main.dir/HOG/clipper.cpp.s
+CMakeFiles/Main.dir/Classifier/clipper.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Main.dir/Classifier/clipper.cpp.s"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/kevin/ComputerVision/Classifier/clipper.cpp -o CMakeFiles/Main.dir/Classifier/clipper.cpp.s
 
-CMakeFiles/Main.dir/HOG/clipper.cpp.o.requires:
-.PHONY : CMakeFiles/Main.dir/HOG/clipper.cpp.o.requires
+CMakeFiles/Main.dir/Classifier/clipper.cpp.o.requires:
+.PHONY : CMakeFiles/Main.dir/Classifier/clipper.cpp.o.requires
 
-CMakeFiles/Main.dir/HOG/clipper.cpp.o.provides: CMakeFiles/Main.dir/HOG/clipper.cpp.o.requires
-	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/HOG/clipper.cpp.o.provides.build
-.PHONY : CMakeFiles/Main.dir/HOG/clipper.cpp.o.provides
+CMakeFiles/Main.dir/Classifier/clipper.cpp.o.provides: CMakeFiles/Main.dir/Classifier/clipper.cpp.o.requires
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/Classifier/clipper.cpp.o.provides.build
+.PHONY : CMakeFiles/Main.dir/Classifier/clipper.cpp.o.provides
 
-CMakeFiles/Main.dir/HOG/clipper.cpp.o.provides.build: CMakeFiles/Main.dir/HOG/clipper.cpp.o
+CMakeFiles/Main.dir/Classifier/clipper.cpp.o.provides.build: CMakeFiles/Main.dir/Classifier/clipper.cpp.o
 
 CMakeFiles/Main.dir/Data/JSONImage.cpp.o: CMakeFiles/Main.dir/flags.make
 CMakeFiles/Main.dir/Data/JSONImage.cpp.o: Data/JSONImage.cpp
@@ -164,22 +164,47 @@ CMakeFiles/Main.dir/Helper/FileManager.cpp.o.provides: CMakeFiles/Main.dir/Helpe
 
 CMakeFiles/Main.dir/Helper/FileManager.cpp.o.provides.build: CMakeFiles/Main.dir/Helper/FileManager.cpp.o
 
+CMakeFiles/Main.dir/LBP/LBP.cpp.o: CMakeFiles/Main.dir/flags.make
+CMakeFiles/Main.dir/LBP/LBP.cpp.o: LBP/LBP.cpp
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/kevin/ComputerVision/CMakeFiles $(CMAKE_PROGRESS_6)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/Main.dir/LBP/LBP.cpp.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/Main.dir/LBP/LBP.cpp.o -c /home/kevin/ComputerVision/LBP/LBP.cpp
+
+CMakeFiles/Main.dir/LBP/LBP.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Main.dir/LBP/LBP.cpp.i"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/kevin/ComputerVision/LBP/LBP.cpp > CMakeFiles/Main.dir/LBP/LBP.cpp.i
+
+CMakeFiles/Main.dir/LBP/LBP.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Main.dir/LBP/LBP.cpp.s"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/kevin/ComputerVision/LBP/LBP.cpp -o CMakeFiles/Main.dir/LBP/LBP.cpp.s
+
+CMakeFiles/Main.dir/LBP/LBP.cpp.o.requires:
+.PHONY : CMakeFiles/Main.dir/LBP/LBP.cpp.o.requires
+
+CMakeFiles/Main.dir/LBP/LBP.cpp.o.provides: CMakeFiles/Main.dir/LBP/LBP.cpp.o.requires
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/LBP/LBP.cpp.o.provides.build
+.PHONY : CMakeFiles/Main.dir/LBP/LBP.cpp.o.provides
+
+CMakeFiles/Main.dir/LBP/LBP.cpp.o.provides.build: CMakeFiles/Main.dir/LBP/LBP.cpp.o
+
 # Object files for target Main
 Main_OBJECTS = \
 "CMakeFiles/Main.dir/Main.cpp.o" \
-"CMakeFiles/Main.dir/HOG/classifier.cc.o" \
-"CMakeFiles/Main.dir/HOG/clipper.cpp.o" \
+"CMakeFiles/Main.dir/Classifier/classifier.cc.o" \
+"CMakeFiles/Main.dir/Classifier/clipper.cpp.o" \
 "CMakeFiles/Main.dir/Data/JSONImage.cpp.o" \
-"CMakeFiles/Main.dir/Helper/FileManager.cpp.o"
+"CMakeFiles/Main.dir/Helper/FileManager.cpp.o" \
+"CMakeFiles/Main.dir/LBP/LBP.cpp.o"
 
 # External object files for target Main
 Main_EXTERNAL_OBJECTS =
 
 Main: CMakeFiles/Main.dir/Main.cpp.o
-Main: CMakeFiles/Main.dir/HOG/classifier.cc.o
-Main: CMakeFiles/Main.dir/HOG/clipper.cpp.o
+Main: CMakeFiles/Main.dir/Classifier/classifier.cc.o
+Main: CMakeFiles/Main.dir/Classifier/clipper.cpp.o
 Main: CMakeFiles/Main.dir/Data/JSONImage.cpp.o
 Main: CMakeFiles/Main.dir/Helper/FileManager.cpp.o
+Main: CMakeFiles/Main.dir/LBP/LBP.cpp.o
 Main: CMakeFiles/Main.dir/build.make
 Main: /home/kevin/opencv-2.4.9/lib/libopencv_videostab.so.2.4.9
 Main: /home/kevin/opencv-2.4.9/lib/libopencv_video.so.2.4.9
@@ -223,10 +248,11 @@ CMakeFiles/Main.dir/build: Main
 .PHONY : CMakeFiles/Main.dir/build
 
 CMakeFiles/Main.dir/requires: CMakeFiles/Main.dir/Main.cpp.o.requires
-CMakeFiles/Main.dir/requires: CMakeFiles/Main.dir/HOG/classifier.cc.o.requires
-CMakeFiles/Main.dir/requires: CMakeFiles/Main.dir/HOG/clipper.cpp.o.requires
+CMakeFiles/Main.dir/requires: CMakeFiles/Main.dir/Classifier/classifier.cc.o.requires
+CMakeFiles/Main.dir/requires: CMakeFiles/Main.dir/Classifier/clipper.cpp.o.requires
 CMakeFiles/Main.dir/requires: CMakeFiles/Main.dir/Data/JSONImage.cpp.o.requires
 CMakeFiles/Main.dir/requires: CMakeFiles/Main.dir/Helper/FileManager.cpp.o.requires
+CMakeFiles/Main.dir/requires: CMakeFiles/Main.dir/LBP/LBP.cpp.o.requires
 .PHONY : CMakeFiles/Main.dir/requires
 
 CMakeFiles/Main.dir/clean:

@@ -1,4 +1,4 @@
-#include "../Classifier/classifier.h"
+#include "../HOG/classifier.h"
 
 class JSONImage
 {

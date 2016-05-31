@@ -8,7 +8,6 @@ cv::Mat1f labels;
 cv::SVM svm;
 cv::HOGDescriptor hog;
 
-
 std::vector<cv::Rect> predictedSlidingWindows;
 std::vector<float> classificationPredictions;
 std::vector<float> classificationLabels;

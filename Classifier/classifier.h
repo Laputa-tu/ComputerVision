@@ -5,6 +5,7 @@
 #include <opencv/highgui.h>
 #include <opencv2/ml/ml.hpp>
 #include "clipper.hpp"
+#include "../LBP/LBP.h"
 
 #include <memory>
 #include <string>
@@ -22,6 +23,7 @@ private:
 	cv::Mat1f responses;	
 	cv::SVM svm;
 	cv::HOGDescriptor hog;
+	LBP lbp;
 	std::vector<cv::Rect> predictedSlidingWindows;
 
     	//double calculateOverlap(ClipperLib::Path labelPolygon, ClipperLib::Path slidingWindow);

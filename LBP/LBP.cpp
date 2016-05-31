@@ -1,13 +1,27 @@
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <iostream>
+#include "LBP.h"
 
-using namespace cv;
-using namespace std;
+LBP::LBP()
+{
+
+}
+
+LBP::~LBP()
+{
+
+}
+
+void LBP::getDescriptor(vector<float>& dst)
+{
+
+}
+
+void LBP::compute(Mat& img, vector<float>& dst)
+{
+
+}
 
 template <typename _Tp>
-void ELBP_(const Mat& src, Mat& dst, int radius, int neighbors)
+void LBP::ELBP_(const Mat& src, Mat& dst, int radius, int neighbors)
 {
     neighbors = max(min(neighbors,31),1); // set bounds...
     // Note: alternatively you can switch to the new OpenCV Mat_
@@ -43,6 +57,8 @@ void ELBP_(const Mat& src, Mat& dst, int radius, int neighbors)
     }
 }
 
+/*
+
 int main()
 {
     Mat image, gray, lbp;
@@ -70,4 +86,4 @@ int main()
     waitKey(0);
     return 0;
 
-}
+}*/

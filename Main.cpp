@@ -124,7 +124,7 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
 	{
 		// check size of LabelPolygon area
 		labelPolygonArea = initial_scale * Area(imageSet.at(i).getLabelPolygon());
-		if(labelPolygonArea < 0.5 * slidingWindowArea)
+        if(abs(labelPolygonArea) < 0.5 * slidingWindowArea)
 		{
 			cnt_DiscardedTrainingImages++;
 			cout << "Discarded image due to small polygon area" << endl;
