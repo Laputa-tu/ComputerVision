@@ -3,22 +3,6 @@
 using namespace std;
 using namespace ClipperLib;
 
-cv::Mat1f descriptors;
-cv::Mat1f labels;	
-cv::SVM svm;
-cv::HOGDescriptor hog;
-
-std::vector<cv::Rect> predictedSlidingWindows;
-std::vector<float> classificationPredictions;
-std::vector<float> classificationLabels;
-
-ostringstream startTime;
-int cnt_Classified;
-int cnt_TP, cnt_TN, cnt_FP, cnt_FN;
-
-int positiveTrainingWindows, negativeTrainingWindows, discardedTrainingWindows;
-float overlapThreshold, predictionThreshold;
-
 /// Constructor
 Classifier::Classifier()
 {
@@ -78,7 +62,7 @@ void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Re
 	// Only train if sliding window is either a strong positive or a strong negative
 	if ( label < 0.01 || label > overlapThreshold ) 
 	{		
-		float svmLabel = (label > overlapThreshold) ? 1.0 : 0.0;				
+        float svmLabel = (label > overlapThreshold) ? 1.0 : -1.0;
 
 		if(label > overlapThreshold) 
 		{
@@ -111,6 +95,10 @@ void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Re
 
     cout << "Descriptors: " << descriptors.size() << endl;
 
+    //svm.train( descriptors, labels, cv::Mat(), cv::Mat(), params );
+    //descriptors.release();
+    //labels.release();
+
     img2.release();
 }
 
@@ -118,9 +106,14 @@ void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Re
 /// Finish the training. This finalizes the model. Do not call train() afterwards anymore.
 void Classifier::finishTraining()
 {
-	cv::SVMParams params;
-	svm.train( descriptors, labels, cv::Mat(), cv::Mat(), params );
-	cout << "SVM has been trained" << endl;
+    cv::SVMParams params;
+    params.svm_type    = CvSVM::C_SVC;
+    params.kernel_type = CvSVM::LINEAR;
+    params.term_crit   = cvTermCriteria(CV_TERMCRIT_ITER, 100, 1e-6);
+
+
+    svm.train( descriptors, labels, cv::Mat(), cv::Mat(), params );
+    cout << "SVM has been trained" << endl;
 }
 
 
@@ -142,7 +135,7 @@ double Classifier::classify(const cv::Mat& img, cv::Rect slidingWindow, float im
 
 	//predict Result
 	double prediction = -svm.predict(descriptor, true);
-    	//cout << "Prediction Result:  " << result << endl;
+    cout << "Prediction Result:  " << prediction << "( ? > " << predictionThreshold << ")" << endl;
 	
 	if(prediction > predictionThreshold) 
 	{

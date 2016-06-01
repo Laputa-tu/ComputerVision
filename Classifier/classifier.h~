@@ -23,6 +23,7 @@ private:
 	cv::Mat1f responses;	
 	cv::SVM svm;
 	cv::HOGDescriptor hog;
+	LBP lbp;
 	std::vector<cv::Rect> predictedSlidingWindows;
 
     	//double calculateOverlap(ClipperLib::Path labelPolygon, ClipperLib::Path slidingWindow);

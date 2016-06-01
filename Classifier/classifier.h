@@ -20,11 +20,24 @@ class Classifier {
     
 private:
 	cv::Mat1f descriptors;
+	cv::Mat1f labels;
 	cv::Mat1f responses;	
 	cv::SVM svm;
 	cv::HOGDescriptor hog;
+	cv::SVMParams params;
+
 	LBP lbp;
+	
 	std::vector<cv::Rect> predictedSlidingWindows;
+	std::vector<float> classificationPredictions;
+	std::vector<float> classificationLabels;
+
+	ostringstream startTime;
+	int cnt_Classified;
+	int cnt_TP, cnt_TN, cnt_FP, cnt_FN;
+
+	int positiveTrainingWindows, negativeTrainingWindows, discardedTrainingWindows;
+	float overlapThreshold, predictionThreshold;
 
     	//double calculateOverlap(ClipperLib::Path labelPolygon, ClipperLib::Path slidingWindow);
 	ClipperLib::Paths clipPolygon(ClipperLib::Path labelolygon, ClipperLib::Path slidingWindow);
