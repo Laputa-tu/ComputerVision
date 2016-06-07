@@ -9,7 +9,7 @@ using namespace ClipperLib;
 Classifier::Classifier()
 {
 	overlapThreshold = 0.5;		// label = Percentage of overlap -> 0 to 1.0
-    predictionThreshold = 0.2;	// svm prediction: -1 to +1
+	predictionThreshold = 0.2;	// svm prediction: -1 to +1
 
 	cnt_Classified = 0;
 	cnt_TP = 0;
@@ -20,6 +20,10 @@ Classifier::Classifier()
 	positiveTrainingWindows = 0;
 	negativeTrainingWindows = 0;
 	discardedTrainingWindows = 0;	
+	
+	svmParams.svm_type    = CvSVM::C_SVC;
+	svmParams.kernel_type = CvSVM::LINEAR;
+	svmParams.term_crit   = cvTermCriteria(CV_TERMCRIT_ITER, 100, 1e-6);
 }
 
 /// Destructor
@@ -43,20 +47,14 @@ void Classifier::startTraining()
 void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor, bool showImage)
 {		
 	//extract slidingWindow out of the image
-    cv::Mat img2 = img(slidingWindow);
-
+	cv::Mat img2 = img(slidingWindow);
 
 	//calculate Feature-Descriptor
 	vector<float> vDescriptor;	
-    hog.compute(img2, vDescriptor);
+	hog.compute(img2, vDescriptor);
+	cv::Mat1f descriptor(1,vDescriptor.size(),&vDescriptor[0]);
+	//lbp.compute(img2, vDescriptor);
 
-
-    //lbp.compute(img2, vDescriptor);
-
-
-    cv::Mat1f descriptor(1,vDescriptor.size(),&vDescriptor[0]);
-
-	
 	//calculate Label
 	float label = calculateLabel(img, labelPolygon, slidingWindow, imageScaleFactor, showImage);
 
@@ -64,7 +62,7 @@ void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Re
 	// Only train if sliding window is either a strong positive or a strong negative
 	if ( label < 0.01 || label > overlapThreshold ) 
 	{		
-        float svmLabel = (label > overlapThreshold) ? 1.0 : -1.0;
+		float svmLabel = (label > overlapThreshold) ? 1.0 : -1.0;
 
 		if(label > overlapThreshold) 
 		{
@@ -94,11 +92,7 @@ void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Re
 			}			
 		}			
     }
-
-    //svm.train( descriptors, labels, cv::Mat(), cv::Mat(), params );
-    //descriptors.release();
-    //labels.release();
-
+    
     img2.release();
 }
 
@@ -106,14 +100,36 @@ void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Re
 /// Finish the training. This finalizes the model. Do not call train() afterwards anymore.
 void Classifier::finishTraining()
 {
-	cv::SVMParams params;
-	params.svm_type    = CvSVM::C_SVC;
-	params.kernel_type = CvSVM::LINEAR;
-	params.term_crit   = cvTermCriteria(CV_TERMCRIT_ITER, 100, 1e-6);
-
-	shuffleTrainingData(descriptors, labels);
-	svm.train( descriptors, labels, cv::Mat(), cv::Mat(), params );
+	//shuffleTrainingData(descriptors, labels);
+	svm.train( descriptors, labels, cv::Mat(), cv::Mat(), svmParams );
 	cout << "SVM has been trained" << endl;
+}
+
+void Classifier::hardNegativeMine(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor)
+{
+	//extract slidingWindow out of the image
+    	cv::Mat img2 = img(slidingWindow);
+
+	//calculate Feature-Descriptor
+	vector<float> vDescriptor;
+	hog.compute(img2, vDescriptor);	
+	cv::Mat1f descriptor(1, vDescriptor.size(), &vDescriptor[0]);
+
+	//predict Result
+	double prediction = -svm.predict(descriptor, true);
+	
+	if(prediction < predictionThreshold) //classified as positive
+	{
+		//calculate Label
+		float label = calculateLabel(img, labelPolygon, slidingWindow, imageScaleFactor, false);
+
+		if ( label < 0.01 ) // classified as positive but no overlap with labelPolygon -> false Positive (hard Negative)
+		{		
+			float svmLabel = 0.0;
+			svm.train( descriptor, cv::Mat1f(1, 1, svmLabel), cv::Mat(), cv::Mat(), svmParams );
+		}
+
+	}
 }
 
 
@@ -135,7 +151,7 @@ double Classifier::classify(const cv::Mat& img, cv::Rect slidingWindow, float im
 
 	//predict Result
 	double prediction = -svm.predict(descriptor, true);
-    //cout << "Prediction Result:  " << prediction << "( ? > " << predictionThreshold << ")" << endl;
+	//cout << "Prediction Result:  " << prediction << "( ? > " << predictionThreshold << ")" << endl;
 	
 	if(prediction > predictionThreshold) 
 	{
@@ -147,46 +163,6 @@ double Classifier::classify(const cv::Mat& img, cv::Rect slidingWindow, float im
 	}
 
 	return prediction;
-}
-
-
-void Classifier::shuffleTrainingData(cv::Mat1f  predictionsMatrix, cv::Mat1f labelsMatrix)
-{
-	//std::vector<int> vector1, vector2;
-	//for (int i=1; i<10; ++i) vector1.push_back(i); // 1 2 3 4 5 6 7 8 9
-	//for (int i=1; i<10; ++i) vector2.push_back(i+10); // 1 2 3 4 5 6 7 8 9
-
-	std::vector <Mat1f> predictions, labels;
-	for (int row = 0; row < predictionsMatrix.rows; row++)
-	{
-		predictions.push_back(predictionsMatrix.row(row));
-		labels.push_back(labelsMatrix.row(row));
-	}
-
-	unsigned seed = unsigned ( std::time(0) );
-	std::srand ( seed );
-	//std::random_shuffle ( vector1.begin(), vector1.end() );
-	std::random_shuffle ( predictions.begin(), predictions.end() );
-
-	std::srand ( seed );
-	//std::random_shuffle ( vector2.begin(), vector2.end() );
-	std::random_shuffle ( labels.begin(), labels.end() );
-
-	for (int row = 0; row < predictionsMatrix.rows; row++)
-	{
-		predictionsMatrix.row(row) = predictions[row];
-		labelsMatrix.row(row) = labels[row];
-	}
-	
-
-	/*std::cout << "myvector contains:";
-	for (std::vector<int>::iterator it=vector1.begin(); it!=vector1.end(); ++it)
-	std::cout << ' ' << *it;
-	cout << endl;
-	std::cout << "myvector contains:";
-	for (std::vector<int>::iterator it=vector2.begin(); it!=vector2.end(); ++it)
-	std::cout << ' ' << *it;
-	cout << endl;*/
 }
 
 void Classifier::evaluate(double prediction, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor)
@@ -268,7 +244,30 @@ void Classifier::printEvaluation(bool saveResult)
 	}		
 }
 
+void Classifier::shuffleTrainingData(cv::Mat1f  predictionsMatrix, cv::Mat1f labelsMatrix)
+{
+	std::vector <Mat1f> predictions, labels;
+	for (int row = 0; row < predictionsMatrix.rows; row++)
+	{
+		predictions.push_back(predictionsMatrix.row(row));
+		labels.push_back(labelsMatrix.row(row));
+	}
 
+	unsigned seed = unsigned ( std::time(0) );
+	std::srand ( seed );
+	//std::random_shuffle ( vector1.begin(), vector1.end() );
+	std::random_shuffle ( predictions.begin(), predictions.end() );
+
+	std::srand ( seed );
+	//std::random_shuffle ( vector2.begin(), vector2.end() );
+	std::random_shuffle ( labels.begin(), labels.end() );
+
+	for (int row = 0; row < predictionsMatrix.rows; row++)
+	{
+		predictionsMatrix.row(row) = predictions[row];
+		labelsMatrix.row(row) = labels[row];
+	}
+}
 
 void Classifier::showROC(bool saveROC)
 {

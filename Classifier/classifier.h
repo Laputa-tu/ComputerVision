@@ -28,7 +28,7 @@ private:
 	cv::Mat1f responses;	
 	cv::SVM svm;
 	cv::HOGDescriptor hog;
-	cv::SVMParams params;
+	cv::SVMParams svmParams;
 
 	LBP lbp;
 	
@@ -55,6 +55,7 @@ public:
     	void startTraining();
         void train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor, bool showImage);
     	void finishTraining();
+	void hardNegativeMine(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor);
         double classify(const cv::Mat& img, cv::Rect slidingWindow, float imageScaleFactor);
 	void evaluate(double prediction, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor);
 	void printEvaluation(bool saveResult);
