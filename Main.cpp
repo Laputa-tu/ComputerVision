@@ -68,12 +68,9 @@ int main(int argc, char* argv[])
         }
     }
 
-
-
     // shuffle all images
     FileManager::ShuffleImages(trainingSet);
     FileManager::ShuffleImages(validationSet);
-
 
     cout << "\nStarting training..." << endl;
     model.startTraining();
@@ -182,16 +179,33 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
         rescaled = image;
         resize(rescaled, rescaled, Size(), initial_scale, initial_scale, INTER_CUBIC);
         current_scaling = initial_scale;
+        bool reached_row_end = false;
+        bool reached_col_end = false;
+
         for(int j=0; j<scale_n; j++)
         {
             cout << "\tImage: "<<imageSet.at(i).getName() << " (" << rescaled.cols << " x "
                  << rescaled.rows << ", scale " << current_scaling << ")" << endl;
 
             // build sliding window
-            for(int row = 0; row <= rescaled.rows - w_rows; row += step_rows)
+            for(int row = 0; row <= rescaled.rows; row += step_rows)
             {
-                for(int col = 0; col <= rescaled.cols - w_cols; col += step_cols )
+                // check end of rows
+                reached_row_end = (rescaled.rows - (row + w_rows) <= 0) ? true : false;
+                if(reached_row_end)
                 {
+                    row = rescaled.rows - w_rows;
+                }
+
+                for(int col = 0; col <= rescaled.cols; col += step_cols )
+                {
+                    // check end of cols
+                    reached_col_end = (rescaled.cols - (col + w_cols) <= 0) ? true : false;
+                    if(reached_col_end)
+                    {
+                        col = rescaled.cols - w_cols;
+                    }
+
                     Rect windows(col, row, w_cols, w_rows);
 
                     switch (operation)
@@ -207,6 +221,19 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
                             model.evaluate(prediction, imageSet.at(i).getLabelPolygon(), windows, current_scaling);
                             break;
                     }
+
+
+                    if(reached_col_end)
+                    {
+                        //finish
+                        break;
+                    }
+                }
+
+                if(reached_row_end)
+                {
+                    //finish
+                    break;
                 }
             }
 
