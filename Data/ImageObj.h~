@@ -1,0 +1,12 @@
+using namespace std;
+
+class ImageObj
+{
+    private:
+        string name, path;
+    protected:
+        void setName(string name);
+        string getName();
+        void setPath(string path);
+        string getPath();
+};

@@ -159,6 +159,30 @@ Classifier/clipper.cpp.s:
 	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/Classifier/clipper.cpp.s
 .PHONY : Classifier/clipper.cpp.s
 
+Data/ImageObj.o: Data/ImageObj.cpp.o
+.PHONY : Data/ImageObj.o
+
+# target to build an object file
+Data/ImageObj.cpp.o:
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/Data/ImageObj.cpp.o
+.PHONY : Data/ImageObj.cpp.o
+
+Data/ImageObj.i: Data/ImageObj.cpp.i
+.PHONY : Data/ImageObj.i
+
+# target to preprocess a source file
+Data/ImageObj.cpp.i:
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/Data/ImageObj.cpp.i
+.PHONY : Data/ImageObj.cpp.i
+
+Data/ImageObj.s: Data/ImageObj.cpp.s
+.PHONY : Data/ImageObj.s
+
+# target to generate assembly for a file
+Data/ImageObj.cpp.s:
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/Data/ImageObj.cpp.s
+.PHONY : Data/ImageObj.cpp.s
+
 Data/JSONImage.o: Data/JSONImage.cpp.o
 .PHONY : Data/JSONImage.o
 
@@ -270,6 +294,9 @@ help:
 	@echo "... Classifier/clipper.o"
 	@echo "... Classifier/clipper.i"
 	@echo "... Classifier/clipper.s"
+	@echo "... Data/ImageObj.o"
+	@echo "... Data/ImageObj.i"
+	@echo "... Data/ImageObj.s"
 	@echo "... Data/JSONImage.o"
 	@echo "... Data/JSONImage.i"
 	@echo "... Data/JSONImage.s"

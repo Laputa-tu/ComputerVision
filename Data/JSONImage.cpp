@@ -1,17 +1,5 @@
 #include "JSONImage.h"
 
-using namespace std;
-
-
-JSONImage::JSONImage(void)
-{
-
-}
-
-JSONImage::~JSONImage(void)
-{
-}
-
 void JSONImage::setXn(string xn_string)
 {
     this->xn = StringToVector(xn_string);
@@ -52,24 +40,6 @@ void JSONImage::printYn()
     }
 
     cout << endl;
-}
-
-void JSONImage::setName(string name)
-{
-    this->name = name;
-}
-string JSONImage::getName()
-{
-    return this->name;
-}
-
-void JSONImage::setPath(string path)
-{
-    this->path = path;
-}
-string JSONImage::getPath()
-{
-    return this->path;
 }
 
 bool JSONImage::hasPolygon()

@@ -7,7 +7,7 @@ using namespace ClipperLib;
 Classifier::Classifier()
 {
 	overlapThreshold = 0.5;		// label = Percentage of overlap -> 0 to 1.0
-	predictionThreshold = 0;	// svm prediction: -1 to +1
+    predictionThreshold = 0.2;	// svm prediction: -1 to +1
 
 	cnt_Classified = 0;
 	cnt_TP = 0;
@@ -93,8 +93,6 @@ void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Re
 		}			
     }
 
-    cout << "Descriptors: " << descriptors.size() << endl;
-
     //svm.train( descriptors, labels, cv::Mat(), cv::Mat(), params );
     //descriptors.release();
     //labels.release();
@@ -135,7 +133,7 @@ double Classifier::classify(const cv::Mat& img, cv::Rect slidingWindow, float im
 
 	//predict Result
 	double prediction = -svm.predict(descriptor, true);
-    cout << "Prediction Result:  " << prediction << "( ? > " << predictionThreshold << ")" << endl;
+    //cout << "Prediction Result:  " << prediction << "( ? > " << predictionThreshold << ")" << endl;
 	
 	if(prediction > predictionThreshold) 
 	{

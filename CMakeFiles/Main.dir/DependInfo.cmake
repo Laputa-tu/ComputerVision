@@ -6,6 +6,7 @@ SET(CMAKE_DEPENDS_LANGUAGES
 SET(CMAKE_DEPENDS_CHECK_CXX
   "/home/kevin/ComputerVision/Classifier/classifier.cc" "/home/kevin/ComputerVision/CMakeFiles/Main.dir/Classifier/classifier.cc.o"
   "/home/kevin/ComputerVision/Classifier/clipper.cpp" "/home/kevin/ComputerVision/CMakeFiles/Main.dir/Classifier/clipper.cpp.o"
+  "/home/kevin/ComputerVision/Data/ImageObj.cpp" "/home/kevin/ComputerVision/CMakeFiles/Main.dir/Data/ImageObj.cpp.o"
   "/home/kevin/ComputerVision/Data/JSONImage.cpp" "/home/kevin/ComputerVision/CMakeFiles/Main.dir/Data/JSONImage.cpp.o"
   "/home/kevin/ComputerVision/Helper/FileManager.cpp" "/home/kevin/ComputerVision/CMakeFiles/Main.dir/Helper/FileManager.cpp.o"
   "/home/kevin/ComputerVision/LBP/LBP.cpp" "/home/kevin/ComputerVision/CMakeFiles/Main.dir/LBP/LBP.cpp.o"

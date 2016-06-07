@@ -11,6 +11,7 @@
 
 #define OPERATE_TRAIN 1
 #define OPERATE_CLASSIFY 2
+#define OPERATE_VALIDATE 3
 
 
 int cnt_TrainingImages, cnt_DiscardedTrainingImages;
@@ -28,14 +29,15 @@ int main(int argc, char* argv[])
     Mat image, rescaled;
     Classifier model;
     char* trainingPath = argv[1];
-    char* testPath = argv[2];
+    char* validationPath = argv[2];
+    char* testPath = argv[3];
     bool saveResult = true;
     vector<JSONImage> trainingSet, validationSet, testSet;
 
     // check the number of parameters
     if (argc < 2)
     {
-        cerr << "Usage: " << argv[0] << " <DirTrainingImages> <DirTestImages>" << endl;
+        cerr << "Usage: " << argv[0] << " <DirTrainingImages> <DirValidationImages> <DirTestImages>" << endl;
         return WRONG_ARG;
     }
 
@@ -48,12 +50,21 @@ int main(int argc, char* argv[])
     }
 
     // get images from json
-    testSet = FileManager::GetJSONImages(testPath);
+    validationSet = FileManager::GetJSONImages(validationPath);
+    if(validationSet.empty())
+    {
+        cerr << "No validation images found." << endl;
+        return DAT_INVAL;
+    }
+
+    // get images from json
+    testSet = FileManager::GetImages(testPath);
     if(testSet.empty())
     {
         cerr << "No test images found." << endl;
         return DAT_INVAL;
     }
+
 
     cout << "\nStarting training..." << endl;
     model.startTraining();
@@ -82,15 +93,26 @@ int main(int argc, char* argv[])
     cout << "\nFinishing Training ..." << endl;
     model.finishTraining();
 
+    // validate
+    cout << "Running Validation..." << endl;
+    int res_val = doSlidingOperation(model, validationSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
+                                       windows_n_cols, step_slide_row, step_slide_col, OPERATE_VALIDATE);
 
-    cout << "Classifying..." << endl;
-    int res_class = doSlidingOperation(model, testSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
+    if(res_val != 0)
+    {
+        cerr << "Error occured during validation, errorcode: " << res_val;
+        return res_val;
+    }
+
+
+    cout << "Classifying TestSet..." << endl;
+    int res_test = doSlidingOperation(model, testSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
                                        windows_n_cols, step_slide_row, step_slide_col, OPERATE_CLASSIFY);
 
-    if(res_class != 0)
+    if(res_test != 0)
     {
-        cerr << "Error occured during classification, errorcode: " << res_class;
-        return res_class;
+        cerr << "Error occured during test, errorcode: " << res_test;
+        return res_test;
     }
 
     cout << endl;
@@ -151,9 +173,6 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
         current_scaling = initial_scale;
         for(int j=0; j<scale_n; j++)
         {
-            //imshow("rescaled", rescaled);
-            //waitKey(0);
-
             cout << "\tImage: "<<imageSet.at(i).getName() << " (" << rescaled.cols << " x "
                  << rescaled.rows << ", scale " << current_scaling << ")" << endl;
 
@@ -170,11 +189,13 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
                             model.train(rescaled, imageSet.at(i).getLabelPolygon(), windows, current_scaling, showTaggedImage);
                             break;
                         case OPERATE_CLASSIFY:
+                            model.classify(rescaled, windows, current_scaling);
+                            break;
+                        case OPERATE_VALIDATE:
                             double prediction = model.classify(rescaled, windows, current_scaling);
                             model.evaluate(prediction, imageSet.at(i).getLabelPolygon(), windows, current_scaling);
                             break;
                     }
-
                 }
             }
 
@@ -189,7 +210,13 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
 
         }
 
-        result_tag = (operation == OPERATE_TRAIN) ? "t_" : "c_";
+        switch(operation)
+        {
+            case OPERATE_TRAIN: result_tag = "t_"; break;
+            case OPERATE_CLASSIFY: result_tag = "c_"; break;
+            case OPERATE_VALIDATE: result_tag = "v_"; break;
+        }
+
         model.generateTaggedResultImage(image, result_tag + imageSet.at(i).getName(), showResult, saveResult);
         rescaled.release();
         image.release();

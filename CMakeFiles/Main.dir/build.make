@@ -118,9 +118,32 @@ CMakeFiles/Main.dir/Classifier/clipper.cpp.o.provides: CMakeFiles/Main.dir/Class
 
 CMakeFiles/Main.dir/Classifier/clipper.cpp.o.provides.build: CMakeFiles/Main.dir/Classifier/clipper.cpp.o
 
+CMakeFiles/Main.dir/Data/ImageObj.cpp.o: CMakeFiles/Main.dir/flags.make
+CMakeFiles/Main.dir/Data/ImageObj.cpp.o: Data/ImageObj.cpp
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/kevin/ComputerVision/CMakeFiles $(CMAKE_PROGRESS_4)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/Main.dir/Data/ImageObj.cpp.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/Main.dir/Data/ImageObj.cpp.o -c /home/kevin/ComputerVision/Data/ImageObj.cpp
+
+CMakeFiles/Main.dir/Data/ImageObj.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Main.dir/Data/ImageObj.cpp.i"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/kevin/ComputerVision/Data/ImageObj.cpp > CMakeFiles/Main.dir/Data/ImageObj.cpp.i
+
+CMakeFiles/Main.dir/Data/ImageObj.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Main.dir/Data/ImageObj.cpp.s"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/kevin/ComputerVision/Data/ImageObj.cpp -o CMakeFiles/Main.dir/Data/ImageObj.cpp.s
+
+CMakeFiles/Main.dir/Data/ImageObj.cpp.o.requires:
+.PHONY : CMakeFiles/Main.dir/Data/ImageObj.cpp.o.requires
+
+CMakeFiles/Main.dir/Data/ImageObj.cpp.o.provides: CMakeFiles/Main.dir/Data/ImageObj.cpp.o.requires
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/Data/ImageObj.cpp.o.provides.build
+.PHONY : CMakeFiles/Main.dir/Data/ImageObj.cpp.o.provides
+
+CMakeFiles/Main.dir/Data/ImageObj.cpp.o.provides.build: CMakeFiles/Main.dir/Data/ImageObj.cpp.o
+
 CMakeFiles/Main.dir/Data/JSONImage.cpp.o: CMakeFiles/Main.dir/flags.make
 CMakeFiles/Main.dir/Data/JSONImage.cpp.o: Data/JSONImage.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/kevin/ComputerVision/CMakeFiles $(CMAKE_PROGRESS_4)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/kevin/ComputerVision/CMakeFiles $(CMAKE_PROGRESS_5)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/Main.dir/Data/JSONImage.cpp.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/Main.dir/Data/JSONImage.cpp.o -c /home/kevin/ComputerVision/Data/JSONImage.cpp
 
@@ -143,7 +166,7 @@ CMakeFiles/Main.dir/Data/JSONImage.cpp.o.provides.build: CMakeFiles/Main.dir/Dat
 
 CMakeFiles/Main.dir/Helper/FileManager.cpp.o: CMakeFiles/Main.dir/flags.make
 CMakeFiles/Main.dir/Helper/FileManager.cpp.o: Helper/FileManager.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/kevin/ComputerVision/CMakeFiles $(CMAKE_PROGRESS_5)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/kevin/ComputerVision/CMakeFiles $(CMAKE_PROGRESS_6)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/Main.dir/Helper/FileManager.cpp.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/Main.dir/Helper/FileManager.cpp.o -c /home/kevin/ComputerVision/Helper/FileManager.cpp
 
@@ -166,7 +189,7 @@ CMakeFiles/Main.dir/Helper/FileManager.cpp.o.provides.build: CMakeFiles/Main.dir
 
 CMakeFiles/Main.dir/LBP/LBP.cpp.o: CMakeFiles/Main.dir/flags.make
 CMakeFiles/Main.dir/LBP/LBP.cpp.o: LBP/LBP.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/kevin/ComputerVision/CMakeFiles $(CMAKE_PROGRESS_6)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/kevin/ComputerVision/CMakeFiles $(CMAKE_PROGRESS_7)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/Main.dir/LBP/LBP.cpp.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/Main.dir/LBP/LBP.cpp.o -c /home/kevin/ComputerVision/LBP/LBP.cpp
 
@@ -192,6 +215,7 @@ Main_OBJECTS = \
 "CMakeFiles/Main.dir/Main.cpp.o" \
 "CMakeFiles/Main.dir/Classifier/classifier.cc.o" \
 "CMakeFiles/Main.dir/Classifier/clipper.cpp.o" \
+"CMakeFiles/Main.dir/Data/ImageObj.cpp.o" \
 "CMakeFiles/Main.dir/Data/JSONImage.cpp.o" \
 "CMakeFiles/Main.dir/Helper/FileManager.cpp.o" \
 "CMakeFiles/Main.dir/LBP/LBP.cpp.o"
@@ -202,6 +226,7 @@ Main_EXTERNAL_OBJECTS =
 Main: CMakeFiles/Main.dir/Main.cpp.o
 Main: CMakeFiles/Main.dir/Classifier/classifier.cc.o
 Main: CMakeFiles/Main.dir/Classifier/clipper.cpp.o
+Main: CMakeFiles/Main.dir/Data/ImageObj.cpp.o
 Main: CMakeFiles/Main.dir/Data/JSONImage.cpp.o
 Main: CMakeFiles/Main.dir/Helper/FileManager.cpp.o
 Main: CMakeFiles/Main.dir/LBP/LBP.cpp.o
@@ -250,6 +275,7 @@ CMakeFiles/Main.dir/build: Main
 CMakeFiles/Main.dir/requires: CMakeFiles/Main.dir/Main.cpp.o.requires
 CMakeFiles/Main.dir/requires: CMakeFiles/Main.dir/Classifier/classifier.cc.o.requires
 CMakeFiles/Main.dir/requires: CMakeFiles/Main.dir/Classifier/clipper.cpp.o.requires
+CMakeFiles/Main.dir/requires: CMakeFiles/Main.dir/Data/ImageObj.cpp.o.requires
 CMakeFiles/Main.dir/requires: CMakeFiles/Main.dir/Data/JSONImage.cpp.o.requires
 CMakeFiles/Main.dir/requires: CMakeFiles/Main.dir/Helper/FileManager.cpp.o.requires
 CMakeFiles/Main.dir/requires: CMakeFiles/Main.dir/LBP/LBP.cpp.o.requires

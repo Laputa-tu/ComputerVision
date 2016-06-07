@@ -1,7 +1,5 @@
 #include "FileManager.h"
 
-#define MAX_NUMBER_FILES 100000
-
 bool FileManager::IsValidDirectory(char *path)
 {
     struct stat sb;
@@ -48,9 +46,12 @@ void FileManager::GetFilesInDirectory(char *path, const char *name, int depth, v
                 for(int i=0; i<depth; i++) cout << " =";
                 cout << "> " << path << "/" << dp->d_name;
 
-                if(strcmp(dp->d_name, name) == 0)
+                char* output = NULL;
+                output = strstr(dp->d_name, name);
+
+                if(output)
                 {
-                    cout << "\t\t<=== Found JSON File!" << endl;
+                    cout << "\t\t<=== Found " << name << " File!" << endl;
                     string file_path(newpath);
                     files->push_back(file_path);
                 }
@@ -61,6 +62,45 @@ void FileManager::GetFilesInDirectory(char *path, const char *name, int depth, v
     }
 
     closedir(dirp);
+}
+
+vector<JSONImage> FileManager::GetImages(char* path)
+{
+    vector<string> files[MAX_NUMBER_FILES];
+    vector<JSONImage> imageList;
+
+    // search for directory
+    if(!FileManager::IsValidDirectory(path))
+    {
+        cerr << "Error: \"" << path <<"\" is not a valid directory, error code " << DIR_INVAL << endl;
+        return imageList;
+    }
+
+    // search & get files
+    cout << "Searching in \"" << path << "\":" << endl;
+    FileManager::GetFilesInDirectory(path, IMAGE_TYPE, files);
+
+    cout << "\nFound the following JPG Files:" << endl;
+    for(vector<string>::iterator it = files->begin(); it != files->end(); ++it)
+    {
+        cout << "\tFile: " << *it << endl;
+    }
+
+    for(vector<string>::iterator it = files->begin(); it != files->end(); ++it)
+    {
+        // get directory
+        string file_path = *it;
+        size_t found = file_path.find_last_of("/\\");
+        string file_name = file_path.substr(found+1);
+
+        JSONImage currentImage;
+        currentImage.setName(file_name);
+        currentImage.setPath(file_path);
+
+        imageList.push_back(currentImage);
+    }
+
+    return imageList;
 }
 
 vector<JSONImage> FileManager::GetJSONImages(char* path)

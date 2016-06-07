@@ -20,6 +20,8 @@
 //definitions
 #define SLOTH_ZEBRA "zebra.json"
 #define SLOTH_SIGN "sign.json"
+#define IMAGE_TYPE ".JPG"
+#define MAX_NUMBER_FILES 100000
 
 using namespace std;
 
@@ -34,6 +36,7 @@ class FileManager
         static void GetFilesInDirectory(char *, const char*, int, vector<string> *);
         static void GetFilesInDirectory(char *, const char*, vector<string> *);
         static vector<JSONImage> GetJSONImages(char* path);
+	static vector<JSONImage> GetImages(char* path);
         static bool IsValidDirectory(char *path);
 	
 	static vector<JSONImage> GetTrainingSet(vector<string> *);
