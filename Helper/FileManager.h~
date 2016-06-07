@@ -14,13 +14,17 @@
 #include <iostream>
 #include <string>
 
+#include <algorithm>    // std::random_shuffle
+#include <ctime>        // std::time
+#include <cstdlib>      // std::rand, std::srand
+
 #include "../Data/JSONImage.h"
 #include "../error.h"
 
 //definitions
 #define SLOTH_ZEBRA "zebra.json"
 #define SLOTH_SIGN "sign.json"
-#define IMAGE_TYPE ".jpg"
+#define IMAGE_TYPE ".JPG"
 #define MAX_NUMBER_FILES 100000
 
 using namespace std;
@@ -38,8 +42,6 @@ class FileManager
         static vector<JSONImage> GetJSONImages(char* path);
 	static vector<JSONImage> GetImages(char* path);
         static bool IsValidDirectory(char *path);
-	
-	static vector<JSONImage> GetTrainingSet(vector<string> *);
-	static vector<JSONImage> GetTestSet(vector<string> *);
-	static vector<JSONImage> GetValidationSet(vector<string> *);
+
+	static void ShuffleImages(vector<JSONImage> &images)
 };

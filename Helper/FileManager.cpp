@@ -192,17 +192,23 @@ vector<JSONImage> FileManager::GetJSONImages(char* path)
     return imageList;
 }
 
-vector<JSONImage> FileManager::GetTrainingSet(vector<string> *files)
+void FileManager::ShuffleImages(vector<JSONImage> &images)
 {
 
-}
+    cout << "Shuffle images..." << endl;
+    srand ( unsigned ( std::time(0) ) );
 
-vector<JSONImage> FileManager::GetTestSet(vector<string> *files)
-{
 
-}
+    // using built-in random generator:
+    random_shuffle ( images.begin(), images.end() );
 
-vector<JSONImage> FileManager::GetValidationSet(vector<string> *files)
-{
 
+    // print out content:
+    cout << "myvector contains:";
+    for(int i=0; i<images.size(); i++)
+    {
+        cout << images.at(i).getName() << endl;
+    }
+
+    cout << endl;
 }

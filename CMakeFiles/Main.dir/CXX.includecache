@@ -79,6 +79,12 @@ iostream
 -
 string
 -
+algorithm
+-
+ctime
+-
+cstdlib
+-
 ../Data/JSONImage.h
 /home/kevin/ComputerVision/Data/JSONImage.h
 ../error.h

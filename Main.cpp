@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
     // check the number of parameters
     if (argc < 2)
     {
-        cerr << "Usage: " << argv[0] << " <DirTrainingImages> <DirValidationImages> <DirTestImages>" << endl;
+        cerr << "Usage: " << argv[0] << " <DirTrainingImages> [<DirValidationImages> <DirTestImages>]" << endl;
         return WRONG_ARG;
     }
 
@@ -57,13 +57,22 @@ int main(int argc, char* argv[])
         return DAT_INVAL;
     }
 
-    // get images from json
-    testSet = FileManager::GetImages(testPath);
-    if(testSet.empty())
+    if(argc >= 4)
     {
-        cerr << "No test images found." << endl;
-        return DAT_INVAL;
+        // get images from json
+        testSet = FileManager::GetImages(testPath);
+        if(testSet.empty())
+        {
+            cerr << "No test images found." << endl;
+            return DAT_INVAL;
+        }
     }
+
+
+
+    // shuffle all images
+    FileManager::ShuffleImages(trainingSet);
+    FileManager::ShuffleImages(validationSet);
 
 
     cout << "\nStarting training..." << endl;
@@ -104,15 +113,17 @@ int main(int argc, char* argv[])
         return res_val;
     }
 
-
-    cout << "Classifying TestSet..." << endl;
-    int res_test = doSlidingOperation(model, testSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
-                                       windows_n_cols, step_slide_row, step_slide_col, OPERATE_CLASSIFY);
-
-    if(res_test != 0)
+    if(argc >= 4)
     {
-        cerr << "Error occured during test, errorcode: " << res_test;
-        return res_test;
+        cout << "Classifying TestSet..." << endl;
+        int res_test = doSlidingOperation(model, testSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
+                                           windows_n_cols, step_slide_row, step_slide_col, OPERATE_CLASSIFY);
+
+        if(res_test != 0)
+        {
+            cerr << "Error occured during test, errorcode: " << res_test;
+            return res_test;
+        }
     }
 
     cout << endl;
