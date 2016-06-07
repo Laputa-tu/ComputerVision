@@ -27,6 +27,12 @@ sys/stat.h
 -
 fstream
 -
+algorithm
+-
+ctime
+-
+cstdlib
+-
 
 /home/kevin/ComputerVision/Classifier/clipper.hpp
 vector
@@ -53,10 +59,6 @@ queue
 /home/kevin/ComputerVision/Classifier/classifier.h
 ./ImageObj.h
 /home/kevin/ComputerVision/Data/./ImageObj.h
-
-/home/kevin/ComputerVision/Helper/FileManager.cpp
-FileManager.h
-/home/kevin/ComputerVision/Helper/FileManager.h
 
 /home/kevin/ComputerVision/Helper/FileManager.h
 boost/config/compiler/visualc.hpp

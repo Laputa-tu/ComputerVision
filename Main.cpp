@@ -65,8 +65,8 @@ int main(int argc, char* argv[])
     }
 
     // shuffle all images
-    FileManager::ShuffleImages(trainingSet);
-    FileManager::ShuffleImages(validationSet);
+    //FileManager::ShuffleImages(trainingSet);
+    //FileManager::ShuffleImages(validationSet);
 
     cout << "\nStarting training..." << endl;
     model.startTraining();
@@ -97,7 +97,7 @@ int main(int argc, char* argv[])
 
     // validate
     cout << "Running Validation..." << endl;
-    int res_val = doSlidingOperation(model, validationSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
+    int res_val = doSlidingOperation(model, trainingSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
                                        windows_n_cols, step_slide_row, step_slide_col, OPERATE_VALIDATE);
 
     if(res_val != 0)
@@ -105,6 +105,8 @@ int main(int argc, char* argv[])
         cerr << "Error occured during validation, errorcode: " << res_val;
         return res_val;
     }
+
+    model.finishHardNegativeMining();
 
     cout << "Running Classification..." << endl;
     int res_test = doSlidingOperation(model, testSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
@@ -206,12 +208,12 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
                         case OPERATE_TRAIN:
                             model.train(rescaled, imageSet.at(i).getLabelPolygon(), windows, current_scaling, showTaggedImage);
                             break;
-                        case OPERATE_CLASSIFY:
-                            model.classify(rescaled, windows, current_scaling);
-                            break;
                         case OPERATE_VALIDATE:
-                            double prediction = model.classify(rescaled, windows, current_scaling);
-                            model.evaluate(prediction, imageSet.at(i).getLabelPolygon(), windows, current_scaling);
+                            model.hardNegativeMine(rescaled, imageSet.at(i).getLabelPolygon(), windows, current_scaling);
+                            break;
+                        case OPERATE_CLASSIFY:
+                            double pred = model.classify(rescaled, windows, current_scaling);
+                            model.evaluate(pred, imageSet.at(i).getLabelPolygon(), windows, current_scaling);
                             break;
                     }
 

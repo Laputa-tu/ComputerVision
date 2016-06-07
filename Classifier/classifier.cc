@@ -119,15 +119,14 @@ void Classifier::hardNegativeMine(const cv::Mat& img, ClipperLib::Path labelPoly
 	//predict Result
 	double prediction = -svm.predict(descriptor, true);
 	
-	if(prediction < predictionThreshold) //classified as positive
+    if(prediction > predictionThreshold) //classified as positive
 	{
 		//calculate Label
 		float label = calculateLabel(img, labelPolygon, slidingWindow, imageScaleFactor, false);
 
-		if ( label < 0.01 ) // classified as positive but no overlap with labelPolygon -> false Positive (hard Negative)
+        if ( label <= 0.0 ) // classified as positive but no overlap with labelPolygon -> false Positive (hard Negative)
 		{		
-			float svmLabel = 0.0;
-			//svm.train( descriptor, cv::Mat1f(1, 1, svmLabel), cv::Mat(), cv::Mat(), svmParams );
+            float svmLabel = (label > overlapThreshold) ? 1.0 : -1.0;
 			labels.push_back(cv::Mat1f(1, 1, svmLabel));
 			descriptors.push_back(descriptor);
 			hardNegativeMinedWindows++;
@@ -138,9 +137,10 @@ void Classifier::hardNegativeMine(const cv::Mat& img, ClipperLib::Path labelPoly
 
 void Classifier::finishHardNegativeMining()
 {
+    cout << "Descriptor size: " << descriptors.size() << endl;
 	cout << "HardNegativeMining finished" << endl;
 	cout << "Retraining SVM ..." << endl;
-	//shuffleTrainingData(descriptors, labels);
+    //shuffleTrainingData(descriptors, labels);
 	svm.train( descriptors, labels, cv::Mat(), cv::Mat(), svmParams );
 	cout << "SVM has been retrained after HardNegativeMining" << endl;
 }
