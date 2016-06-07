@@ -33,6 +33,8 @@ private:
 	LBP lbp;
 	
 	std::vector<cv::Rect> predictedSlidingWindows;
+	std::vector<float> predictedSlidingWindowsProbability;
+
 	std::vector<float> classificationPredictions;
 	std::vector<float> classificationLabels;
 

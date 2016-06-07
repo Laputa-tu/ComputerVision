@@ -75,6 +75,7 @@ void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Re
 				slidingWindow.width / imageScaleFactor, 
 				slidingWindow.height / imageScaleFactor);
 			predictedSlidingWindows.push_back ( r );
+			//predictedSlidingWindowsProbability.push_back ( label );
 
 			positiveTrainingWindows++;
 		}			
@@ -108,15 +109,15 @@ void Classifier::trainNegativeSample(const cv::Mat& img, cv::Rect slidingWindow,
 	cv::Mat1f descriptor(1,vDescriptor.size(),&vDescriptor[0]);
 	
 	float svmLabel = -1.0;
-	if( (1.0 * rand() / RAND_MAX) < 0.2) // is statistically every 5th time true -> reduce negative training samples
+	//if( (1.0 * rand() / RAND_MAX) < 0.2) // is statistically every 5th time true -> reduce negative training samples
 	{
 		labels.push_back(cv::Mat1f(1, 1, svmLabel));
 		descriptors.push_back(descriptor); 
 		negativeTrainingWindows++;
 	}
-	else
+	//else
 	{
-		discardedTrainingWindows++;
+	//	discardedTrainingWindows++;
 	}		    
     
 	img2.release();
@@ -196,6 +197,7 @@ double Classifier::classify(const cv::Mat& img, cv::Rect slidingWindow, float im
 				slidingWindow.width / imageScaleFactor, 
 				slidingWindow.height / imageScaleFactor);
 		predictedSlidingWindows.push_back ( r );
+		//predictedSlidingWindowsProbability ( (float) prediction );
 	}
 
 	return prediction;
