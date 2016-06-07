@@ -3,6 +3,8 @@
 using namespace std;
 using namespace ClipperLib;
 
+
+
 /// Constructor
 Classifier::Classifier()
 {
@@ -17,7 +19,7 @@ Classifier::Classifier()
 
 	positiveTrainingWindows = 0;
 	negativeTrainingWindows = 0;
-	discardedTrainingWindows = 0;
+	discardedTrainingWindows = 0;	
 }
 
 /// Destructor
@@ -104,14 +106,14 @@ void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Re
 /// Finish the training. This finalizes the model. Do not call train() afterwards anymore.
 void Classifier::finishTraining()
 {
-    cv::SVMParams params;
-    params.svm_type    = CvSVM::C_SVC;
-    params.kernel_type = CvSVM::LINEAR;
-    params.term_crit   = cvTermCriteria(CV_TERMCRIT_ITER, 100, 1e-6);
+	cv::SVMParams params;
+	params.svm_type    = CvSVM::C_SVC;
+	params.kernel_type = CvSVM::LINEAR;
+	params.term_crit   = cvTermCriteria(CV_TERMCRIT_ITER, 100, 1e-6);
 
-
-    svm.train( descriptors, labels, cv::Mat(), cv::Mat(), params );
-    cout << "SVM has been trained" << endl;
+	shuffleTrainingData(descriptors, labels);
+	svm.train( descriptors, labels, cv::Mat(), cv::Mat(), params );
+	cout << "SVM has been trained" << endl;
 }
 
 
@@ -147,6 +149,45 @@ double Classifier::classify(const cv::Mat& img, cv::Rect slidingWindow, float im
 	return prediction;
 }
 
+
+void Classifier::shuffleTrainingData(cv::Mat1f  predictionsMatrix, cv::Mat1f labelsMatrix)
+{
+	//std::vector<int> vector1, vector2;
+	//for (int i=1; i<10; ++i) vector1.push_back(i); // 1 2 3 4 5 6 7 8 9
+	//for (int i=1; i<10; ++i) vector2.push_back(i+10); // 1 2 3 4 5 6 7 8 9
+
+	std::vector <Mat1f> predictions, labels;
+	for (int row = 0; row < predictionsMatrix.rows; row++)
+	{
+		predictions.push_back(predictionsMatrix.row(row));
+		labels.push_back(labelsMatrix.row(row));
+	}
+
+	unsigned seed = unsigned ( std::time(0) );
+	std::srand ( seed );
+	//std::random_shuffle ( vector1.begin(), vector1.end() );
+	std::random_shuffle ( predictions.begin(), predictions.end() );
+
+	std::srand ( seed );
+	//std::random_shuffle ( vector2.begin(), vector2.end() );
+	std::random_shuffle ( labels.begin(), labels.end() );
+
+	for (int row = 0; row < predictionsMatrix.rows; row++)
+	{
+		predictionsMatrix.row(row) = predictions[row];
+		labelsMatrix.row(row) = labels[row];
+	}
+	
+
+	/*std::cout << "myvector contains:";
+	for (std::vector<int>::iterator it=vector1.begin(); it!=vector1.end(); ++it)
+	std::cout << ' ' << *it;
+	cout << endl;
+	std::cout << "myvector contains:";
+	for (std::vector<int>::iterator it=vector2.begin(); it!=vector2.end(); ++it)
+	std::cout << ' ' << *it;
+	cout << endl;*/
+}
 
 void Classifier::evaluate(double prediction, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor)
 {	
