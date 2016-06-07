@@ -12,12 +12,13 @@
 #define OPERATE_TRAIN 1
 #define OPERATE_CLASSIFY 2
 #define OPERATE_VALIDATE 3
+#define OPERATE_TRAIN_NEG 4
 
 
 int cnt_TrainingImages, cnt_DiscardedTrainingImages;
 
 int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale_n, float scale_factor,
-                       float initial_scale, int w_rows, int w_cols, int step_rows, int step_cols, const int operation);
+                       float initial_scale, int w_rows, int w_cols, int step_rows, int step_cols, const int operation, int originalImageHeight);
 
 using namespace std;
 using namespace cv;
@@ -26,12 +27,10 @@ int main(int argc, char* argv[])
 {
     cnt_TrainingImages = 0;
     cnt_DiscardedTrainingImages = 0;
-    Mat image, rescaled;
     Classifier model;
     char* trainingPath = argv[1];
     char* validationPath = argv[2];
     char* testPath = argv[3];
-    bool saveResult = true;
     vector<JSONImage> trainingSet, validationSet, testSet;
 
     // check the number of parameters
@@ -58,24 +57,21 @@ int main(int argc, char* argv[])
     }
 
     // get images from json
-    testSet = FileManager::GetImages(testPath);
+    testSet = FileManager::GetJSONImages(testPath);
     if(testSet.empty())
     {
         cerr << "No test images found." << endl;
     }
 
-    // shuffle all images
-    //FileManager::ShuffleImages(trainingSet);
-    //FileManager::ShuffleImages(validationSet);
-
     cout << "\nStarting training..." << endl;
     model.startTraining();
 
     // training parameters
-    int scale_n_times = 3;
-    float scaling_factor = 0.75;
-    float initial_scale = 0.25;
     int originalImageHeight = 1080;
+    int scale_n_times = 3;
+    float scaling_factor = 0.75;       
+    float initial_scale = 0.25;
+
     int windows_n_rows = originalImageHeight * initial_scale * pow(scaling_factor, scale_n_times); //114
     int windows_n_cols = originalImageHeight * initial_scale * pow(scaling_factor, scale_n_times); //114
     windows_n_rows = max(windows_n_rows, 128); // if lower than 128, set to 128
@@ -85,20 +81,19 @@ int main(int argc, char* argv[])
 
     //train
     int res_train = doSlidingOperation(model, trainingSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
-                                        windows_n_cols, step_slide_row, step_slide_col, OPERATE_TRAIN);
+                                        windows_n_cols, step_slide_row, step_slide_col, OPERATE_TRAIN, originalImageHeight);
     if(res_train != 0)
     {
         cerr << "Error occured during training, errorcode: " << res_train;
         return res_train;
     }
-
     cout << "\nFinishing Training ..." << endl;
     model.finishTraining();
 
     // validate
     cout << "Running Validation..." << endl;
-    int res_val = doSlidingOperation(model, trainingSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
-                                       windows_n_cols, step_slide_row, step_slide_col, OPERATE_VALIDATE);
+    int res_val = doSlidingOperation(model, validationSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
+                                       windows_n_cols, step_slide_row, step_slide_col, OPERATE_VALIDATE, originalImageHeight);
 
     if(res_val != 0)
     {
@@ -110,7 +105,7 @@ int main(int argc, char* argv[])
 
     cout << "Running Classification..." << endl;
     int res_test = doSlidingOperation(model, testSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
-                                       windows_n_cols, step_slide_row, step_slide_col, OPERATE_CLASSIFY);
+                                       windows_n_cols, step_slide_row, step_slide_col, OPERATE_CLASSIFY, originalImageHeight);
 
     if(res_test != 0)
     {
@@ -131,7 +126,7 @@ int main(int argc, char* argv[])
 
 
 int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale_n, float scale_factor,
-                       float initial_scale, int w_rows, int w_cols, int step_rows, int step_cols, const int operation)
+                       float initial_scale, int w_rows, int w_cols, int step_rows, int step_cols, const int operation, int originalImageHeight)
 {
     Mat image, rescaled, rescaled2;
     string result_tag;
@@ -172,6 +167,18 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
         //imshow("Image", image);
 
         rescaled = image;
+
+
+        //scale image to defaultHeight
+        if(rescaled.rows != originalImageHeight)
+        {
+            cout << "\timage size before default scaling: " << rescaled.size() << endl;
+            float defaultScale = 1.0 * originalImageHeight / rescaled.rows;
+            resize(rescaled, rescaled, Size(), defaultScale, defaultScale, INTER_CUBIC);
+            cout << "\t  -> image size after default scaling: " << rescaled.size() << endl;
+        }
+
+
         resize(rescaled, rescaled, Size(), initial_scale, initial_scale, INTER_CUBIC);
         current_scaling = initial_scale;
         bool reached_row_end = false;
