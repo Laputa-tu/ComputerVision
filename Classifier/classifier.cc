@@ -20,7 +20,8 @@ Classifier::Classifier()
 	positiveTrainingWindows = 0;
 	negativeTrainingWindows = 0;
 	discardedTrainingWindows = 0;	
-	
+	hardNegativeMinedWindows = 0;
+
 	svmParams.svm_type    = CvSVM::C_SVC;
 	svmParams.kernel_type = CvSVM::LINEAR;
 	svmParams.term_crit   = cvTermCriteria(CV_TERMCRIT_ITER, 100, 1e-6);
@@ -106,7 +107,7 @@ void Classifier::finishTraining()
 }
 
 void Classifier::hardNegativeMine(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor)
-{
+{	
 	//extract slidingWindow out of the image
     	cv::Mat img2 = img(slidingWindow);
 
@@ -126,10 +127,22 @@ void Classifier::hardNegativeMine(const cv::Mat& img, ClipperLib::Path labelPoly
 		if ( label < 0.01 ) // classified as positive but no overlap with labelPolygon -> false Positive (hard Negative)
 		{		
 			float svmLabel = 0.0;
-			svm.train( descriptor, cv::Mat1f(1, 1, svmLabel), cv::Mat(), cv::Mat(), svmParams );
+			//svm.train( descriptor, cv::Mat1f(1, 1, svmLabel), cv::Mat(), cv::Mat(), svmParams );
+			labels.push_back(cv::Mat1f(1, 1, svmLabel));
+			descriptors.push_back(descriptor);
+			hardNegativeMinedWindows++;
 		}
 
 	}
+}
+
+void Classifier::finishHardNegativeMining()
+{
+	cout << "HardNegativeMining finished" << endl;
+	cout << "Retraining SVM ..." << endl;
+	//shuffleTrainingData(descriptors, labels);
+	svm.train( descriptors, labels, cv::Mat(), cv::Mat(), svmParams );
+	cout << "SVM has been retrained after HardNegativeMining" << endl;
 }
 
 
@@ -195,6 +208,7 @@ void Classifier::printEvaluation(bool saveResult)
 	cout << " -> positiveTrainingWindows:  " << positiveTrainingWindows << endl;
 	cout << " -> negativeTrainingWindows:  " << negativeTrainingWindows << endl;
 	cout << " -> discardedTrainingWindows: " << discardedTrainingWindows << endl;
+	cout << " -> hardNegativeMinedWindows: " << hardNegativeMinedWindows << endl;	
 	cout << endl;
 
 	cout << "Classification: " << endl;
@@ -220,6 +234,7 @@ void Classifier::printEvaluation(bool saveResult)
 		out << " -> positiveTrainingWindows:  " << positiveTrainingWindows << endl;
 		out << " -> negativeTrainingWindows:  " << negativeTrainingWindows << endl;
 		out << " -> discardedTrainingWindows: " << discardedTrainingWindows << endl;
+		out << " -> hardNegativeMinedWindows: " << hardNegativeMinedWindows << endl;
 		out << endl;
 
 		out << "Classification: " << endl;

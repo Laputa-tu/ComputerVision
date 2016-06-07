@@ -40,7 +40,7 @@ private:
 	int cnt_Classified;
 	int cnt_TP, cnt_TN, cnt_FP, cnt_FN;
 
-	int positiveTrainingWindows, negativeTrainingWindows, discardedTrainingWindows;
+	int positiveTrainingWindows, negativeTrainingWindows, discardedTrainingWindows, hardNegativeMinedWindows;
 	float overlapThreshold, predictionThreshold;
 
     	//double calculateOverlap(ClipperLib::Path labelPolygon, ClipperLib::Path slidingWindow);
@@ -56,6 +56,7 @@ public:
         void train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor, bool showImage);
     	void finishTraining();
 	void hardNegativeMine(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor);
+	void finishHardNegativeMining();
         double classify(const cv::Mat& img, cv::Rect slidingWindow, float imageScaleFactor);
 	void evaluate(double prediction, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor);
 	void printEvaluation(bool saveResult);
