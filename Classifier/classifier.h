@@ -54,6 +54,7 @@ public:
     	~Classifier();
     	void startTraining();
         void train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor, bool showImage);
+	void trainNegativeSample(const cv::Mat& img, cv::Rect slidingWindow, float imageScaleFactor);
     	void finishTraining();
 	void hardNegativeMine(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor);
 	void finishHardNegativeMining();

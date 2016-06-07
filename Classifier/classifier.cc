@@ -80,10 +80,10 @@ void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Re
 		}			
 		else 
 		{
-			if( (1.0 * rand() / RAND_MAX) < 0.2) // is statistically every 5th time true
+			if( (1.0 * rand() / RAND_MAX) < 0.2) // is statistically every 5th time true -> reduce negative training samples
 			{
 				labels.push_back(cv::Mat1f(1, 1, svmLabel));
-				descriptors.push_back(descriptor); // reduce negative training samples
+				descriptors.push_back(descriptor);  
 
 				negativeTrainingWindows++;
 			}
@@ -97,6 +97,30 @@ void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Re
     img2.release();
 }
 
+void Classifier::trainNegativeSample(const cv::Mat& img, cv::Rect slidingWindow, float imageScaleFactor)
+{		
+	//extract slidingWindow out of the image
+	cv::Mat img2 = img(slidingWindow);
+
+	//calculate Feature-Descriptor
+	vector<float> vDescriptor;	
+	hog.compute(img2, vDescriptor);
+	cv::Mat1f descriptor(1,vDescriptor.size(),&vDescriptor[0]);
+	
+	float svmLabel = -1.0;
+	if( (1.0 * rand() / RAND_MAX) < 0.2) // is statistically every 5th time true -> reduce negative training samples
+	{
+		labels.push_back(cv::Mat1f(1, 1, svmLabel));
+		descriptors.push_back(descriptor); 
+		negativeTrainingWindows++;
+	}
+	else
+	{
+		discardedTrainingWindows++;
+	}		    
+    
+	img2.release();
+}
 
 /// Finish the training. This finalizes the model. Do not call train() afterwards anymore.
 void Classifier::finishTraining()
@@ -119,19 +143,18 @@ void Classifier::hardNegativeMine(const cv::Mat& img, ClipperLib::Path labelPoly
 	//predict Result
 	double prediction = -svm.predict(descriptor, true);
 	
-    if(prediction > predictionThreshold) //classified as positive
+	if(prediction > predictionThreshold) //classified as positive
 	{
 		//calculate Label
 		float label = calculateLabel(img, labelPolygon, slidingWindow, imageScaleFactor, false);
 
-        if ( label <= 0.0 ) // classified as positive but no overlap with labelPolygon -> false Positive (hard Negative)
+		if ( label <= 0.0 ) // classified as positive but no overlap with labelPolygon -> false Positive (hard Negative)
 		{		
-            float svmLabel = (label > overlapThreshold) ? 1.0 : -1.0;
+			float svmLabel = -1.0;
 			labels.push_back(cv::Mat1f(1, 1, svmLabel));
 			descriptors.push_back(descriptor);
 			hardNegativeMinedWindows++;
 		}
-
 	}
 }
 
