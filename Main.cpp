@@ -57,15 +57,11 @@ int main(int argc, char* argv[])
         return DAT_INVAL;
     }
 
-    if(argc >= 4)
+    // get images from json
+    testSet = FileManager::GetImages(testPath);
+    if(testSet.empty())
     {
-        // get images from json
-        testSet = FileManager::GetImages(testPath);
-        if(testSet.empty())
-        {
-            cerr << "No test images found." << endl;
-            return DAT_INVAL;
-        }
+        cerr << "No test images found." << endl;
     }
 
     // shuffle all images
@@ -110,17 +106,14 @@ int main(int argc, char* argv[])
         return res_val;
     }
 
-    if(argc >= 4)
-    {
-        cout << "Classifying TestSet..." << endl;
-        int res_test = doSlidingOperation(model, testSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
-                                           windows_n_cols, step_slide_row, step_slide_col, OPERATE_CLASSIFY);
+    cout << "Running Classification..." << endl;
+    int res_test = doSlidingOperation(model, testSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
+                                       windows_n_cols, step_slide_row, step_slide_col, OPERATE_CLASSIFY);
 
-        if(res_test != 0)
-        {
-            cerr << "Error occured during test, errorcode: " << res_test;
-            return res_test;
-        }
+    if(res_test != 0)
+    {
+        cerr << "Error occured during test, errorcode: " << res_test;
+        return res_test;
     }
 
     cout << endl;
@@ -156,8 +149,8 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
             if(abs(labelPolygonArea) < 0.5 * slidingWindowArea)
             {
                 cnt_DiscardedTrainingImages++;
-                cout << "Discarded image due to small polygon area" << endl;
-                cout << " -> Polygon Area: " << labelPolygonArea << "    Sliding Window Area: " << slidingWindowArea << endl;
+                cout << "\t--- Discarded image due to small polygon area" << endl;
+                //cout << " -> Polygon Area: " << labelPolygonArea << "    Sliding Window Area: " << slidingWindowArea << endl;
                 continue; // skip training this image to reduce negative training samples
             }
             else

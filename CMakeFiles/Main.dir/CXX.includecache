@@ -54,6 +54,10 @@ queue
 ./ImageObj.h
 /home/kevin/ComputerVision/Data/./ImageObj.h
 
+/home/kevin/ComputerVision/Helper/FileManager.cpp
+FileManager.h
+/home/kevin/ComputerVision/Helper/FileManager.h
+
 /home/kevin/ComputerVision/Helper/FileManager.h
 boost/config/compiler/visualc.hpp
 -

@@ -32,7 +32,8 @@ using namespace std;
 class FileManager
 {
     private:
-        
+	static int cross_valid_count;        
+	
     public:
         FileManager(void);
         ~FileManager(void);
@@ -44,4 +45,8 @@ class FileManager
         static bool IsValidDirectory(char *path);
 
 	static void ShuffleImages(vector<JSONImage> &images);
+	void StartNCrossValid();
+	void StopNCrossValid();
+	int GetNFoldCrossValid(vector<JSONImage>& trainingSet, vector<JSONImage>& validationSet);
 };
+	

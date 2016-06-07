@@ -69,35 +69,38 @@ vector<JSONImage> FileManager::GetImages(char* path)
     vector<string> files[MAX_NUMBER_FILES];
     vector<JSONImage> imageList;
 
-    // search for directory
-    if(!FileManager::IsValidDirectory(path))
+    if(path != NULL)
     {
-        cerr << "Error: \"" << path <<"\" is not a valid directory, error code " << DIR_INVAL << endl;
-        return imageList;
-    }
+        // search for directory
+        if(!FileManager::IsValidDirectory(path))
+        {
+            cerr << "Error: \"" << path <<"\" is not a valid directory, error code " << DIR_INVAL << endl;
+            return imageList;
+        }
 
-    // search & get files
-    cout << "Searching in \"" << path << "\":" << endl;
-    FileManager::GetFilesInDirectory(path, IMAGE_TYPE, files);
+        // search & get files
+        cout << "Searching in \"" << path << "\":" << endl;
+        FileManager::GetFilesInDirectory(path, IMAGE_TYPE, files);
 
-    cout << "\nFound the following JPG Files:" << endl;
-    for(vector<string>::iterator it = files->begin(); it != files->end(); ++it)
-    {
-        cout << "\tFile: " << *it << endl;
-    }
+        cout << "\nFound the following JPG Files:" << endl;
+        for(vector<string>::iterator it = files->begin(); it != files->end(); ++it)
+        {
+            cout << "\tFile: " << *it << endl;
+        }
 
-    for(vector<string>::iterator it = files->begin(); it != files->end(); ++it)
-    {
-        // get directory
-        string file_path = *it;
-        size_t found = file_path.find_last_of("/\\");
-        string file_name = file_path.substr(found+1);
+        for(vector<string>::iterator it = files->begin(); it != files->end(); ++it)
+        {
+            // get directory
+            string file_path = *it;
+            size_t found = file_path.find_last_of("/\\");
+            string file_name = file_path.substr(found+1);
 
-        JSONImage currentImage;
-        currentImage.setName(file_name);
-        currentImage.setPath(file_path);
+            JSONImage currentImage;
+            currentImage.setName(file_name);
+            currentImage.setPath(file_path);
 
-        imageList.push_back(currentImage);
+            imageList.push_back(currentImage);
+        }
     }
 
     return imageList;
@@ -212,3 +215,7 @@ void FileManager::ShuffleImages(vector<JSONImage> &images)
 
     cout << endl;
 }
+
+void FileManager::StartNCrossValid(){}
+void FileManager::StopNCrossValid(){}
+int FileManager::GetNFoldCrossValid(vector<JSONImage>& trainingSet, vector<JSONImage>& validationSet){}
