@@ -128,7 +128,7 @@ int main(int argc, char* argv[])
 int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale_n, float scale_factor,
                        float initial_scale, int w_rows, int w_cols, int step_rows, int step_cols, const int operation, int originalImageHeight)
 {
-    Mat image, rescaled, rescaled2;
+    Mat image, rescaled;
     string result_tag;
     float current_scaling;
     bool showTaggedImage = false;
@@ -146,7 +146,7 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
             if(abs(labelPolygonArea) < 0.5 * slidingWindowArea)
             {
                 cnt_DiscardedTrainingImages++;
-                cout << "\t--- Discarded image due to small polygon area" << endl;
+                //cout << "\t--- Discarded image due to small polygon area" << endl;
                 //cout << " -> Polygon Area: " << labelPolygonArea << "    Sliding Window Area: " << slidingWindowArea << endl;
                 continue; // skip training this image to reduce negative training samples
             }
@@ -157,27 +157,20 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
         }
 
         // read image
-        image = imread(imageSet.at(i).getPath(), CV_LOAD_IMAGE_GRAYSCALE);
+        image = imread(imageSet.at(i).getPath(), CV_LOAD_IMAGE_COLOR);
         if(!image.data) // Check for invalid input
         {
             cout <<  "Could not open or find the image" << std::endl ;
             return IMG_INVAL;
         }
 
-        //imshow("Image", image);
-
-        rescaled = image;
-
-
         //scale image to defaultHeight
+        rescaled = image;
         if(rescaled.rows != originalImageHeight)
         {
-            cout << "\timage size before default scaling: " << rescaled.size() << endl;
             float defaultScale = 1.0 * originalImageHeight / rescaled.rows;
             resize(rescaled, rescaled, Size(), defaultScale, defaultScale, INTER_CUBIC);
-            cout << "\t  -> image size after default scaling: " << rescaled.size() << endl;
         }
-
 
         resize(rescaled, rescaled, Size(), initial_scale, initial_scale, INTER_CUBIC);
         current_scaling = initial_scale;
@@ -186,8 +179,8 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
 
         for(int j=0; j<scale_n; j++)
         {
-            cout << "\tImage: "<<imageSet.at(i).getName() << " (" << rescaled.cols << " x "
-                 << rescaled.rows << ", scale " << current_scaling << ")" << endl;
+            /*cout << "\tImage: "<<imageSet.at(i).getName() << " (" << rescaled.cols << " x "
+                 << rescaled.rows << ", scale " << current_scaling << ")" << endl;*/
 
             // build sliding window
             for(int row = 0; row <= rescaled.rows; row += step_rows)

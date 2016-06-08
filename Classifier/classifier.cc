@@ -47,8 +47,9 @@ void Classifier::startTraining()
 /// @param slidingWindow: the window section of the image that has to be trained
 void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor, bool showImage)
 {		
-	//extract slidingWindow out of the image
-	cv::Mat img2 = img(slidingWindow);
+    //extract slidingWindow and convert to grayscale
+    cv::Mat img2 = img(slidingWindow);
+    cvtColor(img2,img2,CV_RGB2GRAY);
 
 	//calculate Feature-Descriptor
 	vector<float> vDescriptor;	
@@ -109,8 +110,9 @@ void Classifier::finishTraining()
 
 void Classifier::hardNegativeMine(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor)
 {	
-	//extract slidingWindow out of the image
-    	cv::Mat img2 = img(slidingWindow);
+    //extract slidingWindow and convert to grayscale
+    cv::Mat img2 = img(slidingWindow);
+    cvtColor(img2,img2,CV_RGB2GRAY);
 
 	//calculate Feature-Descriptor
 	vector<float> vDescriptor;
@@ -154,8 +156,9 @@ void Classifier::finishHardNegativeMining()
 /// @return: probability of having a match for the target object inside the sliding window section
 double Classifier::classify(const cv::Mat& img, cv::Rect slidingWindow, float imageScaleFactor)
 {		
-	//extract slidingWindow out of the image
-    	cv::Mat img2 = img(slidingWindow);
+    //extract slidingWindow and convert to grayscale
+    cv::Mat img2 = img(slidingWindow);
+    cvtColor(img2,img2,CV_RGB2GRAY);
 
 	//calculate Feature-Descriptor
 	vector<float> vDescriptor;
