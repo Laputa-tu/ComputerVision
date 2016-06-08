@@ -3,8 +3,6 @@
 using namespace std;
 using namespace ClipperLib;
 
-
-
 /// Constructor
 Classifier::Classifier()
 {
@@ -106,6 +104,18 @@ void Classifier::finishTraining()
 	//shuffleTrainingData(descriptors, labels);
 	svm.train( descriptors, labels, cv::Mat(), cv::Mat(), svmParams );
 	cout << "SVM has been trained" << endl;
+}
+
+void Classifier::saveSVM(string path)
+{
+    cout << "Saving SVM into file." << endl;
+    svm.save(path.c_str());
+}
+
+void Classifier::loadSVM(string path)
+{
+    cout << "Loading SVM from file." << endl;
+    svm.load(path.c_str());
 }
 
 void Classifier::hardNegativeMine(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor)

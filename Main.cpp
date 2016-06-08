@@ -6,6 +6,8 @@
 #include <stdlib.h>     /* abs */
 #include <math.h>       /* pow */
 
+#include <ctime>        // std::time
+
 #include "Helper/FileManager.h"
 #include "error.h"
 
@@ -20,18 +22,39 @@ int cnt_TrainingImages, cnt_DiscardedTrainingImages;
 int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale_n, float scale_factor,
                        float initial_scale, int w_rows, int w_cols, int step_rows, int step_cols, const int operation, int originalImageHeight);
 
+string getTimeString();
+
+
 using namespace std;
 using namespace cv;
 
 int main(int argc, char* argv[])
 {
-    cnt_TrainingImages = 0;
-    cnt_DiscardedTrainingImages = 0;
+    bool loadSVMFromFile = true;
+    string svm_loadpath = "./SVM_Savings/svm_classifier_hardnegative.xml";
+    string svm_savepath = "./SVM_Savings/svm_" + getTimeString() + ".xml";
+
     Classifier model;
     char* trainingPath = argv[1];
     char* validationPath = argv[2];
     char* testPath = argv[3];
     vector<JSONImage> trainingSet, validationSet, testSet;
+    cnt_TrainingImages = 0;
+    cnt_DiscardedTrainingImages = 0;
+
+    // training parameters
+    int originalImageHeight = 1080;
+    int scale_n_times = 3;
+    float scaling_factor = 0.75;
+    float initial_scale = 0.25;
+
+    // sliding window
+    int windows_n_rows = originalImageHeight * initial_scale * pow(scaling_factor, scale_n_times); //114
+    int windows_n_cols = originalImageHeight * initial_scale * pow(scaling_factor, scale_n_times); //114
+    windows_n_rows = max(windows_n_rows, 128); // if lower than 128, set to 128
+    windows_n_cols = max(windows_n_cols, 128); // if lower than 128, set to 128
+    int step_slide_row = windows_n_rows/5;
+    int step_slide_col = windows_n_cols/5;
 
     // check the number of parameters
     if (argc < 2)
@@ -66,42 +89,37 @@ int main(int argc, char* argv[])
     cout << "\nStarting training..." << endl;
     model.startTraining();
 
-    // training parameters
-    int originalImageHeight = 1080;
-    int scale_n_times = 3;
-    float scaling_factor = 0.75;       
-    float initial_scale = 0.25;
-
-    int windows_n_rows = originalImageHeight * initial_scale * pow(scaling_factor, scale_n_times); //114
-    int windows_n_cols = originalImageHeight * initial_scale * pow(scaling_factor, scale_n_times); //114
-    windows_n_rows = max(windows_n_rows, 128); // if lower than 128, set to 128
-    windows_n_cols = max(windows_n_cols, 128); // if lower than 128, set to 128
-    int step_slide_row = windows_n_rows/5;
-    int step_slide_col = windows_n_cols/5;
-
-    //train
-    int res_train = doSlidingOperation(model, trainingSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
-                                        windows_n_cols, step_slide_row, step_slide_col, OPERATE_TRAIN, originalImageHeight);
-    if(res_train != 0)
+    if(loadSVMFromFile)
     {
-        cerr << "Error occured during training, errorcode: " << res_train;
-        return res_train;
+        model.loadSVM(svm_loadpath);
     }
-    cout << "\nFinishing Training ..." << endl;
-    model.finishTraining();
-
-    // validate
-    cout << "Running Validation..." << endl;
-    int res_val = doSlidingOperation(model, validationSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
-                                       windows_n_cols, step_slide_row, step_slide_col, OPERATE_VALIDATE, originalImageHeight);
-
-    if(res_val != 0)
+    else
     {
-        cerr << "Error occured during validation, errorcode: " << res_val;
-        return res_val;
-    }
+        //train
+        int res_train = doSlidingOperation(model, trainingSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
+                                            windows_n_cols, step_slide_row, step_slide_col, OPERATE_TRAIN, originalImageHeight);
+        if(res_train != 0)
+        {
+            cerr << "Error occured during training, errorcode: " << res_train;
+            return res_train;
+        }
+        cout << "\nFinishing Training ..." << endl;
+        model.finishTraining();
 
-    model.finishHardNegativeMining();
+        // validate
+        cout << "Running Validation..." << endl;
+        int res_val = doSlidingOperation(model, validationSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
+                                           windows_n_cols, step_slide_row, step_slide_col, OPERATE_VALIDATE, originalImageHeight);
+
+        if(res_val != 0)
+        {
+            cerr << "Error occured during validation, errorcode: " << res_val;
+            return res_val;
+        }
+
+        model.finishHardNegativeMining();
+        model.saveSVM(svm_savepath);
+    }
 
     cout << "Running Classification..." << endl;
     int res_test = doSlidingOperation(model, testSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
@@ -257,3 +275,18 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
 
     return 0;
 }
+
+string getTimeString()
+{
+    ostringstream startTime;
+    time_t sTime = time(NULL);
+    struct tm *sTimePtr = localtime(&sTime);
+    startTime << sTimePtr->tm_year + 1900 << "_"
+              << sTimePtr->tm_mon + 1 << "_"
+              << sTimePtr->tm_mday << "__"
+              << sTimePtr->tm_hour << "_"
+              << sTimePtr->tm_min << "_"
+              << sTimePtr->tm_sec;
+    return startTime.str();
+}
+

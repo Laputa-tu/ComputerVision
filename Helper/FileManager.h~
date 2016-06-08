@@ -48,5 +48,5 @@ class FileManager
 	void StartNCrossValid();
 	void StopNCrossValid();
 	int GetNFoldCrossValid(vector<JSONImage>& trainingSet, vector<JSONImage>& validationSet);
-}
+};
 	

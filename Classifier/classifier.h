@@ -66,4 +66,6 @@ public:
 	void showROC(bool saveROC);
 	
 	void generateTaggedResultImage(const cv::Mat& img, string imgName, bool showResult, bool saveResult);
+	void loadSVM(string path);
+	void saveSVM(string path);
 };
