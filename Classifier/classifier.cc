@@ -74,7 +74,7 @@ void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Re
 				slidingWindow.width / imageScaleFactor, 
 				slidingWindow.height / imageScaleFactor);
 			predictedSlidingWindows.push_back ( r );
-			//predictedSlidingWindowsProbability.push_back ( label );
+			predictedSlidingWindowWeights.push_back ( label * 2.0 - 1.0 );
 
 			positiveTrainingWindows++;
 		}			
@@ -186,7 +186,7 @@ double Classifier::classify(const cv::Mat& img, cv::Rect slidingWindow, float im
 				slidingWindow.width / imageScaleFactor, 
 				slidingWindow.height / imageScaleFactor);
 		predictedSlidingWindows.push_back ( r );
-		//predictedSlidingWindowsProbability ( (float) prediction );
+		predictedSlidingWindowWeights.push_back ( (float) prediction );
 	}
 
 	return prediction;
@@ -489,6 +489,106 @@ void Classifier::generateTaggedResultImage(const cv::Mat& img, string imgName, b
 
 	// reset sliding window array for next image
 	predictedSlidingWindows.clear();
+}
+
+
+
+void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Path labelPolygon, string imgName, bool showResult, bool saveResult)
+{
+	vector< vector<Point> > contours;
+	cv::Mat heatmap, blurred, mask, img_show;
+	heatmap = cv::Mat::zeros(img.rows, img.cols, CV_8U); 
+	
+	//clone image for drawing shapes
+	img_show = img.clone();	
+
+	//draw sliding predicted sliding windows and create heatmap
+	for(int i = 0; i < predictedSlidingWindows.size(); i++)
+	{
+		rectangle( img_show, predictedSlidingWindows[i], cv::Scalar( 0, 255, 0 ), 2, CV_AA, 0 );
+		heatmap(predictedSlidingWindows[i]) += 30 * predictedSlidingWindowWeights[i];			
+	}	
+	
+	//calculate Mask Contour	
+	cv::GaussianBlur(heatmap, blurred, cv::Size(171, 171), 0, 0); 
+	threshold(blurred, mask, 90, 255, cv::THRESH_BINARY);	
+	findContours(mask, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_TC89_KCOS);
+
+	//draw contours on tagged image
+	drawContours(img_show, contours, -1, cv::Scalar( 0, 0, 255 ), 3, CV_AA);
+
+
+	//draw labelPolygon
+	vector<Point> labelContour;
+	for (int i = 0; i < labelPolygon.size(); i++)
+	{
+		labelContour.push_back(Point(labelPolygon[i].X, labelPolygon[i].Y));
+	}
+	vector< vector<Point> > labelContours;
+	labelContours.push_back(labelContour);
+	drawContours(img_show, labelContours, -1, cv::Scalar( 255, 0, 0 ), 3, CV_AA);
+
+
+
+	for (int i = 0; i < contours.size(); i++)
+	{
+		ClipperLib::Path contourPolygon;
+		for ( int k = 0; k < contours[0].size(); k++)
+		{					
+			contourPolygon << ClipperLib::IntPoint(contours[i][k].x, contours[i][k].y);
+		}
+
+		ClipperLib::Paths clippedContourPolygon = clipPolygon(contourPolygon, labelPolygon);		
+		double area_clippedContourPolygon = 0;
+		if (clippedContourPolygon.size() > 0) 
+			area_clippedContourPolygon = abs(Area(clippedContourPolygon[0]));
+		double area_contourPolygon = abs(Area(contourPolygon));
+		double area_labelPolygon = abs(Area(labelPolygon));
+
+		double TP = area_clippedContourPolygon;
+		double FP = area_contourPolygon - area_clippedContourPolygon;
+		double overlap = TP / (area_labelPolygon + FP);
+
+		//cout << "area_contourPolygon:         " << area_contourPolygon << "   " << abs(area_contourPolygon) << endl;
+		//cout << "area_clippedContourPolygon:  " << area_clippedContourPolygon << "   " << abs(area_clippedContourPolygon)  << endl;
+		//cout << "area_labelPolygon:           " << area_labelPolygon << "   " << abs(area_labelPolygon)  << endl;
+		//cout << "TP:                          " << TP << endl;
+		//cout << "FP:                          " << FP << endl;
+		cout << "Overlap " << (i+1) << "  (TP / (TP + FP + FN)): " << overlap << endl;
+
+		//draw Text
+		ostringstream s;		
+		s << "Overlap " << (i+1) << ": " << overlap;
+		putText(img_show, s.str(), cv::Point(10, 40 * (i+1)), cv::FONT_HERSHEY_DUPLEX, 1.3, cv::Scalar( 0, 0, 255 ), 2, CV_AA);
+		s.str("");		
+	}
+	
+	if(showResult)
+	{
+		cv::imshow("Tagged Image: " + imgName, img_show);		
+		cv::waitKey(0);
+	}
+	if(saveResult)
+	{	
+		string dir;
+		dir = "./ClassificationResults/";
+		mkdir(dir.c_str(), 0777);
+		dir = ("./ClassificationResults/" + startTime.str()).c_str();
+		mkdir(dir.c_str(), 0777);
+		//cv::imwrite( dir + "/" + imgName.insert(imgName.length()-5, "_0_heatmap"), heatmap );
+		//cv::imwrite( dir + "/" + imgName.insert(imgName.length()-5, "_1_blurred"), blurred );
+		//cv::imwrite( dir + "/" + imgName.insert(imgName.length()-5, "_2_mask.jpg"), mask );
+		cv::imwrite( dir + "/" + imgName.insert(imgName.length()-5, "_3_result.jpg"), img_show );
+	}
+
+	// reset sliding window array for next image
+	predictedSlidingWindows.clear();
+	predictedSlidingWindowWeights.clear();
+
+	heatmap.release();
+	blurred.release();
+	mask.release();
+	img_show.release();
 }
 
 

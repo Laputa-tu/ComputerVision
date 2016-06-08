@@ -268,7 +268,8 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
             case OPERATE_VALIDATE: result_tag = "v_"; break;
         }
 
-        model.generateTaggedResultImage(image, result_tag + imageSet.at(i).getName(), showResult, saveResult);
+        //model.generateTaggedResultImage(image, result_tag + imageSet.at(i).getName(), showResult, saveResult);
+	model.evaluateMergedSlidingWindows(image, imageSet.at(i).getLabelPolygon(), result_tag + imageSet.at(i).getName(), showResult, saveResult);
         rescaled.release();
         image.release();
     }

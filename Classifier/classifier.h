@@ -16,6 +16,7 @@
 #include <algorithm>    // std::random_shuffle
 #include <ctime>        // std::time
 #include <cstdlib>      // std::rand, std::srand
+#include <stdlib.h>     // abs
 
 using namespace std;
 using namespace ClipperLib;
@@ -33,7 +34,7 @@ private:
 	LBP lbp;
 	
 	std::vector<cv::Rect> predictedSlidingWindows;
-	std::vector<float> predictedSlidingWindowsProbability;
+	std::vector<float> predictedSlidingWindowWeights;
 
 	std::vector<float> classificationPredictions;
 	std::vector<float> classificationLabels;
@@ -63,9 +64,9 @@ public:
         double classify(const cv::Mat& img, cv::Rect slidingWindow, float imageScaleFactor);
 	void evaluate(double prediction, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor);
 	void printEvaluation(bool saveResult);
-	void showROC(bool saveROC);
-	
+	void showROC(bool saveROC);	
 	void generateTaggedResultImage(const cv::Mat& img, string imgName, bool showResult, bool saveResult);
+	void evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Path labelPolygon, string imgName, bool showResult, bool saveResult);
 	void loadSVM(string path);
 	void saveSVM(string path);
 };
