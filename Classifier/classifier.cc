@@ -233,6 +233,27 @@ void Classifier::printEvaluation(bool saveResult)
 		dir = ("./ClassificationResults/" + startTime.str()).c_str();
 		mkdir(dir.c_str(), 0777);
 
+        std::ofstream outPreds( (dir + "/" + "_preds.txt").c_str() );
+        for (unsigned i = 0; i < classificationLabels.size(); i++)
+        {
+            outPreds << classificationPredictions[i] << endl;
+        }
+        outPreds.close();
+
+        std::ofstream outLabel( (dir + "/" + "_labels.txt").c_str() );
+        for (unsigned i = 0; i < classificationLabels.size(); i++)
+        {
+            if(classificationLabels[i] > overlapThreshold)
+            {
+                outLabel << "1" << endl;
+            }
+            else
+            {
+                outLabel << "-1" << endl;
+            }
+        }
+        outLabel.close();
+
 		std::ofstream out( (dir + "/" + "_evaluation.txt").c_str() );
 		out << "Training:" << endl;
 		out << " -> positiveTrainingWindows:  " << positiveTrainingWindows << endl;
