@@ -21,8 +21,9 @@ int cnt_TrainingImages, cnt_DiscardedTrainingImages;
 
 int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale_n, float scale_factor,
                        float initial_scale, int w_rows, int w_cols, int step_rows, int step_cols, const int operation, int originalImageHeight);
-
+int calculateBestSlidingWindow(vector<JSONImage> &imageSet);
 string getTimeString();
+
 
 
 using namespace std;
@@ -86,6 +87,12 @@ int main(int argc, char* argv[])
         cerr << "No test images found." << endl;
     }
 
+
+    cout << "\nCalculating best sliding window size..." << endl;
+    calculateBestSlidingWindow(trainingSet);
+
+
+
     cout << "\nStarting training..." << endl;
     model.startTraining();
 
@@ -142,6 +149,45 @@ int main(int argc, char* argv[])
     return 0;
 }
 
+int calculateBestSlidingWindow(vector<JSONImage> &imageSet)
+{
+	double sum_width = 0;
+	double sum_height = 0;
+	int count = 0;
+	ClipperLib::Path labelPolygon;
+	vector<Point> labelPolygonVector;
+	//vector< vector<Point> > contour;
+	Rect boundRect;
+
+	for(int i = 0; i < imageSet.size(); i++)
+	{			
+		labelPolygon = imageSet.at(i).getLabelPolygon();    
+		labelPolygonVector.clear();
+		for (int k = 0; k < labelPolygon.size(); k++)
+		{
+			labelPolygonVector.push_back(Point(labelPolygon[k].X, labelPolygon[k].Y));
+		}		
+		boundRect = boundingRect( Mat(labelPolygonVector) );
+		sum_width += boundRect.width;
+		sum_height += boundRect.height;				
+		count++;
+		/*
+		Mat im = imread(imageSet.at(i).getPath(), CV_LOAD_IMAGE_COLOR);		
+		contour.clear();
+		contour.push_back(labelPolygonVector);
+		drawContours(im, contour, -1, cv::Scalar( 255, 0, 0 ), 2, CV_AA);	
+		rectangle( im, boundRect, Scalar( 0, 255, 255 ), 2, CV_AA );	
+		imshow(imageSet.at(i).getName(), im);
+		waitKey(0);
+		*/
+	} 
+	cout << "\tAverage Width:        " << sum_width / count << endl;
+	cout << "\tAverage Height:       " << sum_height / count << endl;
+	cout << "\tAverage Aspect Ratio: " << sum_width / sum_height << endl;
+}
+
+
+
 
 int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale_n, float scale_factor,
                        float initial_scale, int w_rows, int w_cols, int step_rows, int step_cols, const int operation, int originalImageHeight)
@@ -157,7 +203,7 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
 
     for(int i=0; i<imageSet.size(); i++)
     {	
-        if (operation == OPERATE_TRAIN)
+        if (operation == OPERATE_TRAIN || operation == OPERATE_CLASSIFY)
         {
             // check size of LabelPolygon area
             labelPolygonArea = initial_scale * Area(imageSet.at(i).getLabelPolygon());

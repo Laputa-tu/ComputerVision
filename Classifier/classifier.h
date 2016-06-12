@@ -17,6 +17,7 @@
 #include <ctime>        // std::time
 #include <cstdlib>      // std::rand, std::srand
 #include <stdlib.h>     // abs
+#include <math.h>	// min, max
 
 using namespace std;
 using namespace ClipperLib;
@@ -32,19 +33,26 @@ private:
 	cv::SVMParams svmParams;
 
 	LBP lbp;
+	ostringstream startTime;
 	
 	std::vector<cv::Rect> predictedSlidingWindows;
 	std::vector<float> predictedSlidingWindowWeights;
 
+	//Sliding-Window-based Evaluation
 	std::vector<float> classificationPredictions;
 	std::vector<float> classificationLabels;
+	float overlapThreshold, predictionThreshold;
 
-	ostringstream startTime;
+	//Merged-Contour-based Evaluation
+	std::vector<float> classificationPredictions2;
+	std::vector<float> classificationLabels2;
+	float overlapThreshold2;
+
+	//Counters for Evaluation	
 	int cnt_Classified;
 	int cnt_TP, cnt_TN, cnt_FP, cnt_FN;
-
 	int positiveTrainingWindows, negativeTrainingWindows, discardedTrainingWindows, hardNegativeMinedWindows;
-	float overlapThreshold, predictionThreshold;
+	
 
     	//double calculateOverlap(ClipperLib::Path labelPolygon, ClipperLib::Path slidingWindow);
 	ClipperLib::Paths clipPolygon(ClipperLib::Path labelolygon, ClipperLib::Path slidingWindow);
@@ -52,6 +60,7 @@ private:
 	float calculateLabel(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor, bool showImage);
 	void showTaggedOverlapImage(const cv::Mat& img, ClipperLib::Path labelPolygon, ClipperLib::Path clippedPolygon, cv::Rect slidingWindow, float overlap);
 	void shuffleTrainingData(cv::Mat1f  predictionsMatrix, cv::Mat1f labelsMatrix);
+	cv::Mat cropRotatedRect(const cv::Mat& img, Rect r, float angle);
 public:
     	Classifier();
     	~Classifier();

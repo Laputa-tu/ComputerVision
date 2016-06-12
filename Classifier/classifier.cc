@@ -8,6 +8,7 @@ Classifier::Classifier()
 {
 	overlapThreshold = 0.5;		// label = Percentage of overlap -> 0 to 1.0
 	predictionThreshold = 0.2;	// svm prediction: -1 to +1
+	overlapThreshold2 = 0.15;	// overlap of the merged-slidingWindow-contour and the labelPolygon
 
 	cnt_Classified = 0;
 	cnt_TP = 0;
@@ -104,6 +105,9 @@ void Classifier::finishTraining()
 	//shuffleTrainingData(descriptors, labels);
 	svm.train( descriptors, labels, cv::Mat(), cv::Mat(), svmParams );
 	cout << "SVM has been trained" << endl;
+
+	classificationLabels2.clear();	
+	classificationPredictions2.clear();
 }
 
 void Classifier::saveSVM(string path)
@@ -149,12 +153,15 @@ void Classifier::hardNegativeMine(const cv::Mat& img, ClipperLib::Path labelPoly
 
 void Classifier::finishHardNegativeMining()
 {
-    cout << "Descriptor size: " << descriptors.size() << endl;
+	cout << "Descriptor size: " << descriptors.size() << endl;
 	cout << "HardNegativeMining finished" << endl;
 	cout << "Retraining SVM ..." << endl;
-    //shuffleTrainingData(descriptors, labels);
+	//shuffleTrainingData(descriptors, labels);
 	svm.train( descriptors, labels, cv::Mat(), cv::Mat(), svmParams );
 	cout << "SVM has been retrained after HardNegativeMining" << endl;
+
+	classificationLabels2.clear();	
+	classificationPredictions2.clear();
 }
 
 
@@ -166,9 +173,35 @@ void Classifier::finishHardNegativeMining()
 /// @return: probability of having a match for the target object inside the sliding window section
 double Classifier::classify(const cv::Mat& img, cv::Rect slidingWindow, float imageScaleFactor)
 {		
-    //extract slidingWindow and convert to grayscale
-    cv::Mat img2 = img(slidingWindow);
-    cvtColor(img2,img2,CV_RGB2GRAY);
+	Rect slidingWindow_jitter;
+	Mat img_crop;
+	int randomX, randomY;
+	int jitterMinX, jitterMaxX, jitterMinY, jitterMaxY;
+
+	for (int i = 0; i < 3; i++)
+	{
+		jitterMinX = max(-8, -slidingWindow.x);
+		jitterMinY = max(-8, -slidingWindow.y);
+		jitterMaxX = min(8, img.cols - slidingWindow.x - slidingWindow.width); 
+		jitterMaxY = min(8, img.rows - slidingWindow.y - slidingWindow.height); 
+		randomX = rand() % (jitterMaxX - jitterMinX + 1) + jitterMinX;
+		randomY = rand() % (jitterMaxY - jitterMinY + 1) + jitterMinY;
+
+		slidingWindow_jitter = Rect(slidingWindow.x + randomX, slidingWindow.y + randomY, slidingWindow.width, slidingWindow.height);
+		for(int angle = -24; angle <= 24; angle += 8)
+		{
+			img_crop = cropRotatedRect(img, slidingWindow_jitter, angle);	
+			imshow("Rotationtest " + angle, img_crop);
+			cv::flip(img_crop, img_crop, 1);
+			imshow("Rotationtest Flipped " + angle, img_crop);
+	
+			cv::waitKey(0);
+		}
+	}
+	
+	//extract slidingWindow and convert to grayscale
+	cv::Mat img2 = img(slidingWindow);
+	cvtColor(img2,img2,CV_RGB2GRAY);
 
 	//calculate Feature-Descriptor
 	vector<float> vDescriptor;
@@ -243,26 +276,31 @@ void Classifier::printEvaluation(bool saveResult)
 		dir = ("./ClassificationResults/" + startTime.str()).c_str();
 		mkdir(dir.c_str(), 0777);
 
-        std::ofstream outPreds( (dir + "/" + "_preds.txt").c_str() );
-        for (unsigned i = 0; i < classificationLabels.size(); i++)
-        {
-            outPreds << classificationPredictions[i] << endl;
-        }
-        outPreds.close();
+		std::ofstream outResult( (dir + "/" + "_result1.csv").c_str() );
+		std::ofstream outResult_share( "/home/kevin/share/_result1.csv" );	
+		for (unsigned i = 0; i < classificationLabels.size(); i++)
+		{
+		    outResult << (classificationLabels[i] > overlapThreshold) << "\t";
+		    outResult << classificationPredictions[i] << endl;
 
-        std::ofstream outLabel( (dir + "/" + "_labels.txt").c_str() );
-        for (unsigned i = 0; i < classificationLabels.size(); i++)
-        {
-            if(classificationLabels[i] > overlapThreshold)
-            {
-                outLabel << "1" << endl;
-            }
-            else
-            {
-                outLabel << "-1" << endl;
-            }
-        }
-        outLabel.close();
+		    outResult_share << (classificationLabels[i] > overlapThreshold) << "\t";
+		    outResult_share << classificationPredictions[i] << endl;
+		}
+		outResult.close();
+		outResult_share.close();
+
+		std::ofstream outResult2( (dir + "/" + "_result2.csv").c_str() );
+		std::ofstream outResult2_share( "/home/kevin/share/_result2.csv" );	
+		for (unsigned i = 0; i < classificationLabels2.size(); i++)
+		{
+		    outResult2 << (classificationLabels2[i] > overlapThreshold2) << "\t";
+		    outResult2 << classificationPredictions2[i] << endl;
+
+		    outResult2_share << (classificationLabels2[i] > overlapThreshold2) << "\t";
+		    outResult2_share << classificationPredictions2[i] << endl;
+		}
+		outResult2.close();
+		outResult2_share.close();
 
 		std::ofstream out( (dir + "/" + "_evaluation.txt").c_str() );
 		out << "Training:" << endl;
@@ -271,7 +309,6 @@ void Classifier::printEvaluation(bool saveResult)
 		out << " -> discardedTrainingWindows: " << discardedTrainingWindows << endl;
 		out << " -> hardNegativeMinedWindows: " << hardNegativeMinedWindows << endl;
 		out << endl;
-
 		out << "Classification: " << endl;
 		out << " -> True Positives:           " << cnt_TP << endl;
 		out << " -> False Positives:          " << cnt_FP << endl;
@@ -282,14 +319,6 @@ void Classifier::printEvaluation(bool saveResult)
 		out << " -> Recall    TP / (TP + FN): " << cnt_TP / (1.0 * (cnt_TP + cnt_FN)) << endl;
 		out << " -> Precision TP / (TP + FP): " << cnt_TP / (1.0 * (cnt_TP + cnt_FP)) << endl;
 		out << endl << endl << endl;
-
-
-		out << "Classification Results:" << endl;
-		for (unsigned i = 0; i < classificationLabels.size(); i++)
-		{			
-			out << "Desired:        " << (classificationLabels[i] > overlapThreshold)          << "  ( " << classificationLabels[i]        << " )  " << endl;
-			out << " -> Prediction: " << (classificationPredictions[i] > predictionThreshold)  << "  ( " << classificationPredictions[i]   << " )  " << endl;
-		}
 		out.close();
 	}		
 }
@@ -495,8 +524,13 @@ void Classifier::generateTaggedResultImage(const cv::Mat& img, string imgName, b
 
 void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Path labelPolygon, string imgName, bool showResult, bool saveResult)
 {
+	int heatmap_threshold = 20;
+	double area_clippedContourPolygon, area_contourPolygon, area_labelPolygon, TP, FP, overlap, heatmap_max;
+	bool targetObjectDetected = false;
 	vector< vector<Point> > contours;
-	cv::Mat heatmap, blurred, mask, img_show;
+	vector< vector<Point> > singleContour;
+	cv::Mat heatmap, heatmap_blurred, mask, img_show;
+	cv::Mat singleContourMask, singleContourHeatmap;
 	heatmap = cv::Mat::zeros(img.rows, img.cols, CV_8U); 
 	
 	//clone image for drawing shapes
@@ -506,12 +540,12 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 	for(int i = 0; i < predictedSlidingWindows.size(); i++)
 	{
 		rectangle( img_show, predictedSlidingWindows[i], cv::Scalar( 0, 255, 0 ), 2, CV_AA, 0 );
-		heatmap(predictedSlidingWindows[i]) += 30 * predictedSlidingWindowWeights[i];			
+		heatmap(predictedSlidingWindows[i]) += 10 * predictedSlidingWindowWeights[i];			
 	}	
 	
 	//calculate Mask Contour	
-	cv::GaussianBlur(heatmap, blurred, cv::Size(171, 171), 0, 0); 
-	threshold(blurred, mask, 90, 255, cv::THRESH_BINARY);	
+	cv::GaussianBlur(heatmap, heatmap_blurred, cv::Size(171, 171), 0, 0); 
+	threshold(heatmap_blurred, mask, heatmap_threshold, 255, cv::THRESH_BINARY);	
 	findContours(mask, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_TC89_KCOS);
 
 	//draw contours on tagged image
@@ -528,39 +562,64 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 	labelContours.push_back(labelContour);
 	drawContours(img_show, labelContours, -1, cv::Scalar( 255, 0, 0 ), 3, CV_AA);
 
-
-
 	for (int i = 0; i < contours.size(); i++)
 	{
+		//Calculate Overlap with the contour and the labelPolygon
 		ClipperLib::Path contourPolygon;
-		for ( int k = 0; k < contours[0].size(); k++)
+		for ( int k = 0; k < contours[i].size(); k++)
 		{					
 			contourPolygon << ClipperLib::IntPoint(contours[i][k].x, contours[i][k].y);
 		}
 
 		ClipperLib::Paths clippedContourPolygon = clipPolygon(contourPolygon, labelPolygon);		
-		double area_clippedContourPolygon = 0;
+		area_clippedContourPolygon = 0;
 		if (clippedContourPolygon.size() > 0) 
 			area_clippedContourPolygon = abs(Area(clippedContourPolygon[0]));
-		double area_contourPolygon = abs(Area(contourPolygon));
-		double area_labelPolygon = abs(Area(labelPolygon));
+		area_contourPolygon = abs(Area(contourPolygon));
+		area_labelPolygon = abs(Area(labelPolygon));
 
-		double TP = area_clippedContourPolygon;
-		double FP = area_contourPolygon - area_clippedContourPolygon;
-		double overlap = TP / (area_labelPolygon + FP);
-
+		TP = area_clippedContourPolygon;
+		FP = area_contourPolygon - area_clippedContourPolygon;
+		overlap = TP / (area_labelPolygon + FP);
+		
 		//cout << "area_contourPolygon:         " << area_contourPolygon << "   " << abs(area_contourPolygon) << endl;
 		//cout << "area_clippedContourPolygon:  " << area_clippedContourPolygon << "   " << abs(area_clippedContourPolygon)  << endl;
 		//cout << "area_labelPolygon:           " << area_labelPolygon << "   " << abs(area_labelPolygon)  << endl;
 		//cout << "TP:                          " << TP << endl;
 		//cout << "FP:                          " << FP << endl;
 		cout << "Overlap " << (i+1) << "  (TP / (TP + FP + FN)): " << overlap << endl;
+		
+
+		//Calculate max value of the heatmap crop of the single contour
+		singleContour.clear();
+		singleContour.push_back(contours[i]);
+		singleContourMask = cv::Mat::zeros(img.rows, img.cols, CV_8U); 
+		singleContourHeatmap = cv::Mat::zeros(img.rows, img.cols, CV_8U); 
+		drawContours(singleContourMask, singleContour, -1, cv::Scalar( 255, 255, 255 ), CV_FILLED);
+		heatmap.copyTo(singleContourHeatmap, singleContourMask);
+		cv::minMaxLoc(singleContourHeatmap, NULL, &heatmap_max);
+		cout << "   -> Heatmap_threshold:          " << heatmap_threshold << endl;
+		cout << "   -> Heatmap_max:                " << heatmap_max << endl;
+
 
 		//draw Text
 		ostringstream s;		
-		s << "Overlap " << (i+1) << ": " << overlap;
+		s << "Overlap " << (i+1) << ": " << overlap << "(-> Label: " << (overlap >= overlapThreshold2) << ")   Heatmap-Max: " << heatmap_max;
 		putText(img_show, s.str(), cv::Point(10, 40 * (i+1)), cv::FONT_HERSHEY_DUPLEX, 1.3, cv::Scalar( 0, 0, 255 ), 2, CV_AA);
-		s.str("");		
+		s.str("");	
+
+
+		if(overlap > overlapThreshold2) 
+			targetObjectDetected = true;
+
+		classificationLabels2.push_back ( overlap );	
+		classificationPredictions2.push_back ( heatmap_max );		
+	}
+
+	if (!targetObjectDetected)
+	{
+		classificationLabels2.push_back ( 1 );	
+		classificationPredictions2.push_back ( 0 );	
 	}
 	
 	if(showResult)
@@ -576,19 +635,22 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 		dir = ("./ClassificationResults/" + startTime.str()).c_str();
 		mkdir(dir.c_str(), 0777);
 		//cv::imwrite( dir + "/" + imgName.insert(imgName.length()-5, "_0_heatmap"), heatmap );
-		//cv::imwrite( dir + "/" + imgName.insert(imgName.length()-5, "_1_blurred"), blurred );
+		//cv::imwrite( dir + "/" + imgName.insert(imgName.length()-5, "_1_heatmap_blurred"), heatmap_blurred );
 		//cv::imwrite( dir + "/" + imgName.insert(imgName.length()-5, "_2_mask.jpg"), mask );
-		cv::imwrite( dir + "/" + imgName.insert(imgName.length()-5, "_3_result.jpg"), img_show );
+		cv::imwrite( dir + "/" + imgName.insert(imgName.length()-5, "_3_result.jpg"), img_show );		
 	}
 
+	
 	// reset sliding window array for next image
 	predictedSlidingWindows.clear();
 	predictedSlidingWindowWeights.clear();
 
 	heatmap.release();
-	blurred.release();
+	heatmap_blurred.release();
 	mask.release();
 	img_show.release();
+	singleContourMask.release();
+	singleContourHeatmap.release();
 }
 
 
@@ -644,4 +706,22 @@ void Classifier::showTaggedOverlapImage(const cv::Mat& img, ClipperLib::Path lab
 	cv::waitKey(0);
 }
 
+
+cv::Mat Classifier::cropRotatedRect(const cv::Mat& img, Rect rect, float angle)
+{
+	Mat M, rotated;
+	Size rect_size = rect.size();
+	Point rect_center(rect.x + 0.5 * rect.width, rect.y + 0.5 * rect.height);
+        RotatedRect rotRect(rect_center, rect_size, angle);    
+
+        if (angle < -45.) 
+	{
+            angle += 90.0;
+            swap(rect_size.width, rect_size.height);
+        }
+        M = getRotationMatrix2D(rect_center, angle, 1.0);
+        warpAffine(img, rotated, M, img.size(), INTER_CUBIC);
+
+	return rotated(rect);
+}
 
