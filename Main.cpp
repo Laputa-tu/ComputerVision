@@ -1,33 +1,5 @@
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
+#include "./Main.h"
 
-#include <time.h>
-#include <stdlib.h>     /* abs */
-#include <math.h>       /* pow */
-
-#include <ctime>        // std::time
-
-#include "Helper/FileManager.h"
-#include "error.h"
-
-#define OPERATE_TRAIN 1
-#define OPERATE_CLASSIFY 2
-#define OPERATE_VALIDATE 3
-#define OPERATE_TRAIN_NEG 4
-
-
-int cnt_TrainingImages, cnt_DiscardedTrainingImages;
-
-int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale_n, float scale_factor,
-                       float initial_scale, int w_rows, int w_cols, int step_rows, int step_cols, const int operation, int originalImageHeight);
-int calculateBestSlidingWindow(vector<JSONImage> &imageSet);
-string getTimeString();
-
-
-
-using namespace std;
-using namespace cv;
 
 int main(int argc, char* argv[])
 {
@@ -94,7 +66,7 @@ int main(int argc, char* argv[])
 
 
     cout << "\nStarting training..." << endl;
-    model.startTraining();
+    model.startTraining(TimeString);
 
     if(loadSVMFromFile)
     {
@@ -325,15 +297,21 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
 
 string getTimeString()
 {
-    ostringstream startTime;
-    time_t sTime = time(NULL);
-    struct tm *sTimePtr = localtime(&sTime);
-    startTime << sTimePtr->tm_year + 1900 << "_"
-              << sTimePtr->tm_mon + 1 << "_"
-              << sTimePtr->tm_mday << "__"
-              << sTimePtr->tm_hour << "_"
-              << sTimePtr->tm_min << "_"
-              << sTimePtr->tm_sec;
-    return startTime.str();
+    if(TimeString.empty())
+    {
+        ostringstream startTime;
+        time_t sTime = time(NULL);
+        struct tm *sTimePtr = localtime(&sTime);
+        startTime << sTimePtr->tm_year + 1900 << "_"
+                  << sTimePtr->tm_mon + 1 << "_"
+                  << sTimePtr->tm_mday << "__"
+                  << sTimePtr->tm_hour << "_"
+                  << sTimePtr->tm_min << "_"
+                  << sTimePtr->tm_sec;
+
+        TimeString = startTime.str();
+    }
+
+    return TimeString;
 }
 

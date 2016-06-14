@@ -64,7 +64,7 @@ private:
 public:
     	Classifier();
     	~Classifier();
-    	void startTraining();
+    	void startTraining(string StartTime);
         void train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor, bool showImage);
 	void trainNegativeSample(const cv::Mat& img, cv::Rect slidingWindow, float imageScaleFactor);
     	void finishTraining();

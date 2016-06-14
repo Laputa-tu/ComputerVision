@@ -258,14 +258,15 @@ CMakeFiles/Main.dir/LBP/LBP.cpp.o
  /home/kevin/opencv-2.4.9/modules/imgproc/include/opencv2/imgproc/imgproc.hpp
  /home/kevin/opencv-2.4.9/modules/imgproc/include/opencv2/imgproc/types_c.h
 CMakeFiles/Main.dir/Main.cpp.o
- /home/kevin/ComputerVision/Classifier/classifier.h
- /home/kevin/ComputerVision/Classifier/clipper.hpp
- /home/kevin/ComputerVision/Data/./ImageObj.h
- /home/kevin/ComputerVision/Data/JSONImage.h
- /home/kevin/ComputerVision/Helper/FileManager.h
- /home/kevin/ComputerVision/LBP/LBP.h
+ /home/kevin/ComputerVision/./Classifier/classifier.h
+ /home/kevin/ComputerVision/./Classifier/clipper.hpp
+ /home/kevin/ComputerVision/./Data/./ImageObj.h
+ /home/kevin/ComputerVision/./Data/JSONImage.h
+ /home/kevin/ComputerVision/./Helper/FileManager.h
+ /home/kevin/ComputerVision/./LBP/LBP.h
+ /home/kevin/ComputerVision/./Main.h
+ /home/kevin/ComputerVision/./error.h
  /home/kevin/ComputerVision/Main.cpp
- /home/kevin/ComputerVision/error.h
  /home/kevin/opencv-2.4.9/include/opencv/cv.h
  /home/kevin/opencv-2.4.9/include/opencv/highgui.h
  /home/kevin/opencv-2.4.9/modules/calib3d/include/opencv2/calib3d/calib3d.hpp

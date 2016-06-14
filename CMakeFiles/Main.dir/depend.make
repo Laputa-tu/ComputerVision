@@ -257,14 +257,15 @@ CMakeFiles/Main.dir/LBP/LBP.cpp.o: /home/kevin/opencv-2.4.9/modules/highgui/incl
 CMakeFiles/Main.dir/LBP/LBP.cpp.o: /home/kevin/opencv-2.4.9/modules/imgproc/include/opencv2/imgproc/imgproc.hpp
 CMakeFiles/Main.dir/LBP/LBP.cpp.o: /home/kevin/opencv-2.4.9/modules/imgproc/include/opencv2/imgproc/types_c.h
 
-CMakeFiles/Main.dir/Main.cpp.o: Classifier/classifier.h
-CMakeFiles/Main.dir/Main.cpp.o: Classifier/clipper.hpp
-CMakeFiles/Main.dir/Main.cpp.o: Data/./ImageObj.h
-CMakeFiles/Main.dir/Main.cpp.o: Data/JSONImage.h
-CMakeFiles/Main.dir/Main.cpp.o: Helper/FileManager.h
-CMakeFiles/Main.dir/Main.cpp.o: LBP/LBP.h
+CMakeFiles/Main.dir/Main.cpp.o: ./Classifier/classifier.h
+CMakeFiles/Main.dir/Main.cpp.o: ./Classifier/clipper.hpp
+CMakeFiles/Main.dir/Main.cpp.o: ./Data/./ImageObj.h
+CMakeFiles/Main.dir/Main.cpp.o: ./Data/JSONImage.h
+CMakeFiles/Main.dir/Main.cpp.o: ./Helper/FileManager.h
+CMakeFiles/Main.dir/Main.cpp.o: ./LBP/LBP.h
+CMakeFiles/Main.dir/Main.cpp.o: ./Main.h
+CMakeFiles/Main.dir/Main.cpp.o: ./error.h
 CMakeFiles/Main.dir/Main.cpp.o: Main.cpp
-CMakeFiles/Main.dir/Main.cpp.o: error.h
 CMakeFiles/Main.dir/Main.cpp.o: /home/kevin/opencv-2.4.9/include/opencv/cv.h
 CMakeFiles/Main.dir/Main.cpp.o: /home/kevin/opencv-2.4.9/include/opencv/highgui.h
 CMakeFiles/Main.dir/Main.cpp.o: /home/kevin/opencv-2.4.9/modules/calib3d/include/opencv2/calib3d/calib3d.hpp

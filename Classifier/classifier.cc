@@ -32,11 +32,9 @@ Classifier::~Classifier()
 }
 
 /// Start the training.  This resets/initializes the model.
-void Classifier::startTraining()
+void Classifier::startTraining(string StartTime)
 {
-	time_t sTime = time(NULL);
-	struct tm *sTimePtr = localtime(&sTime);	
-	startTime << sTimePtr->tm_year + 1900 << "_" << sTimePtr->tm_mon + 1 << "_" << sTimePtr->tm_mday << "__" << sTimePtr->tm_hour << "_" << sTimePtr->tm_min << "_" << sTimePtr->tm_sec;	
+    startTime << StartTime;
 }
 
 /// Train with a new sliding window section of a training image.
@@ -173,6 +171,7 @@ void Classifier::finishHardNegativeMining()
 /// @return: probability of having a match for the target object inside the sliding window section
 double Classifier::classify(const cv::Mat& img, cv::Rect slidingWindow, float imageScaleFactor)
 {		
+    /*
 	Rect slidingWindow_jitter;
 	Mat img_crop;
 	int randomX, randomY;
@@ -197,7 +196,7 @@ double Classifier::classify(const cv::Mat& img, cv::Rect slidingWindow, float im
 	
 			cv::waitKey(0);
 		}
-	}
+    }*/
 	
 	//extract slidingWindow and convert to grayscale
 	cv::Mat img2 = img(slidingWindow);
@@ -276,8 +275,8 @@ void Classifier::printEvaluation(bool saveResult)
 		dir = ("./ClassificationResults/" + startTime.str()).c_str();
 		mkdir(dir.c_str(), 0777);
 
-		std::ofstream outResult( (dir + "/" + "_result1.csv").c_str() );
-		std::ofstream outResult_share( "/home/kevin/share/_result1.csv" );	
+        std::ofstream outResult( (dir + "/" + "roc_classify_" + startTime.str() + ".csv").c_str() );
+        std::ofstream outResult_share( ("/home/kevin/share/ROC/roc_classify_" + startTime.str() + ".csv").c_str());
 		for (unsigned i = 0; i < classificationLabels.size(); i++)
 		{
 		    outResult << (classificationLabels[i] > overlapThreshold) << "\t";
@@ -289,8 +288,8 @@ void Classifier::printEvaluation(bool saveResult)
 		outResult.close();
 		outResult_share.close();
 
-		std::ofstream outResult2( (dir + "/" + "_result2.csv").c_str() );
-		std::ofstream outResult2_share( "/home/kevin/share/_result2.csv" );	
+        std::ofstream outResult2( (dir + "/" + "roc_detector_" + startTime.str() + ".csv").c_str() );
+        std::ofstream outResult2_share( ("/home/kevin/share/ROC/roc_detector_" + startTime.str() + ".csv").c_str()  );
 		for (unsigned i = 0; i < classificationLabels2.size(); i++)
 		{
 		    outResult2 << (classificationLabels2[i] > overlapThreshold2) << "\t";
