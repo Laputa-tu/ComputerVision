@@ -4,7 +4,7 @@
 int main(int argc, char* argv[])
 {
     bool loadSVMFromFile = true;
-    string svm_loadpath = "./SVM_Savings/svm_classifier_hardnegative.xml";
+    string svm_loadpath = "./SVM_Savings/svm_classifier.xml";
     string svm_savepath = "./SVM_Savings/svm_" + getTimeString() + ".xml";
 
     Classifier model;

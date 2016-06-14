@@ -276,26 +276,30 @@ void Classifier::printEvaluation(bool saveResult)
 		mkdir(dir.c_str(), 0777);
 
         std::ofstream outResult( (dir + "/" + "roc_classify_" + startTime.str() + ".csv").c_str() );
-        std::ofstream outResult_share( ("/home/kevin/share/ROC/roc_classify_" + startTime.str() + ".csv").c_str());
+        std::ofstream outResult_share( ("/home/kevin/share/ROC/classify/roc_classify_" + startTime.str() + ".csv").c_str());
 		for (unsigned i = 0; i < classificationLabels.size(); i++)
 		{
-		    outResult << (classificationLabels[i] > overlapThreshold) << "\t";
+            outResult << ((classificationLabels[i] > overlapThreshold) ? "1.0" : "0");
+            outResult << ";";
 		    outResult << classificationPredictions[i] << endl;
 
-		    outResult_share << (classificationLabels[i] > overlapThreshold) << "\t";
+            outResult_share << ((classificationLabels[i] > overlapThreshold) ? "1.0" : "0");
+            outResult_share << ";";
 		    outResult_share << classificationPredictions[i] << endl;
 		}
 		outResult.close();
 		outResult_share.close();
 
         std::ofstream outResult2( (dir + "/" + "roc_detector_" + startTime.str() + ".csv").c_str() );
-        std::ofstream outResult2_share( ("/home/kevin/share/ROC/roc_detector_" + startTime.str() + ".csv").c_str()  );
+        std::ofstream outResult2_share( ("/home/kevin/share/ROC/detect/roc_detector_" + startTime.str() + ".csv").c_str()  );
 		for (unsigned i = 0; i < classificationLabels2.size(); i++)
 		{
-		    outResult2 << (classificationLabels2[i] > overlapThreshold2) << "\t";
+            outResult2 << ((classificationLabels2[i] > overlapThreshold2) ? "1.0" : "0");
+            outResult2 << ";";
 		    outResult2 << classificationPredictions2[i] << endl;
 
-		    outResult2_share << (classificationLabels2[i] > overlapThreshold2) << "\t";
+            outResult2_share << ((classificationLabels2[i] > overlapThreshold2) ? "1.0" : "0");
+            outResult2_share << ";";
 		    outResult2_share << classificationPredictions2[i] << endl;
 		}
 		outResult2.close();
