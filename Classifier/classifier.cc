@@ -204,7 +204,7 @@ double Classifier::classify(const cv::Mat& img, cv::Rect slidingWindow, float im
 
 	//calculate Feature-Descriptor
 	vector<float> vDescriptor;
-	hog.compute(img2, vDescriptor);	
+    hog.compute(img2, vDescriptor);
 	cv::Mat1f descriptor(1, vDescriptor.size(), &vDescriptor[0]);
 
 	//predict Result
@@ -221,7 +221,7 @@ double Classifier::classify(const cv::Mat& img, cv::Rect slidingWindow, float im
 		predictedSlidingWindowWeights.push_back ( (float) prediction );
 	}
 
-	return prediction;
+    return prediction;
 }
 
 void Classifier::evaluate(double prediction, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor)
@@ -280,11 +280,11 @@ void Classifier::printEvaluation(bool saveResult)
 		for (unsigned i = 0; i < classificationLabels.size(); i++)
 		{
             outResult << ((classificationLabels[i] > overlapThreshold) ? "1.0" : "0");
-            outResult << ";";
+            outResult << "\t";
 		    outResult << classificationPredictions[i] << endl;
 
             outResult_share << ((classificationLabels[i] > overlapThreshold) ? "1.0" : "0");
-            outResult_share << ";";
+            outResult_share << "\t";
 		    outResult_share << classificationPredictions[i] << endl;
 		}
 		outResult.close();
@@ -295,11 +295,11 @@ void Classifier::printEvaluation(bool saveResult)
 		for (unsigned i = 0; i < classificationLabels2.size(); i++)
 		{
             outResult2 << ((classificationLabels2[i] > overlapThreshold2) ? "1.0" : "0");
-            outResult2 << ";";
+            outResult2 << "\t";
 		    outResult2 << classificationPredictions2[i] << endl;
 
             outResult2_share << ((classificationLabels2[i] > overlapThreshold2) ? "1.0" : "0");
-            outResult2_share << ";";
+            outResult2_share << "\t";
 		    outResult2_share << classificationPredictions2[i] << endl;
 		}
 		outResult2.close();

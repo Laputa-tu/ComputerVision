@@ -3,8 +3,8 @@
 
 int main(int argc, char* argv[])
 {
-    bool loadSVMFromFile = true;
-    string svm_loadpath = "./SVM_Savings/svm_classifier.xml";
+    bool loadSVMFromFile = false;
+    string svm_loadpath = "./SVM_Savings/svm_classifier_hardnegative.xml";
     string svm_savepath = "./SVM_Savings/svm_" + getTimeString() + ".xml";
 
     Classifier model;
@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
 
 
     cout << "\nCalculating best sliding window size..." << endl;
-    calculateBestSlidingWindow(trainingSet);
+    calculateBestSlidingWindow(trainingSet, false);
 
 
 
@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
     }
     else
     {
-        //train
+        // train
         int res_train = doSlidingOperation(model, trainingSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
                                             windows_n_cols, step_slide_row, step_slide_col, OPERATE_TRAIN, originalImageHeight);
         if(res_train != 0)
@@ -84,6 +84,20 @@ int main(int argc, char* argv[])
         }
         cout << "\nFinishing Training ..." << endl;
         model.finishTraining();
+
+        // do hard negative mining
+        int res_train_neg = doSlidingOperation(model, trainingSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
+                                            windows_n_cols, step_slide_row, step_slide_col, OPERATE_TRAIN_NEG, originalImageHeight);
+        if(res_train_neg != 0)
+        {
+            cerr << "Error occured during training, errorcode: " << res_train;
+            return res_train_neg;
+        }
+
+        // finish hard negative mining
+        model.finishHardNegativeMining();
+        model.saveSVM(svm_savepath);
+
 
         // validate
         cout << "Running Validation..." << endl;
@@ -95,9 +109,6 @@ int main(int argc, char* argv[])
             cerr << "Error occured during validation, errorcode: " << res_val;
             return res_val;
         }
-
-        model.finishHardNegativeMining();
-        model.saveSVM(svm_savepath);
     }
 
     cout << "Running Classification..." << endl;
@@ -121,14 +132,13 @@ int main(int argc, char* argv[])
     return 0;
 }
 
-int calculateBestSlidingWindow(vector<JSONImage> &imageSet)
+int calculateBestSlidingWindow(vector<JSONImage> &imageSet, bool showResult)
 {
 	double sum_width = 0;
 	double sum_height = 0;
 	int count = 0;
 	ClipperLib::Path labelPolygon;
 	vector<Point> labelPolygonVector;
-	//vector< vector<Point> > contour;
 	Rect boundRect;
 
 	for(int i = 0; i < imageSet.size(); i++)
@@ -143,15 +153,18 @@ int calculateBestSlidingWindow(vector<JSONImage> &imageSet)
 		sum_width += boundRect.width;
 		sum_height += boundRect.height;				
 		count++;
-		/*
-		Mat im = imread(imageSet.at(i).getPath(), CV_LOAD_IMAGE_COLOR);		
-		contour.clear();
-		contour.push_back(labelPolygonVector);
-		drawContours(im, contour, -1, cv::Scalar( 255, 0, 0 ), 2, CV_AA);	
-		rectangle( im, boundRect, Scalar( 0, 255, 255 ), 2, CV_AA );	
-		imshow(imageSet.at(i).getName(), im);
-		waitKey(0);
-		*/
+
+        if(showResult)
+        {
+            vector< vector<Point> > contour;
+            Mat im = imread(imageSet.at(i).getPath(), CV_LOAD_IMAGE_COLOR);
+            contour.clear();
+            contour.push_back(labelPolygonVector);
+            drawContours(im, contour, -1, cv::Scalar( 255, 0, 0 ), 2, CV_AA);
+            rectangle( im, boundRect, Scalar( 0, 255, 255 ), 2, CV_AA );
+            imshow(imageSet.at(i).getName(), im);
+            waitKey(0);
+        }
 	} 
 	cout << "\tAverage Width:        " << sum_width / count << endl;
 	cout << "\tAverage Height:       " << sum_height / count << endl;
@@ -175,16 +188,15 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
 
     for(int i=0; i<imageSet.size(); i++)
     {	
-        if (operation == OPERATE_TRAIN || operation == OPERATE_CLASSIFY)
+        if (operation == OPERATE_TRAIN)
         {
             // check size of LabelPolygon area
             labelPolygonArea = initial_scale * Area(imageSet.at(i).getLabelPolygon());
             if(abs(labelPolygonArea) < 0.5 * slidingWindowArea)
             {
+                // skip training this image to reduce negative training samples
                 cnt_DiscardedTrainingImages++;
-                //cout << "\t--- Discarded image due to small polygon area" << endl;
-                //cout << " -> Polygon Area: " << labelPolygonArea << "    Sliding Window Area: " << slidingWindowArea << endl;
-                continue; // skip training this image to reduce negative training samples
+                continue;
             }
             else
             {
@@ -213,11 +225,10 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
         bool reached_row_end = false;
         bool reached_col_end = false;
 
+        double prediction;
+
         for(int j=0; j<scale_n; j++)
         {
-            /*cout << "\tImage: "<<imageSet.at(i).getName() << " (" << rescaled.cols << " x "
-                 << rescaled.rows << ", scale " << current_scaling << ")" << endl;*/
-
             // build sliding window
             for(int row = 0; row <= rescaled.rows; row += step_rows)
             {
@@ -244,15 +255,17 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
                         case OPERATE_TRAIN:
                             model.train(rescaled, imageSet.at(i).getLabelPolygon(), windows, current_scaling, showTaggedImage);
                             break;
-                        case OPERATE_VALIDATE:
+                        case OPERATE_TRAIN_NEG:
                             model.hardNegativeMine(rescaled, imageSet.at(i).getLabelPolygon(), windows, current_scaling);
                             break;
+                        case OPERATE_VALIDATE:
+                            prediction = model.classify(rescaled, windows, current_scaling);
+                            model.evaluate(prediction, imageSet.at(i).getLabelPolygon(), windows, current_scaling);
+                            break;
                         case OPERATE_CLASSIFY:
-                            double pred = model.classify(rescaled, windows, current_scaling);
-                            model.evaluate(pred, imageSet.at(i).getLabelPolygon(), windows, current_scaling);
+                            model.classify(rescaled, windows, current_scaling);
                             break;
                     }
-
 
                     if(reached_col_end)
                     {
@@ -268,15 +281,13 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
                 }
             }
 
-
-            if(j + 1 < scale_n) // only scale if necessary
+            // only scale if necessary
+            if(j + 1 < scale_n)
             {                
                 rescaled.release();
                 current_scaling = current_scaling*scale_factor;
                 resize(image, rescaled, Size(), current_scaling, current_scaling, INTER_CUBIC);
             }
-
-
         }
 
         switch(operation)
@@ -286,8 +297,7 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
             case OPERATE_VALIDATE: result_tag = "v_"; break;
         }
 
-        //model.generateTaggedResultImage(image, result_tag + imageSet.at(i).getName(), showResult, saveResult);
-	model.evaluateMergedSlidingWindows(image, imageSet.at(i).getLabelPolygon(), result_tag + imageSet.at(i).getName(), showResult, saveResult);
+        model.evaluateMergedSlidingWindows(image, imageSet.at(i).getLabelPolygon(), result_tag + imageSet.at(i).getName(), showResult, saveResult);
         rescaled.release();
         image.release();
     }
