@@ -188,7 +188,7 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
 
     for(int i=0; i<imageSet.size(); i++)
     {	
-        if (operation == OPERATE_TRAIN)
+        if (operation == OPERATE_TRAIN || operation == OPERATE_VALIDATE)
         {
             // check size of LabelPolygon area
             labelPolygonArea = initial_scale * Area(imageSet.at(i).getLabelPolygon());
