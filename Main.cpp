@@ -3,8 +3,8 @@
 
 int main(int argc, char* argv[])
 {
-    bool loadSVMFromFile = false;
-    string svm_loadpath = "./SVM_Savings/svm_classifier_hardnegative.xml";
+    bool loadSVMFromFile = true;
+    string svm_loadpath = "./SVM_Savings/svm_classifier.xml"; //_hardnegative
     string svm_savepath = "./SVM_Savings/svm_" + getTimeString() + ".xml";
 
     Classifier model;
@@ -97,21 +97,9 @@ int main(int argc, char* argv[])
         // finish hard negative mining
         model.finishHardNegativeMining();
         model.saveSVM(svm_savepath);
-
-
-        // validate
-        cout << "Running Validation..." << endl;
-        int res_val = doSlidingOperation(model, validationSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
-                                           windows_n_cols, step_slide_row, step_slide_col, OPERATE_VALIDATE, originalImageHeight);
-
-        if(res_val != 0)
-        {
-            cerr << "Error occured during validation, errorcode: " << res_val;
-            return res_val;
-        }
     }
 
-    cout << "Running Classification..." << endl;
+    /*cout << "Running Classification..." << endl;
     int res_test = doSlidingOperation(model, testSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
                                        windows_n_cols, step_slide_row, step_slide_col, OPERATE_CLASSIFY, originalImageHeight);
 
@@ -123,7 +111,18 @@ int main(int argc, char* argv[])
 
     cout << endl;
     cout << "Used Training Images:      " << cnt_TrainingImages << endl;
-    cout << "Discarded Training Images: " << cnt_DiscardedTrainingImages << endl << endl;
+    cout << "Discarded Training Images: " << cnt_DiscardedTrainingImages << endl << endl;*/
+
+    // validate
+    cout << "Running Validation..." << endl;
+    int res_val = doSlidingOperation(model, validationSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
+                                       windows_n_cols, step_slide_row, step_slide_col, OPERATE_VALIDATE, originalImageHeight);
+
+    if(res_val != 0)
+    {
+        cerr << "Error occured during validation, errorcode: " << res_val;
+        return res_val;
+    }
 
     model.printEvaluation(true);
     model.showROC(true);
@@ -225,8 +224,6 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
         bool reached_row_end = false;
         bool reached_col_end = false;
 
-        double prediction;
-
         for(int j=0; j<scale_n; j++)
         {
             // build sliding window
@@ -259,9 +256,11 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
                             model.hardNegativeMine(rescaled, imageSet.at(i).getLabelPolygon(), windows, current_scaling);
                             break;
                         case OPERATE_VALIDATE:
-                            prediction = model.classify(rescaled, windows, current_scaling);
+                        {
+                            double prediction = model.classify(rescaled, windows, current_scaling);
                             model.evaluate(prediction, imageSet.at(i).getLabelPolygon(), windows, current_scaling);
                             break;
+                        }
                         case OPERATE_CLASSIFY:
                             model.classify(rescaled, windows, current_scaling);
                             break;

@@ -279,11 +279,11 @@ void Classifier::printEvaluation(bool saveResult)
         std::ofstream outResult_share( ("/home/kevin/share/ROC/classify/roc_classify_" + startTime.str() + ".csv").c_str());
 		for (unsigned i = 0; i < classificationLabels.size(); i++)
 		{
-            outResult << ((classificationLabels[i] > overlapThreshold) ? "1.0" : "0");
+            outResult << ((classificationLabels[i] > overlapThreshold) ? "1.0" : "-1.0");
             outResult << "\t";
 		    outResult << classificationPredictions[i] << endl;
 
-            outResult_share << ((classificationLabels[i] > overlapThreshold) ? "1.0" : "0");
+            outResult_share << ((classificationLabels[i] > overlapThreshold) ? "1.0" : "-1.0");
             outResult_share << "\t";
 		    outResult_share << classificationPredictions[i] << endl;
 		}
@@ -294,11 +294,11 @@ void Classifier::printEvaluation(bool saveResult)
         std::ofstream outResult2_share( ("/home/kevin/share/ROC/detect/roc_detector_" + startTime.str() + ".csv").c_str()  );
 		for (unsigned i = 0; i < classificationLabels2.size(); i++)
 		{
-            outResult2 << ((classificationLabels2[i] > overlapThreshold2) ? "1.0" : "0");
+            outResult2 << ((classificationLabels2[i] > overlapThreshold2) ? "1.0" : "-1.0");
             outResult2 << "\t";
 		    outResult2 << classificationPredictions2[i] << endl;
 
-            outResult2_share << ((classificationLabels2[i] > overlapThreshold2) ? "1.0" : "0");
+            outResult2_share << ((classificationLabels2[i] > overlapThreshold2) ? "1.0" : "-1.0");
             outResult2_share << "\t";
 		    outResult2_share << classificationPredictions2[i] << endl;
 		}
