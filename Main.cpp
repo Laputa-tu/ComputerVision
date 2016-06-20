@@ -15,11 +15,11 @@ int main(int argc, char* argv[])
     cnt_TrainingImages = 0;
     cnt_DiscardedTrainingImages = 0;
 
-    // training parameters
-    int originalImageHeight = 1080;
-    int scale_n_times = 3;
-    float scaling_factor = 0.75;
-    float initial_scale = 0.25;
+    // training parameters    
+    int originalImageHeight = 1080; 	//1080;
+    int scale_n_times = 3; 		//3;
+    float scaling_factor = 0.75;	//0.75;
+    float initial_scale = 0.25;		//0.25;
 
     // sliding window
     int windows_n_rows = originalImageHeight * initial_scale * pow(scaling_factor, scale_n_times); //114
@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
     windows_n_rows = max(windows_n_rows, 128); // if lower than 128, set to 128
     windows_n_cols = max(windows_n_cols, 128); // if lower than 128, set to 128
     int step_slide_row = windows_n_rows/5;
-    int step_slide_col = windows_n_cols/5;
+    int step_slide_col = windows_n_cols/5;    
 
     // check the number of parameters
     if (argc < 2)
@@ -59,10 +59,18 @@ int main(int argc, char* argv[])
         cerr << "No test images found." << endl;
     }
 
+    // print calculated scale steps
+    cout << "\nOriginal Image Height: " << originalImageHeight  << endl;
+    cout << "\nScale Steps: " << scale_n_times << endl;    
+    for (int i = 0; i <= scale_n_times; i++)
+    {
+        cout << "\tScale Step " << i << " -> Image-Height: " << (originalImageHeight * initial_scale * pow(scaling_factor, i)) << ((i==0) ? " (Initial Scale)" : "") << endl;
+    }
+    cout << "\nSliding Window Size: " << windows_n_cols << " x " << windows_n_rows << endl;
 
+    // Calculate average bounding box of label-polygons to get the best sliding window size
     cout << "\nCalculating best sliding window size..." << endl;
     calculateBestSlidingWindow(trainingSet, false);
-
 
 
     cout << "\nStarting training..." << endl;
@@ -212,23 +220,28 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
         }
 
         //scale image to defaultHeight
-        rescaled = image;
-        if(rescaled.rows != originalImageHeight)
+        if(image.rows != originalImageHeight)
         {
-            float defaultScale = 1.0 * originalImageHeight / rescaled.rows;
-            resize(rescaled, rescaled, Size(), defaultScale, defaultScale, INTER_CUBIC);
+            float defaultScale = 1.0 * originalImageHeight / image.rows;
+            resize(image, image, Size(), defaultScale, defaultScale, INTER_CUBIC);
         }
+	rescaled = image;
 
         resize(rescaled, rescaled, Size(), initial_scale, initial_scale, INTER_CUBIC);
         current_scaling = initial_scale;
         bool reached_row_end = false;
         bool reached_col_end = false;
 
-        for(int j=0; j<scale_n; j++)
+        for(int j=0; j<=scale_n; j++)
         {
             // build sliding window
             for(int row = 0; row <= rescaled.rows; row += step_rows)
             {
+		// check if sliding window is too big for scaled image
+                if(w_rows >= rescaled.rows)
+                {
+                    break;			
+                }
                 // check end of rows
                 reached_row_end = (rescaled.rows - (row + w_rows) <= 0) ? true : false;
                 if(reached_row_end)
@@ -238,6 +251,11 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
 
                 for(int col = 0; col <= rescaled.cols; col += step_cols )
                 {
+                    // check if sliding window is too big for scaled image
+                    if(w_cols >= rescaled.cols)
+                    {
+                        break;			
+                    }
                     // check end of cols
                     reached_col_end = (rescaled.cols - (col + w_cols) <= 0) ? true : false;
                     if(reached_col_end)
@@ -246,7 +264,7 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
                     }
 
                     Rect windows(col, row, w_cols, w_rows);
-
+                    
                     switch (operation)
                     {
                         case OPERATE_TRAIN:
@@ -257,14 +275,19 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
                             break;
                         case OPERATE_VALIDATE:
                         {
+                            //cout << "\tScale step: " << j << endl;
+                            //cout << "\tImage Size: " << rescaled.cols << " x " << rescaled.rows << endl;
+                            //cout << "\tSliding window: " << windows << endl;
                             double prediction = model.classify(rescaled, windows, current_scaling);
                             model.evaluate(prediction, imageSet.at(i).getLabelPolygon(), windows, current_scaling);
+                            //cout << "\t\t-> operation for sliding window done" << endl;
                             break;
                         }
                         case OPERATE_CLASSIFY:
                             model.classify(rescaled, windows, current_scaling);
                             break;
                     }
+                   
 
                     if(reached_col_end)
                     {
@@ -281,7 +304,7 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
             }
 
             // only scale if necessary
-            if(j + 1 < scale_n)
+            if(j + 1 <= scale_n)
             {                
                 rescaled.release();
                 current_scaling = current_scaling*scale_factor;
@@ -295,9 +318,9 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
             case OPERATE_CLASSIFY: result_tag = "c_"; break;
             case OPERATE_VALIDATE: result_tag = "v_"; break;
         }
-
+	
         model.evaluateMergedSlidingWindows(image, imageSet.at(i).getLabelPolygon(), result_tag + imageSet.at(i).getName(), showResult, saveResult);
-        rescaled.release();
+	rescaled.release();
         image.release();
     }
 

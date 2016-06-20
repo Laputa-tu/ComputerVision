@@ -541,9 +541,15 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 
 	//draw sliding predicted sliding windows and create heatmap
 	for(int i = 0; i < predictedSlidingWindows.size(); i++)
-	{
+	{		
+		if((predictedSlidingWindows[i].x + predictedSlidingWindows[i].width >= img_show.cols) ||
+			(predictedSlidingWindows[i].y + predictedSlidingWindows[i].height) >= img_show.rows)
+		{
+			
+			continue;
+		}		
 		rectangle( img_show, predictedSlidingWindows[i], cv::Scalar( 0, 255, 0 ), 2, CV_AA, 0 );
-		heatmap(predictedSlidingWindows[i]) += 10 * predictedSlidingWindowWeights[i];			
+		heatmap(predictedSlidingWindows[i]) += 10 * predictedSlidingWindowWeights[i];				
 	}	
 	
 	//calculate Mask Contour	
@@ -648,6 +654,7 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 	predictedSlidingWindows.clear();
 	predictedSlidingWindowWeights.clear();
 
+	// release images
 	heatmap.release();
 	heatmap_blurred.release();
 	mask.release();
