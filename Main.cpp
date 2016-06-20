@@ -3,8 +3,8 @@
 
 int main(int argc, char* argv[])
 {
-    bool loadSVMFromFile = true;
-    string svm_loadpath = "./SVM_Savings/svm_classifier.xml"; //_hardnegative
+    bool loadSVMFromFile = false;
+    string svm_loadpath = "./SVM_Savings/svm_para_1080_10_095_02.xml"; //_hardnegative
     string svm_savepath = "./SVM_Savings/svm_" + getTimeString() + ".xml";
 
     Classifier model;
@@ -17,13 +17,13 @@ int main(int argc, char* argv[])
 
     // training parameters    
     int originalImageHeight = 1080; 	//1080;
-    int scale_n_times = 3; 		//3;
-    float scaling_factor = 0.75;	//0.75;
-    float initial_scale = 0.25;		//0.25;
+    int scale_n_times = 10; 		//3;
+    float scaling_factor = 0.95;	//0.75;
+    float initial_scale = 0.2;		//0.25;
 
     // sliding window
-    int windows_n_rows = originalImageHeight * initial_scale * pow(scaling_factor, scale_n_times); //114
-    int windows_n_cols = originalImageHeight * initial_scale * pow(scaling_factor, scale_n_times); //114
+    int windows_n_rows = originalImageHeight * initial_scale * pow(scaling_factor, scale_n_times);
+    int windows_n_cols = originalImageHeight * initial_scale * pow(scaling_factor, scale_n_times);
     windows_n_rows = max(windows_n_rows, 128); // if lower than 128, set to 128
     windows_n_cols = max(windows_n_cols, 128); // if lower than 128, set to 128
     int step_slide_row = windows_n_rows/5;
@@ -195,7 +195,7 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
 
     for(int i=0; i<imageSet.size(); i++)
     {	
-        if (operation == OPERATE_TRAIN || operation == OPERATE_VALIDATE)
+        if (operation == OPERATE_TRAIN)
         {
             // check size of LabelPolygon area
             labelPolygonArea = initial_scale * Area(imageSet.at(i).getLabelPolygon());
@@ -225,7 +225,7 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
             float defaultScale = 1.0 * originalImageHeight / image.rows;
             resize(image, image, Size(), defaultScale, defaultScale, INTER_CUBIC);
         }
-	rescaled = image;
+        rescaled = image;
 
         resize(rescaled, rescaled, Size(), initial_scale, initial_scale, INTER_CUBIC);
         current_scaling = initial_scale;
@@ -237,7 +237,7 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
             // build sliding window
             for(int row = 0; row <= rescaled.rows; row += step_rows)
             {
-		// check if sliding window is too big for scaled image
+                // check if sliding window is too big for scaled image
                 if(w_rows >= rescaled.rows)
                 {
                     break;			
@@ -275,12 +275,8 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
                             break;
                         case OPERATE_VALIDATE:
                         {
-                            //cout << "\tScale step: " << j << endl;
-                            //cout << "\tImage Size: " << rescaled.cols << " x " << rescaled.rows << endl;
-                            //cout << "\tSliding window: " << windows << endl;
                             double prediction = model.classify(rescaled, windows, current_scaling);
                             model.evaluate(prediction, imageSet.at(i).getLabelPolygon(), windows, current_scaling);
-                            //cout << "\t\t-> operation for sliding window done" << endl;
                             break;
                         }
                         case OPERATE_CLASSIFY:
@@ -316,11 +312,13 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
         {
             case OPERATE_TRAIN: result_tag = "t_"; break;
             case OPERATE_CLASSIFY: result_tag = "c_"; break;
-            case OPERATE_VALIDATE: result_tag = "v_"; break;
+            case OPERATE_VALIDATE:
+                model.evaluateMergedSlidingWindows(image, imageSet.at(i).getLabelPolygon(), result_tag + imageSet.at(i).getName(), showResult, saveResult);
+                result_tag = "v_";
+                break;
         }
-	
-        model.evaluateMergedSlidingWindows(image, imageSet.at(i).getLabelPolygon(), result_tag + imageSet.at(i).getName(), showResult, saveResult);
-	rescaled.release();
+
+        rescaled.release();
         image.release();
     }
 
