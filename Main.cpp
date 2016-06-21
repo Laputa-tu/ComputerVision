@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
     // classification parameters
     overlapThreshold = 0.5;		// label = Percentage of overlap -> 0 to 1.0
     float predictionThreshold = 0.3;	// svm prediction: -1 to +1
-    float overlapThreshold2 = 0.15;	// overlap of the merged-slidingWindow-contour and the labelPolygon
+    float overlapThreshold2 = 0.06;	// overlap of the merged-slidingWindow-contour and the labelPolygon
 
     Classifier model(overlapThreshold, predictionThreshold, overlapThreshold2);
 

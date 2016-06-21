@@ -587,14 +587,16 @@ void Classifier::generateTaggedResultImage(const cv::Mat& img, string imgName, b
 
 void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Path labelPolygon, string imgName, bool showResult, bool saveResult)
 {
-	int heatmap_threshold = 20;
+    double heatmap_threshold = 0.325;
 	double area_clippedContourPolygon, area_contourPolygon, area_labelPolygon, TP, FP, overlap, heatmap_max;
 	bool targetObjectDetected = false;
-	vector< vector<Point> > contours;
+    vector< vector<Point> > contours, contours_thresh;
 	vector< vector<Point> > singleContour;
-	cv::Mat heatmap, heatmap_blurred, mask, img_show;
+    cv::Mat heatmap_blurred, mask, mask_thresh, img_show, rectCountMap;
+    Mat1f heatmap;
 	cv::Mat singleContourMask, singleContourHeatmap;
 	heatmap = cv::Mat::zeros(img.rows, img.cols, CV_8U); 
+    rectCountMap = cv::Mat::zeros(img.rows, img.cols, CV_8U);
 	
 	//clone image for drawing shapes
 	img_show = img.clone();	
@@ -608,17 +610,19 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 			
 			continue;
 		}		
-		rectangle( img_show, predictedSlidingWindows[i], cv::Scalar( 0, 255, 0 ), 2, CV_AA, 0 );
-		heatmap(predictedSlidingWindows[i]) += 10 * predictedSlidingWindowWeights[i];				
-	}	
-	
-	//calculate Mask Contour	
-	cv::GaussianBlur(heatmap, heatmap_blurred, cv::Size(171, 171), 0, 0); 
-	threshold(heatmap_blurred, mask, heatmap_threshold, 255, cv::THRESH_BINARY);	
-	findContours(mask, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_TC89_KCOS);
+        //rectangle( img_show, predictedSlidingWindows[i], cv::Scalar( 0, 255, 0 ), 2, CV_AA, 0 );      // you need to add a parameter here to set it
+        heatmap(predictedSlidingWindows[i]) += (double) 1.0 * predictedSlidingWindowWeights[i];
 
-	//draw contours on tagged image
-	drawContours(img_show, contours, -1, cv::Scalar( 0, 0, 255 ), 3, CV_AA);
+        // count number of windows
+        rectCountMap(predictedSlidingWindows[i]) += 1;
+    }
+
+	//calculate Mask Contour	
+    cv::GaussianBlur(heatmap, heatmap_blurred, cv::Size(171, 171), 0, 0);       // delete this one
+    threshold(heatmap_blurred, mask, 0.0, 255, cv::THRESH_BINARY);
+
+    mask.convertTo(mask,CV_8UC1,255,0);
+	findContours(mask, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_TC89_KCOS);
 
 
 	//draw labelPolygon
@@ -627,68 +631,116 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 	{
 		labelContour.push_back(Point(labelPolygon[i].X, labelPolygon[i].Y));
 	}
+
+    // draw label
 	vector< vector<Point> > labelContours;
 	labelContours.push_back(labelContour);
-	drawContours(img_show, labelContours, -1, cv::Scalar( 255, 0, 0 ), 3, CV_AA);
+    //drawContours(img_show, labelContours, -1, cv::Scalar( 255, 0, 0 ), 2, CV_AA);                     // you need to add a parameter here to set it
+
+    // draw bounding rect (labeled)
+    Rect labelBoundRect = boundingRect(Mat(labelContour));
+    rectangle(img_show, labelBoundRect.tl(), labelBoundRect.br(), cv::Scalar( 255, 0, 0 ), 2, 8, 0 );
 
 	for (int i = 0; i < contours.size(); i++)
 	{
-		//Calculate Overlap with the contour and the labelPolygon
-		ClipperLib::Path contourPolygon;
-		for ( int k = 0; k < contours[i].size(); k++)
-		{					
-			contourPolygon << ClipperLib::IntPoint(contours[i][k].x, contours[i][k].y);
-		}
+        //Calculate max value of the heatmap crop of the single contour
+        singleContour.clear();
+        singleContour.push_back(contours[i]);
+        singleContourMask = cv::Mat::zeros(img.rows, img.cols, CV_8U);
+        singleContourHeatmap = cv::Mat::zeros(img.rows, img.cols, CV_8U);
+        drawContours(singleContourMask, singleContour, -1, cv::Scalar( 255, 255, 255 ), CV_FILLED);
+        heatmap.copyTo(singleContourHeatmap, singleContourMask);
 
-		ClipperLib::Paths clippedContourPolygon = clipPolygon(contourPolygon, labelPolygon);		
-		area_clippedContourPolygon = 0;
-		if (clippedContourPolygon.size() > 0) 
-			area_clippedContourPolygon = abs(Area(clippedContourPolygon[0]));
-		area_contourPolygon = abs(Area(contourPolygon));
-		area_labelPolygon = abs(Area(labelPolygon));
+        Point max_loc;
+        cv::minMaxLoc(singleContourHeatmap, NULL, &heatmap_max, NULL, &max_loc);
 
-		TP = area_clippedContourPolygon;
-		FP = area_contourPolygon - area_clippedContourPolygon;
-		overlap = TP / (area_labelPolygon + FP);
-		
-		//cout << "area_contourPolygon:         " << area_contourPolygon << "   " << abs(area_contourPolygon) << endl;
-		//cout << "area_clippedContourPolygon:  " << area_clippedContourPolygon << "   " << abs(area_clippedContourPolygon)  << endl;
-		//cout << "area_labelPolygon:           " << area_labelPolygon << "   " << abs(area_labelPolygon)  << endl;
-		//cout << "TP:                          " << TP << endl;
-		//cout << "FP:                          " << FP << endl;
-		cout << "Overlap " << (i+1) << "  (TP / (TP + FP + FN)): " << overlap << endl;
-		
+        int rectCount =  (int)rectCountMap.at<uchar>(max_loc);
+        cout << "max_loc: " << max_loc << ", rectCount: " << rectCount << endl;
 
-		//Calculate max value of the heatmap crop of the single contour
-		singleContour.clear();
-		singleContour.push_back(contours[i]);
-		singleContourMask = cv::Mat::zeros(img.rows, img.cols, CV_8U); 
-		singleContourHeatmap = cv::Mat::zeros(img.rows, img.cols, CV_8U); 
-		drawContours(singleContourMask, singleContour, -1, cv::Scalar( 255, 255, 255 ), CV_FILLED);
-		heatmap.copyTo(singleContourHeatmap, singleContourMask);
-		cv::minMaxLoc(singleContourHeatmap, NULL, &heatmap_max);
-		cout << "   -> Heatmap_threshold:          " << heatmap_threshold << endl;
-		cout << "   -> Heatmap_max:                " << heatmap_max << endl;
+        cv::GaussianBlur(singleContourHeatmap, singleContourHeatmap, cv::Size(171, 171), 0, 0);
+        threshold(singleContourHeatmap, mask_thresh, heatmap_threshold*rectCount, 255, cv::THRESH_BINARY);
+
+        mask_thresh.convertTo(mask_thresh,CV_8UC1,255,0);
+        findContours(mask_thresh, contours_thresh, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_TC89_KCOS);
+
+        //draw contours on tagged image
+        //drawContours(img_show, contours_thresh, -1, cv::Scalar( 0, 0, 255 ), 2, CV_AA);                   // you need to add a parameter here to set it
 
 
-		//draw Text
-		ostringstream s;		
-		s << "Overlap " << (i+1) << ": " << overlap << "(-> Label: " << (overlap >= overlapThreshold2) << ")   Heatmap-Max: " << heatmap_max;
-		putText(img_show, s.str(), cv::Point(10, 40 * (i+1)), cv::FONT_HERSHEY_DUPLEX, 1.3, cv::Scalar( 0, 0, 255 ), 2, CV_AA);
-		s.str("");	
+        if (contours_thresh.size() > 0)
+        {
+
+            // draw bounding rect (detected)
+            Rect boundRect = boundingRect( Mat(contours_thresh[0]) );
 
 
-		if(overlap > overlapThreshold2) 
-			targetObjectDetected = true;
+            if(1.0 * boundRect.width / boundRect.height < 2.0)
+            {
+                int newWidth = boundRect.height * 2.0;
+                Point rect_center(boundRect.x + 0.5 * boundRect.width, boundRect.y + 0.5 * boundRect.height);
+                boundRect = Rect(rect_center.x - 0.5 * newWidth, boundRect.y, newWidth, boundRect.height );
+            }
+            rectangle(img_show, boundRect.tl(), boundRect.br(), cv::Scalar( 0, 0, 255 ), 2, 8, 0 );
 
-		classificationLabels2.push_back ( overlap );	
-		classificationPredictions2.push_back ( heatmap_max );		
+
+            //Calculate Overlap with the contour and the labelPolygon
+            ClipperLib::Path contourPolygon;
+            for ( int k = 0; k < contours_thresh[0].size(); k++)
+            {
+                contourPolygon << ClipperLib::IntPoint(contours_thresh[0][k].x, contours_thresh[0][k].y);
+            }
+
+            ClipperLib::Paths clippedContourPolygon = clipPolygon(contourPolygon, labelPolygon);
+            area_clippedContourPolygon = 0;
+            if (clippedContourPolygon.size() > 0)
+                area_clippedContourPolygon = abs(Area(clippedContourPolygon[0]));
+            area_contourPolygon = abs(Area(contourPolygon));
+            area_labelPolygon = abs(Area(labelPolygon));
+
+            TP = area_clippedContourPolygon;
+            FP = area_contourPolygon - area_clippedContourPolygon;
+            overlap = TP / (area_labelPolygon + FP);
+
+            //new one
+            Rect intersection = boundRect & labelBoundRect;
+            double areaIntersection = intersection.width * intersection.height;
+            double areaLabel = labelBoundRect.width * labelBoundRect.height;
+            double areaPrediction = boundRect.width * boundRect.height;
+            double areaUnion = areaLabel+areaPrediction-areaIntersection;
+            overlap = (double)(areaIntersection/areaUnion);
+
+            //cout << "area_contourPolygon:         " << area_contourPolygon << "   " << abs(area_contourPolygon) << endl;
+            //cout << "area_clippedContourPolygon:  " << area_clippedContourPolygon << "   " << abs(area_clippedContourPolygon)  << endl;
+            //cout << "area_labelPolygon:           " << area_labelPolygon << "   " << abs(area_labelPolygon)  << endl;
+            //cout << "TP:                          " << TP << endl;
+            //cout << "FP:                          " << FP << endl;
+            cout << "Overlap " << (i+1) << "  (TP / (TP + FP + FN)): " << overlap << endl;
+            cout << "   -> Heatmap_threshold:          " << heatmap_threshold << endl;
+            cout << "   -> Heatmap_max:                " << heatmap_max << endl;
+
+
+            double pred = 1.0 * heatmap_max / rectCount;
+            //draw Text
+            ostringstream s;
+            s << "Overlap " << (i+1) << ": " << overlap << " (-> Label: " << (overlap >= overlapThreshold2) << ")   Heatmap-Max: " << heatmap_max << " Rect-Count: " << rectCount;
+            putText(img_show, s.str(), cv::Point(10, 40 * (i+1)), cv::FONT_HERSHEY_DUPLEX, 1.3, cv::Scalar( 0, 0, 255 ), 2, CV_AA);
+            s.str("");
+            s << "Prediction: " << pred;
+            putText(img_show, s.str(), cv::Point(10, 80 * (i+1)), cv::FONT_HERSHEY_DUPLEX, 1.3, cv::Scalar( 0, 0, 255 ), 2, CV_AA);
+            s.str("");
+
+            if(overlap > overlapThreshold2)
+                targetObjectDetected = true;
+
+            classificationLabels2.push_back ( overlap );
+            classificationPredictions2.push_back ( pred );
+        }
 	}
 
 	if (!targetObjectDetected)
 	{
-		classificationLabels2.push_back ( 1 );	
-		classificationPredictions2.push_back ( 0 );	
+        classificationLabels2.push_back ( 1 );
+        classificationPredictions2.push_back ( 0 );
 	}
 	
 	if(showResult)
@@ -757,7 +809,7 @@ void Classifier::showTaggedOverlapImage(const cv::Mat& img, ClipperLib::Path lab
 
 
 	//draw sliding window 
-	rectangle( img_show, slidingWindow, cv::Scalar( 0, 255, 0 ), 2, CV_AA, 0 );
+    rectangle( img_show, slidingWindow, cv::Scalar( 0, 255, 0 ), 2, CV_AA, 0 );
 	
 
 	//draw Text
