@@ -62,7 +62,7 @@ private:
 	void shuffleTrainingData(cv::Mat1f  predictionsMatrix, cv::Mat1f labelsMatrix);
 	cv::Mat cropRotatedRect(const cv::Mat& img, Rect r, float angle);
 public:
-    	Classifier();
+    	Classifier(float, float, float);
     	~Classifier();
     	void startTraining(string StartTime);
         void train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor, bool showImage);

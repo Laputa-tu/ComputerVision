@@ -28,6 +28,4 @@ int calculateBestSlidingWindow(vector<JSONImage> &imageSet, bool showResult);
 static string getTimeString();
 static string TimeString;
 
-float overlapThreshold;
-
 

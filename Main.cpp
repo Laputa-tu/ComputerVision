@@ -4,10 +4,9 @@
 int main(int argc, char* argv[])
 {
     bool loadSVMFromFile = false;
-    string svm_loadpath = "./SVM_Savings/svm_para_1080_10_095_02.xml"; //_hardnegative
+    string svm_loadpath = "./SVM_Savings/svm_para_5_08_15_overlap40_width160.xml"; //_hardnegative
     string svm_savepath = "./SVM_Savings/svm_" + getTimeString() + ".xml";
 
-    Classifier model;
     char* trainingPath = argv[1];
     char* validationPath = argv[2];
     char* testPath = argv[3];
@@ -15,17 +14,26 @@ int main(int argc, char* argv[])
     cnt_TrainingImages = 0;
     cnt_DiscardedTrainingImages = 0;
 
-    // training parameters    
+    // training parameters          3 75 15 nächster versuch - initial scale kleiner!
     int originalImageHeight = 1080; 	//1080;
-    int scale_n_times = 10; 		//3;
-    float scaling_factor = 0.95;	//0.75;
-    float initial_scale = 0.2;		//0.25;
+    int scale_n_times = 5; 		//3;
+    float scaling_factor = 0.8;	//0.75;
+    float initial_scale = 0.15;		//0.25;
+
+    // classification parameters
+    overlapThreshold = 0.4;		// label = Percentage of overlap -> 0 to 1.0
+    float predictionThreshold = 0.3;	// svm prediction: -1 to +1
+    float overlapThreshold2 = 0.15;	// overlap of the merged-slidingWindow-contour and the labelPolygon
+
+    Classifier model(overlapThreshold, predictionThreshold, overlapThreshold2);
 
     // sliding window
     int windows_n_rows = originalImageHeight * initial_scale * pow(scaling_factor, scale_n_times);
     int windows_n_cols = originalImageHeight * initial_scale * pow(scaling_factor, scale_n_times);
     windows_n_rows = max(windows_n_rows, 128); // if lower than 128, set to 128
     windows_n_cols = max(windows_n_cols, 128); // if lower than 128, set to 128
+    windows_n_rows = 64;
+    windows_n_cols = 160;
     int step_slide_row = windows_n_rows/5;
     int step_slide_col = windows_n_cols/5;    
 
@@ -107,7 +115,8 @@ int main(int argc, char* argv[])
         model.saveSVM(svm_savepath);
     }
 
-    /*cout << "Running Classification..." << endl;
+    /*
+    cout << "Running Classification..." << endl;
     int res_test = doSlidingOperation(model, testSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
                                        windows_n_cols, step_slide_row, step_slide_col, OPERATE_CLASSIFY, originalImageHeight);
 
@@ -199,7 +208,7 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
         {
             // check size of LabelPolygon area
             labelPolygonArea = initial_scale * Area(imageSet.at(i).getLabelPolygon());
-            if(abs(labelPolygonArea) < 0.5 * slidingWindowArea)
+            if(abs(labelPolygonArea) < overlapThreshold * slidingWindowArea)
             {
                 // skip training this image to reduce negative training samples
                 cnt_DiscardedTrainingImages++;
@@ -310,8 +319,13 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
 
         switch(operation)
         {
-            case OPERATE_TRAIN: result_tag = "t_"; break;
-            case OPERATE_CLASSIFY: result_tag = "c_"; break;
+            case OPERATE_TRAIN:
+                model.evaluateMergedSlidingWindows(image, imageSet.at(i).getLabelPolygon(), result_tag + imageSet.at(i).getName(), showResult, saveResult);
+                result_tag = "t_";
+                break;
+            case OPERATE_CLASSIFY:
+                model.evaluateMergedSlidingWindows(image, imageSet.at(i).getLabelPolygon(), result_tag + imageSet.at(i).getName(), showResult, saveResult);
+                result_tag = "c_"; break;
             case OPERATE_VALIDATE:
                 model.evaluateMergedSlidingWindows(image, imageSet.at(i).getLabelPolygon(), result_tag + imageSet.at(i).getName(), showResult, saveResult);
                 result_tag = "v_";

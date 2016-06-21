@@ -4,11 +4,11 @@ using namespace std;
 using namespace ClipperLib;
 
 /// Constructor
-Classifier::Classifier()
+Classifier::Classifier(float overlapLabels, float predictionThresh, float overlapDetector)
 {
-	overlapThreshold = 0.5;		// label = Percentage of overlap -> 0 to 1.0
-	predictionThreshold = 0.2;	// svm prediction: -1 to +1
-	overlapThreshold2 = 0.15;	// overlap of the merged-slidingWindow-contour and the labelPolygon
+    overlapThreshold = overlapLabels;		// label = Percentage of overlap -> 0 to 1.0
+    predictionThreshold = predictionThresh;	// svm prediction: -1 to +1
+    overlapThreshold2 = overlapDetector;	// overlap of the merged-slidingWindow-contour and the labelPolygon
 
 	cnt_Classified = 0;
 	cnt_TP = 0;
@@ -50,6 +50,7 @@ void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Re
 
 	//calculate Feature-Descriptor
 	vector<float> vDescriptor;	
+    transpose(img2, img2);
 	hog.compute(img2, vDescriptor);
 	cv::Mat1f descriptor(1,vDescriptor.size(),&vDescriptor[0]);
 	//lbp.compute(img2, vDescriptor);
@@ -128,6 +129,7 @@ void Classifier::hardNegativeMine(const cv::Mat& img, ClipperLib::Path labelPoly
 
 	//calculate Feature-Descriptor
 	vector<float> vDescriptor;
+    transpose(img2, img2);
 	hog.compute(img2, vDescriptor);	
 	cv::Mat1f descriptor(1, vDescriptor.size(), &vDescriptor[0]);
 
@@ -204,6 +206,7 @@ double Classifier::classify(const cv::Mat& img, cv::Rect slidingWindow, float im
 
 	//calculate Feature-Descriptor
 	vector<float> vDescriptor;
+    transpose(img2, img2);
     hog.compute(img2, vDescriptor);
 	cv::Mat1f descriptor(1, vDescriptor.size(), &vDescriptor[0]);
 
