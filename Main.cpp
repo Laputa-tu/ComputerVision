@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
     float initial_scale = 0.15;		//0.25;
 
     // classification parameters
-    overlapThreshold = 0.4;		// label = Percentage of overlap -> 0 to 1.0
+    overlapThreshold = 0.5;		// label = Percentage of overlap -> 0 to 1.0
     float predictionThreshold = 0.3;	// svm prediction: -1 to +1
     float overlapThreshold2 = 0.15;	// overlap of the merged-slidingWindow-contour and the labelPolygon
 
@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
     windows_n_rows = max(windows_n_rows, 128); // if lower than 128, set to 128
     windows_n_cols = max(windows_n_cols, 128); // if lower than 128, set to 128
     windows_n_rows = 64;
-    windows_n_cols = 160;
+    windows_n_cols = 128;
     int step_slide_row = windows_n_rows/5;
     int step_slide_col = windows_n_cols/5;    
 
@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
 
     // Calculate average bounding box of label-polygons to get the best sliding window size
     cout << "\nCalculating best sliding window size..." << endl;
-    calculateBestSlidingWindow(trainingSet, false);
+    calculateBestSlidingWindow(trainingSet, false, initial_scale, windows_n_rows, windows_n_cols);
 
 
     cout << "\nStarting training..." << endl;
@@ -148,27 +148,37 @@ int main(int argc, char* argv[])
     return 0;
 }
 
-int calculateBestSlidingWindow(vector<JSONImage> &imageSet, bool showResult)
+int calculateBestSlidingWindow(vector<JSONImage> &imageSet, bool showResult, float initial_scale, int w_rows, int w_cols)
 {
 	double sum_width = 0;
 	double sum_height = 0;
 	int count = 0;
-	ClipperLib::Path labelPolygon;
+    ClipperLib::Path labelPolygon;
 	vector<Point> labelPolygonVector;
+    float labelPolygonArea;
 	Rect boundRect;
+    float slidingWindowArea = w_rows * w_cols;
 
 	for(int i = 0; i < imageSet.size(); i++)
-	{			
-		labelPolygon = imageSet.at(i).getLabelPolygon();    
-		labelPolygonVector.clear();
-		for (int k = 0; k < labelPolygon.size(); k++)
-		{
-			labelPolygonVector.push_back(Point(labelPolygon[k].X, labelPolygon[k].Y));
-		}		
-		boundRect = boundingRect( Mat(labelPolygonVector) );
-		sum_width += boundRect.width;
-		sum_height += boundRect.height;				
-		count++;
+    {
+        // check size of LabelPolygon area
+        labelPolygonArea = initial_scale * Area(imageSet.at(i).getLabelPolygon());
+        if(abs(labelPolygonArea) < overlapThreshold * slidingWindowArea)
+        {
+            // skip training this image to reduce negative training samples
+            continue;
+        }
+
+        labelPolygon = imageSet.at(i).getLabelPolygon();
+        labelPolygonVector.clear();
+        for (int k = 0; k < labelPolygon.size(); k++)
+        {
+            labelPolygonVector.push_back(Point(labelPolygon[k].X, labelPolygon[k].Y));
+        }
+        boundRect = boundingRect( Mat(labelPolygonVector) );
+        sum_width += boundRect.width;
+        sum_height += boundRect.height;
+        count++;
 
         if(showResult)
         {
@@ -204,8 +214,11 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
 
     for(int i=0; i<imageSet.size(); i++)
     {	
+
         if (operation == OPERATE_TRAIN)
         {
+            cnt_TrainingImages++;
+            /*
             // check size of LabelPolygon area
             labelPolygonArea = initial_scale * Area(imageSet.at(i).getLabelPolygon());
             if(abs(labelPolygonArea) < overlapThreshold * slidingWindowArea)
@@ -217,8 +230,10 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
             else
             {
                 cnt_TrainingImages++;
-            }
+            }*/
         }
+
+
 
         // read image
         image = imread(imageSet.at(i).getPath(), CV_LOAD_IMAGE_COLOR);
@@ -320,7 +335,7 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
         switch(operation)
         {
             case OPERATE_TRAIN:
-                model.evaluateMergedSlidingWindows(image, imageSet.at(i).getLabelPolygon(), result_tag + imageSet.at(i).getName(), showResult, saveResult);
+                //model.evaluateMergedSlidingWindows(image, imageSet.at(i).getLabelPolygon(), result_tag + imageSet.at(i).getName(), showResult, saveResult);
                 result_tag = "t_";
                 break;
             case OPERATE_CLASSIFY:

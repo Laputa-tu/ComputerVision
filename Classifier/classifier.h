@@ -61,6 +61,8 @@ private:
 	void showTaggedOverlapImage(const cv::Mat& img, ClipperLib::Path labelPolygon, ClipperLib::Path clippedPolygon, cv::Rect slidingWindow, float overlap);
 	void shuffleTrainingData(cv::Mat1f  predictionsMatrix, cv::Mat1f labelsMatrix);
 	cv::Mat cropRotatedRect(const cv::Mat& img, Rect r, float angle);
+	cv::vector<Mat> doJitter(Mat img, Rect slidingWindow);
+
 public:
     	Classifier(float, float, float);
     	~Classifier();

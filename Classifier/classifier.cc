@@ -37,6 +37,76 @@ void Classifier::startTraining(string StartTime)
     startTime << StartTime;
 }
 
+vector<Mat> Classifier::doJitter(Mat img, Rect slidingWindow)
+{
+    vector<Mat> additionalImages;
+    Rect slidingWindow_jitter;
+    Mat img_crop;
+    int randomX, randomY;
+    int jitterMinX, jitterMaxX, jitterMinY, jitterMaxY;
+    int numberOfJitters = 3;
+    int jitterX=8, jitterY=8;
+    int startAngle = -24, endAngle = 24, stepAngle = 8;
+
+    for (int i = 0; i < numberOfJitters; i++)
+    {
+        jitterMinX = max(-jitterX, -slidingWindow.x);
+        jitterMinY = max(-jitterY, -slidingWindow.y);
+        jitterMaxX = min(jitterX, img.cols - slidingWindow.x - slidingWindow.width);
+        jitterMaxY = min(jitterY, img.rows - slidingWindow.y - slidingWindow.height);
+        randomX = rand() % (jitterMaxX - jitterMinX + 1) + jitterMinX;
+        randomY = rand() % (jitterMaxY - jitterMinY + 1) + jitterMinY;
+
+        slidingWindow_jitter = Rect(slidingWindow.x + randomX, slidingWindow.y + randomY, slidingWindow.width, slidingWindow.height);
+        for(int angle = startAngle; angle <= endAngle; angle += stepAngle)
+        {
+            img_crop = cropRotatedRect(img, slidingWindow_jitter, angle);
+            if(!img_crop.empty())
+            {
+                additionalImages.push_back(img_crop);
+                cv::flip(img_crop, img_crop, 1);
+                additionalImages.push_back(img_crop);
+            }
+        }
+    }
+
+    return additionalImages;
+}
+
+cv::Mat Classifier::cropRotatedRect(const cv::Mat& img, Rect rect, float angle)
+{
+    Mat M, rotatedImage, nullImage;
+    Size rect_size = rect.size();
+    Point rect_center(rect.x + 0.5 * rect.width, rect.y + 0.5 * rect.height);
+
+    // create Rotated Rectangle
+    RotatedRect rotRect(rect_center, rect_size, angle);
+
+
+    // check if rotated rectangle is outside of the image bounds
+    bool rectangleOutOfBounds = false;
+    Point2f vertices[4];
+    rotRect.points(vertices);
+    for (int i = 0; i < 4; i++)
+    {
+        if(vertices[i].x < 0 || vertices[i].x >= img.cols || vertices[i].y < 0 || vertices[i].y >= img.rows)
+        {
+            //Rotated rect is out of image bounds
+            return nullImage;
+        }
+    }
+
+    if (angle < -45.)
+    {
+        angle += 90.0;
+        swap(rect_size.width, rect_size.height);
+    }
+    M = getRotationMatrix2D(rect_center, angle, 1.0);
+    warpAffine(img, rotatedImage, M, img.size(), INTER_CUBIC);
+
+    return rotatedImage(rect);
+}
+
 /// Train with a new sliding window section of a training image.
 ///
 /// @param img:  input image
@@ -44,6 +114,8 @@ void Classifier::startTraining(string StartTime)
 /// @param slidingWindow: the window section of the image that has to be trained
 void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor, bool showImage)
 {		
+    vector<Mat> additionalImages;
+
     //extract slidingWindow and convert to grayscale
     cv::Mat img2 = img(slidingWindow);
     cvtColor(img2,img2,CV_RGB2GRAY);
@@ -66,8 +138,21 @@ void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Re
 
 		if(label > overlapThreshold) 
 		{
-			labels.push_back(cv::Mat1f(1, 1, svmLabel));
-			descriptors.push_back(descriptor);
+            // jitter positive images
+            additionalImages = doJitter(img, slidingWindow);
+
+            for(int i=0; i<additionalImages.size(); i++)
+            {
+                transpose (additionalImages[i], additionalImages[i]);
+                hog.compute(additionalImages[i], vDescriptor);
+                cv::Mat1f descriptor(1,vDescriptor.size(),&vDescriptor[0]);
+                labels.push_back(cv::Mat1f(1, 1, svmLabel));
+                descriptors.push_back(descriptor);
+                positiveTrainingWindows++;
+                additionalImages[i].release();
+            }
+
+            additionalImages.clear();
 
 			cv::Rect r = cv::Rect(slidingWindow.x / imageScaleFactor, 
 				slidingWindow.y / imageScaleFactor, 
@@ -76,12 +161,11 @@ void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Re
 			predictedSlidingWindows.push_back ( r );
 			predictedSlidingWindowWeights.push_back ( label * 2.0 - 1.0 );
 
-			positiveTrainingWindows++;
 		}			
 		else 
 		{
             //if( (1.0 * rand() / RAND_MAX) < 0.2) // is statistically every 5th time true -> reduce negative training samples
-            if(((negativeTrainingWindows+discardedTrainingWindows)%2) == 0 )
+            if(((negativeTrainingWindows+discardedTrainingWindows)%1) == 0 )
             {
 				labels.push_back(cv::Mat1f(1, 1, svmLabel));
 				descriptors.push_back(descriptor);  
@@ -172,34 +256,7 @@ void Classifier::finishHardNegativeMining()
 /// @param slidingWindow: the window section of the image that has to be classified
 /// @return: probability of having a match for the target object inside the sliding window section
 double Classifier::classify(const cv::Mat& img, cv::Rect slidingWindow, float imageScaleFactor)
-{		
-    /*
-	Rect slidingWindow_jitter;
-	Mat img_crop;
-	int randomX, randomY;
-	int jitterMinX, jitterMaxX, jitterMinY, jitterMaxY;
-
-	for (int i = 0; i < 3; i++)
-	{
-		jitterMinX = max(-8, -slidingWindow.x);
-		jitterMinY = max(-8, -slidingWindow.y);
-		jitterMaxX = min(8, img.cols - slidingWindow.x - slidingWindow.width); 
-		jitterMaxY = min(8, img.rows - slidingWindow.y - slidingWindow.height); 
-		randomX = rand() % (jitterMaxX - jitterMinX + 1) + jitterMinX;
-		randomY = rand() % (jitterMaxY - jitterMinY + 1) + jitterMinY;
-
-		slidingWindow_jitter = Rect(slidingWindow.x + randomX, slidingWindow.y + randomY, slidingWindow.width, slidingWindow.height);
-		for(int angle = -24; angle <= 24; angle += 8)
-		{
-			img_crop = cropRotatedRect(img, slidingWindow_jitter, angle);	
-			imshow("Rotationtest " + angle, img_crop);
-			cv::flip(img_crop, img_crop, 1);
-			imshow("Rotationtest Flipped " + angle, img_crop);
-	
-			cv::waitKey(0);
-		}
-    }*/
-	
+{
 	//extract slidingWindow and convert to grayscale
 	cv::Mat img2 = img(slidingWindow);
 	cvtColor(img2,img2,CV_RGB2GRAY);
@@ -720,21 +777,5 @@ void Classifier::showTaggedOverlapImage(const cv::Mat& img, ClipperLib::Path lab
 }
 
 
-cv::Mat Classifier::cropRotatedRect(const cv::Mat& img, Rect rect, float angle)
-{
-	Mat M, rotated;
-	Size rect_size = rect.size();
-	Point rect_center(rect.x + 0.5 * rect.width, rect.y + 0.5 * rect.height);
-        RotatedRect rotRect(rect_center, rect_size, angle);    
 
-        if (angle < -45.) 
-	{
-            angle += 90.0;
-            swap(rect_size.width, rect_size.height);
-        }
-        M = getRotationMatrix2D(rect_center, angle, 1.0);
-        warpAffine(img, rotated, M, img.size(), INTER_CUBIC);
-
-	return rotated(rect);
-}
 
