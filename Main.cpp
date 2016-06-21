@@ -3,8 +3,8 @@
 
 int main(int argc, char* argv[])
 {
-    bool loadSVMFromFile = false;
-    string svm_loadpath = "./SVM_Savings/svm_2016_6_21__17_28_24.xml"; //_hardnegative
+    bool loadSVMFromFile = true;
+    string svm_loadpath = "./SVM_Savings/svm_nice_5_08_015_width128_jitter3_anglestep8.xml"; //_hardnegative
     string svm_savepath = "./SVM_Savings/svm_" + getTimeString() + ".xml";
 
     char* trainingPath = argv[1];
@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
 
     // classification parameters
     overlapThreshold = 0.5;		// label = Percentage of overlap -> 0 to 1.0
-    float predictionThreshold = 0.5;	// svm prediction: -1 to +1
+    float predictionThreshold = 0.3;	// svm prediction: -1 to +1
     float overlapThreshold2 = 0.15;	// overlap of the merged-slidingWindow-contour and the labelPolygon
 
     Classifier model(overlapThreshold, predictionThreshold, overlapThreshold2);
