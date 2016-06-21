@@ -4,7 +4,7 @@
 int main(int argc, char* argv[])
 {
     bool loadSVMFromFile = false;
-    string svm_loadpath = "./SVM_Savings/svm_para_5_08_15_overlap40_width160.xml"; //_hardnegative
+    string svm_loadpath = "./SVM_Savings/svm_2016_6_21__17_28_24.xml"; //_hardnegative
     string svm_savepath = "./SVM_Savings/svm_" + getTimeString() + ".xml";
 
     char* trainingPath = argv[1];
@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
 
     // classification parameters
     overlapThreshold = 0.5;		// label = Percentage of overlap -> 0 to 1.0
-    float predictionThreshold = 0.3;	// svm prediction: -1 to +1
+    float predictionThreshold = 0.5;	// svm prediction: -1 to +1
     float overlapThreshold2 = 0.15;	// overlap of the merged-slidingWindow-contour and the labelPolygon
 
     Classifier model(overlapThreshold, predictionThreshold, overlapThreshold2);
@@ -34,8 +34,8 @@ int main(int argc, char* argv[])
     windows_n_cols = max(windows_n_cols, 128); // if lower than 128, set to 128
     windows_n_rows = 64;
     windows_n_cols = 128;
-    int step_slide_row = windows_n_rows/5;
-    int step_slide_col = windows_n_cols/5;    
+    int step_slide_row = windows_n_rows/4;
+    int step_slide_col = windows_n_cols/4;
 
     // check the number of parameters
     if (argc < 2)
