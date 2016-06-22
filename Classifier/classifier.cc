@@ -48,15 +48,12 @@ vector<Mat> Classifier::doJitter(Mat img, Rect slidingWindow)
     int jitterX=8, jitterY=8;
     int startAngle = -24, endAngle = 24, stepAngle = 8;
 
+    // use no jitter in the first loop
+    randomX = 0;
+    randomY = 0;
+
     for (int i = 0; i < numberOfJitters; i++)
     {
-        jitterMinX = max(-jitterX, -slidingWindow.x);
-        jitterMinY = max(-jitterY, -slidingWindow.y);
-        jitterMaxX = min(jitterX, img.cols - slidingWindow.x - slidingWindow.width);
-        jitterMaxY = min(jitterY, img.rows - slidingWindow.y - slidingWindow.height);
-        randomX = rand() % (jitterMaxX - jitterMinX + 1) + jitterMinX;
-        randomY = rand() % (jitterMaxY - jitterMinY + 1) + jitterMinY;
-
         slidingWindow_jitter = Rect(slidingWindow.x + randomX, slidingWindow.y + randomY, slidingWindow.width, slidingWindow.height);
         for(int angle = startAngle; angle <= endAngle; angle += stepAngle)
         {
@@ -68,6 +65,14 @@ vector<Mat> Classifier::doJitter(Mat img, Rect slidingWindow)
                 additionalImages.push_back(img_crop);
             }
         }
+	
+	//calculate random jitter for next loop
+	jitterMinX = max(-jitterX, -slidingWindow.x);
+        jitterMinY = max(-jitterY, -slidingWindow.y);
+        jitterMaxX = min(jitterX, img.cols - slidingWindow.x - slidingWindow.width);
+        jitterMaxY = min(jitterY, img.rows - slidingWindow.y - slidingWindow.height);
+        randomX = rand() % (jitterMaxX - jitterMinX + 1) + jitterMinX;
+        randomY = rand() % (jitterMaxY - jitterMinY + 1) + jitterMinY;
     }
 
     return additionalImages;
