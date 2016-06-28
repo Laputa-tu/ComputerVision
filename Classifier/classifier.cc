@@ -676,21 +676,25 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 	findContours(mask, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_TC89_KCOS);
 
 
-	//draw labelPolygon
-	vector<Point> labelContour;
-	for (int i = 0; i < labelPolygon.size(); i++)
+	Rect labelBoundRect;
+	if(!labelPolygon.empty())
 	{
-		labelContour.push_back(Point(labelPolygon[i].X, labelPolygon[i].Y));
+		//draw labelPolygon
+		vector<Point> labelContour;
+		for (int i = 0; i < labelPolygon.size(); i++)
+		{
+			labelContour.push_back(Point(labelPolygon[i].X, labelPolygon[i].Y));
+		}
+
+		// draw label
+		vector< vector<Point> > labelContours;
+		labelContours.push_back(labelContour);
+		//drawContours(img_show, labelContours, -1, cv::Scalar( 255, 0, 0 ), 2, CV_AA);                     // you need to add a parameter here to set it
+
+		// draw bounding rect (labeled)
+		labelBoundRect = boundingRect(Mat(labelContour));
+		rectangle(img_show, labelBoundRect.tl(), labelBoundRect.br(), cv::Scalar( 255, 0, 0 ), 2, 8, 0 );
 	}
-
-	// draw label
-	vector< vector<Point> > labelContours;
-	labelContours.push_back(labelContour);
-	//drawContours(img_show, labelContours, -1, cv::Scalar( 255, 0, 0 ), 2, CV_AA);                     // you need to add a parameter here to set it
-
-	// draw bounding rect (labeled)
-	Rect labelBoundRect = boundingRect(Mat(labelContour));
-	rectangle(img_show, labelBoundRect.tl(), labelBoundRect.br(), cv::Scalar( 255, 0, 0 ), 2, 8, 0 );
 
 	for (int i = 0; i < contours.size(); i++)
 	{
@@ -750,97 +754,101 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 			averageCenterPoint *= (1.0 / weightSum);
  			circle( img_show, averageCenterPoint, 10, Scalar( 0, 255, 0 ), -1, 8);  
 
-
-			//Calculate Overlap with the contour and the labelPolygon
-			ClipperLib::Path contourPolygon;
-			for ( int k = 0; k < contours_thresh[0].size(); k++)
+			if(!labelPolygon.empty())
 			{
-				contourPolygon << ClipperLib::IntPoint(contours_thresh[0][k].x, contours_thresh[0][k].y);
+				//Calculate Overlap with the contour and the labelPolygon
+				ClipperLib::Path contourPolygon;
+				for ( int k = 0; k < contours_thresh[0].size(); k++)
+				{
+					contourPolygon << ClipperLib::IntPoint(contours_thresh[0][k].x, contours_thresh[0][k].y);
+				}
+
+				ClipperLib::Paths clippedContourPolygon = clipPolygon(contourPolygon, labelPolygon);
+				area_clippedContourPolygon = 0;
+				if (clippedContourPolygon.size() > 0)
+					area_clippedContourPolygon = abs(Area(clippedContourPolygon[0]));
+				area_contourPolygon = abs(Area(contourPolygon));
+				area_labelPolygon = abs(Area(labelPolygon));
+
+				TP = area_clippedContourPolygon;
+				FP = area_contourPolygon - area_clippedContourPolygon;
+				overlap = TP / (area_labelPolygon + FP);
+
+				//new one
+				Rect intersection = boundRect & labelBoundRect;
+				double areaIntersection = intersection.width * intersection.height;
+				double areaLabel = labelBoundRect.width * labelBoundRect.height;
+				double areaPrediction = boundRect.width * boundRect.height;
+				double areaUnion = areaLabel+areaPrediction-areaIntersection;
+				overlap = (double)(areaIntersection/areaUnion);
+
+				//cout << "area_contourPolygon:         " << area_contourPolygon << "   " << abs(area_contourPolygon) << endl;
+				//cout << "area_clippedContourPolygon:  " << area_clippedContourPolygon << "   " << abs(area_clippedContourPolygon)  << endl;
+				//cout << "area_labelPolygon:           " << area_labelPolygon << "   " << abs(area_labelPolygon)  << endl;
+				//cout << "TP:                          " << TP << endl;
+				//cout << "FP:                          " << FP << endl;
+				cout << "IoU " << (i+1) << "  (TP / (TP + FP + FN)): " << overlap << endl;
+				cout << "   -> Heatmap_threshold:          " << heatmap_threshold << endl;
+				cout << "   -> Heatmap_max:                " << heatmap_max << endl;
+
+
+				double pred = 1.0 * heatmap_max / rectCount;
+				//draw Text
+				ostringstream s;
+				s << "IoU " << (i+1) << ": " << overlap << " (-> Label: " << (overlap >= detectionOverlapThreshold) << ")   Heatmap-Max: " << heatmap_max << " Rect-Count: " << rectCount;
+				putText(img_show, s.str(), cv::Point(10, 40 * (i+1)), cv::FONT_HERSHEY_DUPLEX, 1.3, cv::Scalar( 0, 0, 255 ), 2, CV_AA);
+				s.str("");
+				s << "Prediction: " << pred;
+				putText(img_show, s.str(), cv::Point(10, 80 * (i+1)), cv::FONT_HERSHEY_DUPLEX, 1.3, cv::Scalar( 0, 0, 255 ), 2, CV_AA);
+				s.str("");
+
+
+				// detection 1
+				if(overlap > detectionOverlapThreshold)
+					targetObjectDetected = true;
+
+				detectionLabels.push_back ( overlap );
+				detectionPredictions.push_back ( pred );
+
+
+				// detection 2
+				bool detectionInsideLabelBoundRect = rect_center.x >= labelBoundRect.x && rect_center.x <= (labelBoundRect.x + labelBoundRect.width) &&
+								rect_center.y >= labelBoundRect.y && rect_center.y <= (labelBoundRect.y + labelBoundRect.height);
+				if(detectionInsideLabelBoundRect)     
+					targetObjectDetected2 = true;
+
+				detectionLabels2.push_back (detectionInsideLabelBoundRect ? 1.0 : -1.0 );
+				detectionPredictions2.push_back ( pred );
+
+
+				// detection 3
+				detectionInsideLabelBoundRect = averageCenterPoint.x >= labelBoundRect.x && averageCenterPoint.x <= (labelBoundRect.x + labelBoundRect.width) &&
+								averageCenterPoint.y >= labelBoundRect.y && averageCenterPoint.y <= (labelBoundRect.y + labelBoundRect.height);
+				if(detectionInsideLabelBoundRect)     
+					targetObjectDetected3 = true;
+
+				detectionLabels3.push_back (detectionInsideLabelBoundRect ? 1.0 : -1.0 );
+				detectionPredictions3.push_back ( pred );
 			}
-
-			ClipperLib::Paths clippedContourPolygon = clipPolygon(contourPolygon, labelPolygon);
-			area_clippedContourPolygon = 0;
-			if (clippedContourPolygon.size() > 0)
-				area_clippedContourPolygon = abs(Area(clippedContourPolygon[0]));
-			area_contourPolygon = abs(Area(contourPolygon));
-			area_labelPolygon = abs(Area(labelPolygon));
-
-			TP = area_clippedContourPolygon;
-			FP = area_contourPolygon - area_clippedContourPolygon;
-			overlap = TP / (area_labelPolygon + FP);
-
-			//new one
-			Rect intersection = boundRect & labelBoundRect;
-			double areaIntersection = intersection.width * intersection.height;
-			double areaLabel = labelBoundRect.width * labelBoundRect.height;
-			double areaPrediction = boundRect.width * boundRect.height;
-			double areaUnion = areaLabel+areaPrediction-areaIntersection;
-			overlap = (double)(areaIntersection/areaUnion);
-
-			//cout << "area_contourPolygon:         " << area_contourPolygon << "   " << abs(area_contourPolygon) << endl;
-			//cout << "area_clippedContourPolygon:  " << area_clippedContourPolygon << "   " << abs(area_clippedContourPolygon)  << endl;
-			//cout << "area_labelPolygon:           " << area_labelPolygon << "   " << abs(area_labelPolygon)  << endl;
-			//cout << "TP:                          " << TP << endl;
-			//cout << "FP:                          " << FP << endl;
-			cout << "IoU " << (i+1) << "  (TP / (TP + FP + FN)): " << overlap << endl;
-			cout << "   -> Heatmap_threshold:          " << heatmap_threshold << endl;
-			cout << "   -> Heatmap_max:                " << heatmap_max << endl;
-
-
-			double pred = 1.0 * heatmap_max / rectCount;
-			//draw Text
-			ostringstream s;
-			s << "IoU " << (i+1) << ": " << overlap << " (-> Label: " << (overlap >= detectionOverlapThreshold) << ")   Heatmap-Max: " << heatmap_max << " Rect-Count: " << rectCount;
-			putText(img_show, s.str(), cv::Point(10, 40 * (i+1)), cv::FONT_HERSHEY_DUPLEX, 1.3, cv::Scalar( 0, 0, 255 ), 2, CV_AA);
-			s.str("");
-			s << "Prediction: " << pred;
-			putText(img_show, s.str(), cv::Point(10, 80 * (i+1)), cv::FONT_HERSHEY_DUPLEX, 1.3, cv::Scalar( 0, 0, 255 ), 2, CV_AA);
-			s.str("");
-
-
-			// detection 1
-			if(overlap > detectionOverlapThreshold)
-				targetObjectDetected = true;
-
-			detectionLabels.push_back ( overlap );
-			detectionPredictions.push_back ( pred );
-
-
-			// detection 2
-			bool detectionInsideLabelBoundRect = rect_center.x >= labelBoundRect.x && rect_center.x <= (labelBoundRect.x + labelBoundRect.width) &&
-							rect_center.y >= labelBoundRect.y && rect_center.y <= (labelBoundRect.y + labelBoundRect.height);
-			if(detectionInsideLabelBoundRect)     
-				targetObjectDetected2 = true;
-
-			detectionLabels2.push_back (detectionInsideLabelBoundRect ? 1.0 : -1.0 );
-			detectionPredictions2.push_back ( pred );
-
-
-			// detection 3
-			detectionInsideLabelBoundRect = averageCenterPoint.x >= labelBoundRect.x && averageCenterPoint.x <= (labelBoundRect.x + labelBoundRect.width) &&
-							averageCenterPoint.y >= labelBoundRect.y && averageCenterPoint.y <= (labelBoundRect.y + labelBoundRect.height);
-			if(detectionInsideLabelBoundRect)     
-				targetObjectDetected3 = true;
-
-			detectionLabels3.push_back (detectionInsideLabelBoundRect ? 1.0 : -1.0 );
-			detectionPredictions3.push_back ( pred );
 		}
 	}
-
-	if (!targetObjectDetected)
+	if(!labelPolygon.empty())
 	{
-		detectionLabels.push_back ( 1 );
-		detectionPredictions.push_back ( 0 );
-	}
-	if (!targetObjectDetected2)
-	{
-		detectionLabels2.push_back ( 1 );
-		detectionPredictions2.push_back ( 0 );
-	}
-	if (!targetObjectDetected3)
-	{
-		detectionLabels3.push_back ( 1 );
-		detectionPredictions3.push_back ( 0 );
+		if (!targetObjectDetected)
+		{
+			detectionLabels.push_back ( 1 );
+			detectionPredictions.push_back ( 0 );
+		}
+		if (!targetObjectDetected2)
+		{
+			detectionLabels2.push_back ( 1 );
+			detectionPredictions2.push_back ( 0 );
+		}
+		if (!targetObjectDetected3)
+		{
+			detectionLabels3.push_back ( 1 );
+			detectionPredictions3.push_back ( 0 );
+		}
 	}
 	
 	if(showResult)
