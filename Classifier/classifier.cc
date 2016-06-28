@@ -671,7 +671,6 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 	//calculate Mask Contour	
 	cv::GaussianBlur(heatmap, heatmap_blurred, cv::Size(171, 171), 0, 0);       // delete this one
 	threshold(heatmap_blurred, mask, 0.0, 255, cv::THRESH_BINARY);
-
 	mask.convertTo(mask,CV_8UC1,255,0);
 	findContours(mask, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_TC89_KCOS);
 
@@ -679,19 +678,19 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 	Rect labelBoundRect;
 	if(!labelPolygon.empty())
 	{
-		//draw labelPolygon
+		//convert labelPolygon to Point-Vector
 		vector<Point> labelContour;
 		for (int i = 0; i < labelPolygon.size(); i++)
 		{
 			labelContour.push_back(Point(labelPolygon[i].X, labelPolygon[i].Y));
 		}
-
-		// draw label
 		vector< vector<Point> > labelContours;
 		labelContours.push_back(labelContour);
+
+		// draw labelPolygon		
 		//drawContours(img_show, labelContours, -1, cv::Scalar( 255, 0, 0 ), 2, CV_AA);                     // you need to add a parameter here to set it
 
-		// draw bounding rect (labeled)
+		// draw bounding rect of labelPolygon
 		labelBoundRect = boundingRect(Mat(labelContour));
 		rectangle(img_show, labelBoundRect.tl(), labelBoundRect.br(), cv::Scalar( 255, 0, 0 ), 2, 8, 0 );
 	}
@@ -713,7 +712,7 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 		cout << "max_loc: " << max_loc << ", rectCount: " << rectCount << endl;
 
 		cv::GaussianBlur(singleContourHeatmap, singleContourHeatmap, cv::Size(171, 171), 0, 0);
-		threshold(singleContourHeatmap, mask_thresh, heatmap_threshold*rectCount, 255, cv::THRESH_BINARY);
+		threshold(singleContourHeatmap, mask_thresh, heatmap_threshold * rectCount, 255, cv::THRESH_BINARY);
 
 		mask_thresh.convertTo(mask_thresh,CV_8UC1,255,0);
 		findContours(mask_thresh, contours_thresh, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_TC89_KCOS);
@@ -752,7 +751,17 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 				weightSum += predictedSlidingWindowWeights[k];
 			}
 			averageCenterPoint *= (1.0 / weightSum);
- 			circle( img_show, averageCenterPoint, 10, Scalar( 0, 255, 0 ), -1, 8);  
+ 			circle( img_show, averageCenterPoint, 10, Scalar( 0, 255, 0 ), -1, 8); 
+
+
+			double pred = 1.0 * heatmap_max / rectCount;
+
+			//draw text on image
+			ostringstream s;
+			s << "Prediction: " << pred << "   (Heatmap-Max: " << heatmap_max << " Rect-Count: " << rectCount << ")";
+			putText(img_show, s.str(), cv::Point(10, 40 + i * 80), cv::FONT_HERSHEY_DUPLEX, 1.3, cv::Scalar( 0, 0, 255 ), 2, CV_AA);
+			s.str(""); 
+
 
 			if(!labelPolygon.empty())
 			{
@@ -790,16 +799,12 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 				cout << "IoU " << (i+1) << "  (TP / (TP + FP + FN)): " << overlap << endl;
 				cout << "   -> Heatmap_threshold:          " << heatmap_threshold << endl;
 				cout << "   -> Heatmap_max:                " << heatmap_max << endl;
+				
 
-
-				double pred = 1.0 * heatmap_max / rectCount;
 				//draw Text
-				ostringstream s;
-				s << "IoU " << (i+1) << ": " << overlap << " (-> Label: " << (overlap >= detectionOverlapThreshold) << ")   Heatmap-Max: " << heatmap_max << " Rect-Count: " << rectCount;
-				putText(img_show, s.str(), cv::Point(10, 40 * (i+1)), cv::FONT_HERSHEY_DUPLEX, 1.3, cv::Scalar( 0, 0, 255 ), 2, CV_AA);
-				s.str("");
-				s << "Prediction: " << pred;
-				putText(img_show, s.str(), cv::Point(10, 80 * (i+1)), cv::FONT_HERSHEY_DUPLEX, 1.3, cv::Scalar( 0, 0, 255 ), 2, CV_AA);
+				ostringstream s;				
+				s << "IoU: " << overlap << " (-> Label: " << (overlap >= detectionOverlapThreshold) << ")" ;
+				putText(img_show, s.str(), cv::Point(10, 80 + i * 80), cv::FONT_HERSHEY_DUPLEX, 1.3, cv::Scalar( 0, 0, 255 ), 2, CV_AA);
 				s.str("");
 
 
@@ -832,6 +837,7 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 			}
 		}
 	}
+
 	if(!labelPolygon.empty())
 	{
 		if (!targetObjectDetected)
