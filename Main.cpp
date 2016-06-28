@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
 
     // classification parameters
     overlapThreshold = 0.5;		// label = Percentage of overlap -> 0 to 1.0
-    float predictionThreshold = 0.3;	// svm prediction: -1 to +1
+    float predictionThreshold = 0.6;	// svm prediction: -1 to +1
     float overlapThreshold2 = 0.06;	// overlap of the merged-slidingWindow-contour and the labelPolygon
 
     Classifier model(overlapThreshold, predictionThreshold, overlapThreshold2);
@@ -61,10 +61,17 @@ int main(int argc, char* argv[])
     }
 
     // get images from json
-    testSet = FileManager::GetJSONImages(testPath);
+    /*testSet = FileManager::GetJSONImages(testPath);
     if(testSet.empty())
     {
         cerr << "No test images found." << endl;
+    }*/
+
+    // get videos from dir
+    vector<string> files = FileManager::GetVideosFromDirectory(testPath);
+    if(files.empty())
+    {
+        cerr << "No test videos found." << endl;
     }
 
     // print calculated scale steps
@@ -115,6 +122,46 @@ int main(int argc, char* argv[])
         model.saveSVM(svm_savepath);
     }
 
+    // run classification from videos
+    for(int it=0; it<files.size(); it++)
+    {
+        VideoCapture cap(files.at(it));
+        if(!cap.isOpened())
+        {
+            cout << "Cannot open the video file" << endl;
+        }
+
+        cap.set(CV_CAP_PROP_POS_MSEC, 30000); //start the video at 300ms
+        double fps = cap.get(CV_CAP_PROP_FPS); //get the frames per seconds of the video
+        cout << "Frame per seconds : " << fps << endl;
+        namedWindow("MyVideo",CV_WINDOW_AUTOSIZE); //create a window called "MyVideo"
+        int frameCount = 0;
+
+        while(1)
+        {
+            Mat frame;
+            bool bSuccess = cap.read(frame); // read a new frame from video
+            if (!bSuccess) //if not success, break loop
+            {
+               cout << "Cannot read the frame from video file" << endl;
+               break;
+            }
+
+            if(frameCount++ % 30 != 0)
+            {
+                //imshow("MyVideo", frame); //show the frame in "MyVideo" window
+                int res_test = doSlidingImageOperation(model, frame, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
+                                                   windows_n_cols, step_slide_row, step_slide_col, OPERATE_CLASSIFY, originalImageHeight);
+
+                if(waitKey(30) == 27) //wait for 'esc' key press for 30 ms. If 'esc' key is pressed, break loop
+                {
+                    cout << "esc key is pressed by user" << endl;
+                    break;
+                }
+            }
+        }
+    }
+
     /*
     cout << "Running Classification..." << endl;
     int res_test = doSlidingOperation(model, testSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
@@ -131,7 +178,7 @@ int main(int argc, char* argv[])
     cout << "Discarded Training Images: " << cnt_DiscardedTrainingImages << endl << endl;*/
 
     // validate
-    cout << "Running Validation..." << endl;
+    /*cout << "Running Validation..." << endl;
     int res_val = doSlidingOperation(model, validationSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
                                        windows_n_cols, step_slide_row, step_slide_col, OPERATE_VALIDATE, originalImageHeight);
 
@@ -142,7 +189,7 @@ int main(int argc, char* argv[])
     }
 
     model.printEvaluation(true);
-    model.showROC(true);
+    model.showROC(true);*/
 
     waitKey(0);
     return 0;
@@ -198,7 +245,149 @@ int calculateBestSlidingWindow(vector<JSONImage> &imageSet, bool showResult, flo
 }
 
 
+int doSlidingImageOperation(Classifier &model, Mat frame, int scale_n, float scale_factor,
+                       float initial_scale, int w_rows, int w_cols, int step_rows, int step_cols, const int operation, int originalImageHeight)
+{
+    Mat image, rescaled;
+    string result_tag;
+    float current_scaling;
+    bool showTaggedImage = false;
+    bool showResult = true;
+    bool saveResult = false;
+    float labelPolygonArea;
+    float slidingWindowArea = w_rows * w_cols;
+    ClipperLib::Path emptyPath;
+    int counter = 0;
+    ostringstream counterStr;
 
+    if(frame.rows != 0)
+    {
+        counter++;
+
+        // read image
+        if(!frame.data) // Check for invalid input
+        {
+            cout <<  "Could not open or find the frame" << std::endl ;
+            return IMG_INVAL;
+        }
+
+        //imshow("asd", frame);
+        //waitKey(27);
+
+        //scale image to defaultHeight
+        if(frame.rows != originalImageHeight)
+        {
+            float defaultScale = 1.0 * originalImageHeight / frame.rows;
+            resize(frame, frame, Size(), defaultScale, defaultScale, INTER_CUBIC);
+        }
+        rescaled = frame;
+
+        resize(rescaled, rescaled, Size(), initial_scale, initial_scale, INTER_CUBIC);
+        current_scaling = initial_scale;
+        bool reached_row_end = false;
+        bool reached_col_end = false;
+
+        for(int j=0; j<=scale_n; j++)
+        {
+            // build sliding window
+            for(int row = 0; row <= rescaled.rows; row += step_rows)
+            {
+                // check if sliding window is too big for scaled image
+                if(w_rows >= rescaled.rows)
+                {
+                    break;
+                }
+                // check end of rows
+                reached_row_end = (rescaled.rows - (row + w_rows) <= 0) ? true : false;
+                if(reached_row_end)
+                {
+                    row = rescaled.rows - w_rows;
+                }
+
+                for(int col = 0; col <= rescaled.cols; col += step_cols )
+                {
+                    // check if sliding window is too big for scaled image
+                    if(w_cols >= rescaled.cols)
+                    {
+                        break;
+                    }
+                    // check end of cols
+                    reached_col_end = (rescaled.cols - (col + w_cols) <= 0) ? true : false;
+                    if(reached_col_end)
+                    {
+                        col = rescaled.cols - w_cols;
+                    }
+
+                    Rect windows(col, row, w_cols, w_rows);
+
+                    switch (operation)
+                    {
+                        case OPERATE_TRAIN:
+                            model.train(rescaled, emptyPath, windows, current_scaling, showTaggedImage);
+                            break;
+                        case OPERATE_TRAIN_NEG:
+                            model.hardNegativeMine(rescaled, emptyPath, windows, current_scaling);
+                            break;
+                        case OPERATE_VALIDATE:
+                        {
+                            double prediction = model.classify(rescaled, windows, current_scaling);
+                            model.evaluate(prediction, emptyPath, windows, current_scaling);
+                            break;
+                        }
+                        case OPERATE_CLASSIFY:
+                            model.classify(rescaled, windows, current_scaling);
+                            break;
+                    }
+
+
+                    if(reached_col_end)
+                    {
+                        //finish
+                        break;
+                    }
+                }
+
+                if(reached_row_end)
+                {
+                    //finish
+                    break;
+                }
+            }
+
+            // only scale if necessary
+            if(j + 1 <= scale_n)
+            {
+                rescaled.release();
+                current_scaling = current_scaling*scale_factor;
+                resize(frame, rescaled, Size(), current_scaling, current_scaling, INTER_CUBIC);
+            }
+        }
+
+        counterStr << counter;
+
+
+        switch(operation)
+        {
+            case OPERATE_TRAIN:
+                //model.evaluateMergedSlidingWindows(frame, emptyPath, result_tag + counterStr.str(), showResult, saveResult);
+                result_tag = "t_";
+                break;
+            case OPERATE_CLASSIFY:
+                result_tag = "c_" + counterStr.str();
+                model.evaluateMergedSlidingWindows(frame, emptyPath, result_tag, showResult, saveResult);
+                break;
+            case OPERATE_VALIDATE:
+                model.evaluateMergedSlidingWindows(frame, emptyPath, result_tag, showResult, saveResult);
+                result_tag = "v_";
+                break;
+        }
+
+        rescaled.release();
+        //frame.release();
+    }
+
+    return 0;
+}
 
 int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale_n, float scale_factor,
                        float initial_scale, int w_rows, int w_cols, int step_rows, int step_cols, const int operation, int originalImageHeight)

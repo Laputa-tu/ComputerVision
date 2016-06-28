@@ -25,6 +25,7 @@
 #define SLOTH_ZEBRA "zebra.json"
 #define SLOTH_SIGN "sign.json"
 #define IMAGE_TYPE ".JPG"
+#define VIDEO_TYPE ".MP4"
 #define MAX_NUMBER_FILES 100000
 
 using namespace std;
@@ -43,6 +44,7 @@ class FileManager
         static vector<JSONImage> GetJSONImages(char* path);
 	static vector<JSONImage> GetImages(char* path);
         static bool IsValidDirectory(char *path);
+	static vector<string> GetVideosFromDirectory(char* path);
 
 	static void ShuffleImages(vector<JSONImage> &images);
 	void StartNCrossValid();
