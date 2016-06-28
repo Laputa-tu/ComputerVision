@@ -44,9 +44,13 @@ private:
 	float overlapThreshold, predictionThreshold;
 
 	//Merged-Contour-based Evaluation
-	std::vector<float> classificationPredictions2;
-	std::vector<float> classificationLabels2;
-	float overlapThreshold2;
+	std::vector<float> detectionPredictions;
+	std::vector<float> detectionLabels;
+	float detectionOverlapThreshold;
+	std::vector<float> detectionPredictions2;
+	std::vector<float> detectionLabels2;
+	std::vector<float> detectionPredictions3;
+	std::vector<float> detectionLabels3;
 
 	//Counters for Evaluation	
 	int cnt_Classified;

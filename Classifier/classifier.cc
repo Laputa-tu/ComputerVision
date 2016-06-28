@@ -8,7 +8,7 @@ Classifier::Classifier(float overlapLabels, float predictionThresh, float overla
 {
     overlapThreshold = overlapLabels;		// label = Percentage of overlap -> 0 to 1.0
     predictionThreshold = predictionThresh;	// svm prediction: -1 to +1
-    overlapThreshold2 = overlapDetector;	// overlap of the merged-slidingWindow-contour and the labelPolygon
+    detectionOverlapThreshold = overlapDetector;	// overlap of the merged-slidingWindow-contour and the labelPolygon
 
 	cnt_Classified = 0;
 	cnt_TP = 0;
@@ -24,6 +24,11 @@ Classifier::Classifier(float overlapLabels, float predictionThresh, float overla
 	svmParams.svm_type    = CvSVM::C_SVC;
 	svmParams.kernel_type = CvSVM::LINEAR;
 	svmParams.term_crit   = cvTermCriteria(CV_TERMCRIT_ITER, 100, 1e-6);
+
+	// initialize random seed   
+	unsigned int t = time(NULL);
+	srand (t);
+	cout << "srand: " << t << endl;
 }
 
 /// Destructor
@@ -50,7 +55,7 @@ vector<Mat> Classifier::doJitter(Mat img, Rect slidingWindow)
 
     // use no jitter in the first loop
     randomX = 0;
-    randomY = 0;
+    randomY = 0;    
 
     for (int i = 0; i < numberOfJitters; i++)
     {
@@ -66,13 +71,13 @@ vector<Mat> Classifier::doJitter(Mat img, Rect slidingWindow)
             }
         }
 	
-	//calculate random jitter for next loop
+	// calculate random jitter for next loop
 	jitterMinX = max(-jitterX, -slidingWindow.x);
         jitterMinY = max(-jitterY, -slidingWindow.y);
         jitterMaxX = min(jitterX, img.cols - slidingWindow.x - slidingWindow.width);
         jitterMaxY = min(jitterY, img.rows - slidingWindow.y - slidingWindow.height);
         randomX = rand() % (jitterMaxX - jitterMinX + 1) + jitterMinX;
-        randomY = rand() % (jitterMaxY - jitterMinY + 1) + jitterMinY;
+        randomY = rand() % (jitterMaxY - jitterMinY + 1) + jitterMinY;	
     }
 
     return additionalImages;
@@ -194,8 +199,12 @@ void Classifier::finishTraining()
 	svm.train( descriptors, labels, cv::Mat(), cv::Mat(), svmParams );
 	cout << "SVM has been trained" << endl;
 
-	classificationLabels2.clear();	
-	classificationPredictions2.clear();
+	detectionLabels.clear();	
+	detectionLabels2.clear();	
+	detectionLabels3.clear();	
+	detectionPredictions.clear();
+	detectionPredictions2.clear();
+	detectionPredictions3.clear();
 }
 
 void Classifier::saveSVM(string path)
@@ -249,8 +258,12 @@ void Classifier::finishHardNegativeMining()
 	svm.train( descriptors, labels, cv::Mat(), cv::Mat(), svmParams );
 	cout << "SVM has been retrained after HardNegativeMining" << endl;
 
-	classificationLabels2.clear();	
-	classificationPredictions2.clear();
+	detectionLabels.clear();	
+	detectionLabels2.clear();	
+	detectionLabels3.clear();	
+	detectionPredictions.clear();
+	detectionPredictions2.clear();
+	detectionPredictions3.clear();
 }
 
 
@@ -340,35 +353,68 @@ void Classifier::printEvaluation(bool saveResult)
 		dir = ("./ClassificationResults/" + startTime.str()).c_str();
 		mkdir(dir.c_str(), 0777);
 
-        std::ofstream outResult( (dir + "/" + "roc_classify_" + startTime.str() + ".csv").c_str() );
-        std::ofstream outResult_share( ("/home/kevin/share/ROC/classify/roc_classify_" + startTime.str() + ".csv").c_str());
+		std::ofstream outClassificationResult( (dir + "/" + "result_classify_" + startTime.str() + ".csv").c_str() );
+		std::ofstream outClassificationResult_share( ("/home/kevin/share/ROC/classify/result_classify_" + startTime.str() + ".csv").c_str());
 		for (unsigned i = 0; i < classificationLabels.size(); i++)
 		{
-            outResult << ((classificationLabels[i] > overlapThreshold) ? "1.0" : "-1.0");
-            outResult << "\t";
-		    outResult << classificationPredictions[i] << endl;
+			outClassificationResult << ((classificationLabels[i] > overlapThreshold) ? "1.0" : "-1.0");
+			outClassificationResult << "\t";
+			outClassificationResult << classificationPredictions[i] << endl;
 
-            outResult_share << ((classificationLabels[i] > overlapThreshold) ? "1.0" : "-1.0");
-            outResult_share << "\t";
-		    outResult_share << classificationPredictions[i] << endl;
+			outClassificationResult_share << ((classificationLabels[i] > overlapThreshold) ? "1.0" : "-1.0");
+			outClassificationResult_share << "\t";
+			outClassificationResult_share << classificationPredictions[i] << endl;
 		}
-		outResult.close();
-		outResult_share.close();
+		outClassificationResult.close();
+		outClassificationResult_share.close();
 
-        std::ofstream outResult2( (dir + "/" + "roc_detector_" + startTime.str() + ".csv").c_str() );
-        std::ofstream outResult2_share( ("/home/kevin/share/ROC/detect/roc_detector_" + startTime.str() + ".csv").c_str()  );
-		for (unsigned i = 0; i < classificationLabels2.size(); i++)
+		std::ofstream outDetectionResult( (dir + "/" + "result_detector_" + startTime.str() + ".csv").c_str() );
+		std::ofstream outDetectionResult_share( ("/home/kevin/share/ROC/detect/result_detector_" + startTime.str() + ".csv").c_str()  );
+		for (unsigned i = 0; i < detectionLabels.size(); i++)
 		{
-            outResult2 << ((classificationLabels2[i] > overlapThreshold2) ? "1.0" : "-1.0");
-            outResult2 << "\t";
-		    outResult2 << classificationPredictions2[i] << endl;
+			outDetectionResult << ((detectionLabels[i] > detectionOverlapThreshold) ? "1.0" : "-1.0");
+			outDetectionResult << "\t";
+			outDetectionResult << detectionPredictions[i] << endl;
 
-            outResult2_share << ((classificationLabels2[i] > overlapThreshold2) ? "1.0" : "-1.0");
-            outResult2_share << "\t";
-		    outResult2_share << classificationPredictions2[i] << endl;
+			outDetectionResult_share << ((detectionLabels[i] > detectionOverlapThreshold) ? "1.0" : "-1.0");
+			outDetectionResult_share << "\t";
+			outDetectionResult_share << detectionPredictions[i] << endl;
 		}
-		outResult2.close();
-		outResult2_share.close();
+		outDetectionResult.close();
+		outDetectionResult_share.close();
+
+
+		std::ofstream outDetectionResult2( (dir + "/" + "result_detector2_" + startTime.str() + ".csv").c_str() );
+		std::ofstream outDetectionResult2_share( ("/home/kevin/share/ROC/detect/result_detector2_" + startTime.str() + ".csv").c_str()  );
+		for (unsigned i = 0; i < detectionLabels2.size(); i++)
+		{
+			outDetectionResult2 << detectionLabels2[i];
+			outDetectionResult2 << "\t";
+			outDetectionResult2 << detectionPredictions2[i] << endl;
+
+			outDetectionResult2_share << detectionLabels2[i];
+			outDetectionResult2_share << "\t";
+			outDetectionResult2_share << detectionPredictions2[i] << endl;
+		}
+		outDetectionResult2.close();
+		outDetectionResult2_share.close();
+
+
+		std::ofstream outDetectionResult3( (dir + "/" + "result_detector3_" + startTime.str() + ".csv").c_str() );
+		std::ofstream outDetectionResult3_share( ("/home/kevin/share/ROC/detect/result_detector3_" + startTime.str() + ".csv").c_str()  );
+		for (unsigned i = 0; i < detectionLabels3.size(); i++)
+		{
+			outDetectionResult3 << detectionLabels3[i];
+			outDetectionResult3 << "\t";
+			outDetectionResult3 << detectionPredictions3[i] << endl;
+
+			outDetectionResult3_share << detectionLabels3[i];
+			outDetectionResult3_share << "\t";
+			outDetectionResult3_share << detectionPredictions3[i] << endl;
+		}
+		outDetectionResult3.close();
+		outDetectionResult3_share.close();
+
 
 		std::ofstream out( (dir + "/" + "_evaluation.txt").c_str() );
 		out << "Training:" << endl;
@@ -557,7 +603,6 @@ void Classifier::generateTaggedResultImage(const cv::Mat& img, string imgName, b
 	//clone image for drawing shapes
 	cv::Mat img_show = img.clone();
 
-
 	cv::Mat mask = cv::Mat::zeros(img.rows, img.cols, CV_8U); 
 	cv::Mat segmented;
 
@@ -592,17 +637,19 @@ void Classifier::generateTaggedResultImage(const cv::Mat& img, string imgName, b
 
 void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Path labelPolygon, string imgName, bool showResult, bool saveResult)
 {
-    double heatmap_threshold = 0.325;
+	double heatmap_threshold = 0.325;
 	double area_clippedContourPolygon, area_contourPolygon, area_labelPolygon, TP, FP, overlap, heatmap_max;
 	bool targetObjectDetected = false;
-    vector< vector<Point> > contours, contours_thresh;
+	bool targetObjectDetected2 = false;
+	bool targetObjectDetected3 = false;
+	vector< vector<Point> > contours, contours_thresh;
 	vector< vector<Point> > singleContour;
-    cv::Mat heatmap_blurred, mask, mask_thresh, img_show, rectCountMap;
-    Mat1f heatmap;
+	cv::Mat heatmap_blurred, mask, mask_thresh, img_show, rectCountMap;
+	Mat1f heatmap;
 	cv::Mat singleContourMask, singleContourHeatmap;
 	heatmap = cv::Mat::zeros(img.rows, img.cols, CV_8U); 
-    rectCountMap = cv::Mat::zeros(img.rows, img.cols, CV_8U);
-	
+	rectCountMap = cv::Mat::zeros(img.rows, img.cols, CV_8U);
+
 	//clone image for drawing shapes
 	img_show = img.clone();	
 
@@ -611,22 +658,21 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 	{		
 		if((predictedSlidingWindows[i].x + predictedSlidingWindows[i].width >= img_show.cols) ||
 			(predictedSlidingWindows[i].y + predictedSlidingWindows[i].height) >= img_show.rows)
-		{
-			
+		{		
 			continue;
 		}		
-        //rectangle( img_show, predictedSlidingWindows[i], cv::Scalar( 0, 255, 0 ), 2, CV_AA, 0 );      // you need to add a parameter here to set it
-        heatmap(predictedSlidingWindows[i]) += (double) 1.0 * predictedSlidingWindowWeights[i];
+		rectangle( img_show, predictedSlidingWindows[i], cv::Scalar( 0, 255, 0 ), 1, CV_AA, 0 );      // you need to add a parameter here to set it
+		heatmap(predictedSlidingWindows[i]) += (double) 1.0 * predictedSlidingWindowWeights[i];
 
-        // count number of windows
-        rectCountMap(predictedSlidingWindows[i]) += 1;
-    }
+		// count number of windows
+		rectCountMap(predictedSlidingWindows[i]) += 1;
+	}
 
 	//calculate Mask Contour	
-    cv::GaussianBlur(heatmap, heatmap_blurred, cv::Size(171, 171), 0, 0);       // delete this one
-    threshold(heatmap_blurred, mask, 0.0, 255, cv::THRESH_BINARY);
+	cv::GaussianBlur(heatmap, heatmap_blurred, cv::Size(171, 171), 0, 0);       // delete this one
+	threshold(heatmap_blurred, mask, 0.0, 255, cv::THRESH_BINARY);
 
-    mask.convertTo(mask,CV_8UC1,255,0);
+	mask.convertTo(mask,CV_8UC1,255,0);
 	findContours(mask, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_TC89_KCOS);
 
 
@@ -637,115 +683,164 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 		labelContour.push_back(Point(labelPolygon[i].X, labelPolygon[i].Y));
 	}
 
-    // draw label
+	// draw label
 	vector< vector<Point> > labelContours;
 	labelContours.push_back(labelContour);
-    //drawContours(img_show, labelContours, -1, cv::Scalar( 255, 0, 0 ), 2, CV_AA);                     // you need to add a parameter here to set it
+	//drawContours(img_show, labelContours, -1, cv::Scalar( 255, 0, 0 ), 2, CV_AA);                     // you need to add a parameter here to set it
 
-    // draw bounding rect (labeled)
-    Rect labelBoundRect = boundingRect(Mat(labelContour));
-    rectangle(img_show, labelBoundRect.tl(), labelBoundRect.br(), cv::Scalar( 255, 0, 0 ), 2, 8, 0 );
+	// draw bounding rect (labeled)
+	Rect labelBoundRect = boundingRect(Mat(labelContour));
+	rectangle(img_show, labelBoundRect.tl(), labelBoundRect.br(), cv::Scalar( 255, 0, 0 ), 2, 8, 0 );
 
 	for (int i = 0; i < contours.size(); i++)
 	{
-        //Calculate max value of the heatmap crop of the single contour
-        singleContour.clear();
-        singleContour.push_back(contours[i]);
-        singleContourMask = cv::Mat::zeros(img.rows, img.cols, CV_8U);
-        singleContourHeatmap = cv::Mat::zeros(img.rows, img.cols, CV_8U);
-        drawContours(singleContourMask, singleContour, -1, cv::Scalar( 255, 255, 255 ), CV_FILLED);
-        heatmap.copyTo(singleContourHeatmap, singleContourMask);
+		//Calculate max value of the heatmap crop of the single contour
+		singleContour.clear();
+		singleContour.push_back(contours[i]);
+		singleContourMask = cv::Mat::zeros(img.rows, img.cols, CV_8U);
+		singleContourHeatmap = cv::Mat::zeros(img.rows, img.cols, CV_8U);
+		drawContours(singleContourMask, singleContour, -1, cv::Scalar( 255, 255, 255 ), CV_FILLED);
+		heatmap.copyTo(singleContourHeatmap, singleContourMask);
 
-        Point max_loc;
-        cv::minMaxLoc(singleContourHeatmap, NULL, &heatmap_max, NULL, &max_loc);
+		Point max_loc;
+		cv::minMaxLoc(singleContourHeatmap, NULL, &heatmap_max, NULL, &max_loc);
 
-        int rectCount =  (int)rectCountMap.at<uchar>(max_loc);
-        cout << "max_loc: " << max_loc << ", rectCount: " << rectCount << endl;
+		int rectCount =  (int)rectCountMap.at<uchar>(max_loc);
+		cout << "max_loc: " << max_loc << ", rectCount: " << rectCount << endl;
 
-        cv::GaussianBlur(singleContourHeatmap, singleContourHeatmap, cv::Size(171, 171), 0, 0);
-        threshold(singleContourHeatmap, mask_thresh, heatmap_threshold*rectCount, 255, cv::THRESH_BINARY);
+		cv::GaussianBlur(singleContourHeatmap, singleContourHeatmap, cv::Size(171, 171), 0, 0);
+		threshold(singleContourHeatmap, mask_thresh, heatmap_threshold*rectCount, 255, cv::THRESH_BINARY);
 
-        mask_thresh.convertTo(mask_thresh,CV_8UC1,255,0);
-        findContours(mask_thresh, contours_thresh, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_TC89_KCOS);
+		mask_thresh.convertTo(mask_thresh,CV_8UC1,255,0);
+		findContours(mask_thresh, contours_thresh, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_TC89_KCOS);
 
-        //draw contours on tagged image
-        //drawContours(img_show, contours_thresh, -1, cv::Scalar( 0, 0, 255 ), 2, CV_AA);                   // you need to add a parameter here to set it
-
-
-        if (contours_thresh.size() > 0)
-        {
-
-            // draw bounding rect (detected)
-            Rect boundRect = boundingRect( Mat(contours_thresh[0]) );
+		//draw contours on tagged image
+		//drawContours(img_show, contours_thresh, -1, cv::Scalar( 0, 0, 255 ), 2, CV_AA);                   // you need to add a parameter here to set it
 
 
-            if(1.0 * boundRect.width / boundRect.height < 2.0)
-            {
-                int newWidth = boundRect.height * 2.0;
-                Point rect_center(boundRect.x + 0.5 * boundRect.width, boundRect.y + 0.5 * boundRect.height);
-                boundRect = Rect(rect_center.x - 0.5 * newWidth, boundRect.y, newWidth, boundRect.height );
-            }
-            rectangle(img_show, boundRect.tl(), boundRect.br(), cv::Scalar( 0, 0, 255 ), 2, 8, 0 );
+		if (contours_thresh.size() > 0)
+		{
+			// draw bounding rect (detected)
+			Rect boundRect = boundingRect( Mat(contours_thresh[0]) );
+			Point rect_center(boundRect.x + 0.5 * boundRect.width, boundRect.y + 0.5 * boundRect.height);
+			if(1.0 * boundRect.width / boundRect.height < 2.0)
+			{
+				int newWidth = boundRect.height * 2.0;		
+				boundRect = Rect(rect_center.x - 0.5 * newWidth, boundRect.y, newWidth, boundRect.height );
+			}
+			rectangle(img_show, boundRect.tl(), boundRect.br(), cv::Scalar( 0, 0, 255 ), 2, 8, 0 );
+
+			//draw center point of bounding rect (detected)			
+			circle( img_show, rect_center, 10, Scalar( 0, 0, 255 ), -1, 8);  
+
+			//calulate and draw the average center point of the weighted sliding windows (detected)
+			Point averageCenterPoint(0, 0);
+			double weightSum = 0.0;
+			for(int k = 0; k < predictedSlidingWindows.size(); k++)
+			{		
+				if((predictedSlidingWindows[k].x + predictedSlidingWindows[k].width >= img_show.cols) ||
+					(predictedSlidingWindows[k].y + predictedSlidingWindows[k].height) >= img_show.rows)
+				{		
+					continue;
+				}	
+				Point centerPoint(predictedSlidingWindows[k].x + 0.5 * predictedSlidingWindows[k].width, predictedSlidingWindows[k].y + 0.5 * predictedSlidingWindows[k].height);
+				averageCenterPoint += 1.0 * predictedSlidingWindowWeights[k] * centerPoint;
+				weightSum += predictedSlidingWindowWeights[k];
+			}
+			averageCenterPoint *= (1.0 / weightSum);
+ 			circle( img_show, averageCenterPoint, 10, Scalar( 0, 255, 0 ), -1, 8);  
 
 
-            //Calculate Overlap with the contour and the labelPolygon
-            ClipperLib::Path contourPolygon;
-            for ( int k = 0; k < contours_thresh[0].size(); k++)
-            {
-                contourPolygon << ClipperLib::IntPoint(contours_thresh[0][k].x, contours_thresh[0][k].y);
-            }
+			//Calculate Overlap with the contour and the labelPolygon
+			ClipperLib::Path contourPolygon;
+			for ( int k = 0; k < contours_thresh[0].size(); k++)
+			{
+				contourPolygon << ClipperLib::IntPoint(contours_thresh[0][k].x, contours_thresh[0][k].y);
+			}
 
-            ClipperLib::Paths clippedContourPolygon = clipPolygon(contourPolygon, labelPolygon);
-            area_clippedContourPolygon = 0;
-            if (clippedContourPolygon.size() > 0)
-                area_clippedContourPolygon = abs(Area(clippedContourPolygon[0]));
-            area_contourPolygon = abs(Area(contourPolygon));
-            area_labelPolygon = abs(Area(labelPolygon));
+			ClipperLib::Paths clippedContourPolygon = clipPolygon(contourPolygon, labelPolygon);
+			area_clippedContourPolygon = 0;
+			if (clippedContourPolygon.size() > 0)
+				area_clippedContourPolygon = abs(Area(clippedContourPolygon[0]));
+			area_contourPolygon = abs(Area(contourPolygon));
+			area_labelPolygon = abs(Area(labelPolygon));
 
-            TP = area_clippedContourPolygon;
-            FP = area_contourPolygon - area_clippedContourPolygon;
-            overlap = TP / (area_labelPolygon + FP);
+			TP = area_clippedContourPolygon;
+			FP = area_contourPolygon - area_clippedContourPolygon;
+			overlap = TP / (area_labelPolygon + FP);
 
-            //new one
-            Rect intersection = boundRect & labelBoundRect;
-            double areaIntersection = intersection.width * intersection.height;
-            double areaLabel = labelBoundRect.width * labelBoundRect.height;
-            double areaPrediction = boundRect.width * boundRect.height;
-            double areaUnion = areaLabel+areaPrediction-areaIntersection;
-            overlap = (double)(areaIntersection/areaUnion);
+			//new one
+			Rect intersection = boundRect & labelBoundRect;
+			double areaIntersection = intersection.width * intersection.height;
+			double areaLabel = labelBoundRect.width * labelBoundRect.height;
+			double areaPrediction = boundRect.width * boundRect.height;
+			double areaUnion = areaLabel+areaPrediction-areaIntersection;
+			overlap = (double)(areaIntersection/areaUnion);
 
-            //cout << "area_contourPolygon:         " << area_contourPolygon << "   " << abs(area_contourPolygon) << endl;
-            //cout << "area_clippedContourPolygon:  " << area_clippedContourPolygon << "   " << abs(area_clippedContourPolygon)  << endl;
-            //cout << "area_labelPolygon:           " << area_labelPolygon << "   " << abs(area_labelPolygon)  << endl;
-            //cout << "TP:                          " << TP << endl;
-            //cout << "FP:                          " << FP << endl;
-            cout << "Overlap " << (i+1) << "  (TP / (TP + FP + FN)): " << overlap << endl;
-            cout << "   -> Heatmap_threshold:          " << heatmap_threshold << endl;
-            cout << "   -> Heatmap_max:                " << heatmap_max << endl;
+			//cout << "area_contourPolygon:         " << area_contourPolygon << "   " << abs(area_contourPolygon) << endl;
+			//cout << "area_clippedContourPolygon:  " << area_clippedContourPolygon << "   " << abs(area_clippedContourPolygon)  << endl;
+			//cout << "area_labelPolygon:           " << area_labelPolygon << "   " << abs(area_labelPolygon)  << endl;
+			//cout << "TP:                          " << TP << endl;
+			//cout << "FP:                          " << FP << endl;
+			cout << "IoU " << (i+1) << "  (TP / (TP + FP + FN)): " << overlap << endl;
+			cout << "   -> Heatmap_threshold:          " << heatmap_threshold << endl;
+			cout << "   -> Heatmap_max:                " << heatmap_max << endl;
 
 
-            double pred = 1.0 * heatmap_max / rectCount;
-            //draw Text
-            ostringstream s;
-            s << "Overlap " << (i+1) << ": " << overlap << " (-> Label: " << (overlap >= overlapThreshold2) << ")   Heatmap-Max: " << heatmap_max << " Rect-Count: " << rectCount;
-            putText(img_show, s.str(), cv::Point(10, 40 * (i+1)), cv::FONT_HERSHEY_DUPLEX, 1.3, cv::Scalar( 0, 0, 255 ), 2, CV_AA);
-            s.str("");
-            s << "Prediction: " << pred;
-            putText(img_show, s.str(), cv::Point(10, 80 * (i+1)), cv::FONT_HERSHEY_DUPLEX, 1.3, cv::Scalar( 0, 0, 255 ), 2, CV_AA);
-            s.str("");
+			double pred = 1.0 * heatmap_max / rectCount;
+			//draw Text
+			ostringstream s;
+			s << "IoU " << (i+1) << ": " << overlap << " (-> Label: " << (overlap >= detectionOverlapThreshold) << ")   Heatmap-Max: " << heatmap_max << " Rect-Count: " << rectCount;
+			putText(img_show, s.str(), cv::Point(10, 40 * (i+1)), cv::FONT_HERSHEY_DUPLEX, 1.3, cv::Scalar( 0, 0, 255 ), 2, CV_AA);
+			s.str("");
+			s << "Prediction: " << pred;
+			putText(img_show, s.str(), cv::Point(10, 80 * (i+1)), cv::FONT_HERSHEY_DUPLEX, 1.3, cv::Scalar( 0, 0, 255 ), 2, CV_AA);
+			s.str("");
 
-            if(overlap > overlapThreshold2)
-                targetObjectDetected = true;
 
-            classificationLabels2.push_back ( overlap );
-            classificationPredictions2.push_back ( pred );
-        }
+			// detection 1
+			if(overlap > detectionOverlapThreshold)
+				targetObjectDetected = true;
+
+			detectionLabels.push_back ( overlap );
+			detectionPredictions.push_back ( pred );
+
+
+			// detection 2
+			bool detectionInsideLabelBoundRect = rect_center.x >= labelBoundRect.x && rect_center.x <= (labelBoundRect.x + labelBoundRect.width) &&
+							rect_center.y >= labelBoundRect.y && rect_center.y <= (labelBoundRect.y + labelBoundRect.height);
+			if(detectionInsideLabelBoundRect)     
+				targetObjectDetected2 = true;
+
+			detectionLabels2.push_back (detectionInsideLabelBoundRect ? 1.0 : -1.0 );
+			detectionPredictions2.push_back ( pred );
+
+
+			// detection 3
+			detectionInsideLabelBoundRect = averageCenterPoint.x >= labelBoundRect.x && averageCenterPoint.x <= (labelBoundRect.x + labelBoundRect.width) &&
+							averageCenterPoint.y >= labelBoundRect.y && averageCenterPoint.y <= (labelBoundRect.y + labelBoundRect.height);
+			if(detectionInsideLabelBoundRect)     
+				targetObjectDetected3 = true;
+
+			detectionLabels3.push_back (detectionInsideLabelBoundRect ? 1.0 : -1.0 );
+			detectionPredictions3.push_back ( pred );
+		}
 	}
 
 	if (!targetObjectDetected)
 	{
-        classificationLabels2.push_back ( 1 );
-        classificationPredictions2.push_back ( 0 );
+		detectionLabels.push_back ( 1 );
+		detectionPredictions.push_back ( 0 );
+	}
+	if (!targetObjectDetected2)
+	{
+		detectionLabels2.push_back ( 1 );
+		detectionPredictions2.push_back ( 0 );
+	}
+	if (!targetObjectDetected3)
+	{
+		detectionLabels3.push_back ( 1 );
+		detectionPredictions3.push_back ( 0 );
 	}
 	
 	if(showResult)
@@ -763,7 +858,7 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 		//cv::imwrite( dir + "/" + imgName.insert(imgName.length()-5, "_0_heatmap"), heatmap );
 		//cv::imwrite( dir + "/" + imgName.insert(imgName.length()-5, "_1_heatmap_blurred"), heatmap_blurred );
 		//cv::imwrite( dir + "/" + imgName.insert(imgName.length()-5, "_2_mask.jpg"), mask );
-		cv::imwrite( dir + "/" + imgName.insert(imgName.length()-5, "_3_result.jpg"), img_show );		
+		cv::imwrite( dir + "/" + imgName.insert(imgName.length()-5, "_3_result"), img_show );		
 	}
 
 	
@@ -814,7 +909,7 @@ void Classifier::showTaggedOverlapImage(const cv::Mat& img, ClipperLib::Path lab
 
 
 	//draw sliding window 
-    rectangle( img_show, slidingWindow, cv::Scalar( 0, 255, 0 ), 2, CV_AA, 0 );
+	rectangle( img_show, slidingWindow, cv::Scalar( 0, 255, 0 ), 2, CV_AA, 0 );
 	
 
 	//draw Text
