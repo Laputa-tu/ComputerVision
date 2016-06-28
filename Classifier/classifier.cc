@@ -860,7 +860,7 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 	if(showResult)
 	{
 		cv::imshow("Tagged Image: " + imgName, img_show);		
-		cv::waitKey(0);
+        cv::waitKey(27);
 	}
 	if(saveResult)
 	{	

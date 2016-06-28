@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
 
     // classification parameters
     overlapThreshold = 0.5;		// label = Percentage of overlap -> 0 to 1.0
-    float predictionThreshold = 0.6;	// svm prediction: -1 to +1
+    float predictionThreshold = 0.5;	// svm prediction: -1 to +1
     float overlapThreshold2 = 0.06;	// overlap of the merged-slidingWindow-contour and the labelPolygon
 
     Classifier model(overlapThreshold, predictionThreshold, overlapThreshold2);
@@ -131,7 +131,7 @@ int main(int argc, char* argv[])
             cout << "Cannot open the video file" << endl;
         }
 
-        cap.set(CV_CAP_PROP_POS_MSEC, 30000); //start the video at 300ms
+        cap.set(CV_CAP_PROP_POS_MSEC, 20000); //start the video at 300ms
         double fps = cap.get(CV_CAP_PROP_FPS); //get the frames per seconds of the video
         cout << "Frame per seconds : " << fps << endl;
         namedWindow("MyVideo",CV_WINDOW_AUTOSIZE); //create a window called "MyVideo"
