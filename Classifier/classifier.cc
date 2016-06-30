@@ -205,6 +205,10 @@ void Classifier::finishTraining()
 	detectionPredictions.clear();
 	detectionPredictions2.clear();
 	detectionPredictions3.clear();
+
+	// reset sliding window array
+	predictedSlidingWindows.clear();
+	predictedSlidingWindowWeights.clear();
 }
 
 void Classifier::saveSVM(string path)
@@ -264,6 +268,10 @@ void Classifier::finishHardNegativeMining()
 	detectionPredictions.clear();
 	detectionPredictions2.clear();
 	detectionPredictions3.clear();
+
+	// reset sliding window array
+	predictedSlidingWindows.clear();
+	predictedSlidingWindowWeights.clear();
 }
 
 
@@ -631,6 +639,7 @@ void Classifier::generateTaggedResultImage(const cv::Mat& img, string imgName, b
 
 	// reset sliding window array for next image
 	predictedSlidingWindows.clear();
+	predictedSlidingWindowWeights.clear();
 }
 
 
@@ -646,8 +655,9 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 	vector< vector<Point> > singleContour;
 	cv::Mat heatmap_blurred, mask, mask_thresh, img_show, rectCountMap;
 	Mat1f heatmap;
-	cv::Mat singleContourMask, singleContourHeatmap;
+	cv::Mat singleContourMask, singleContourHeatmap, singleContourHeatmap_blurred;
 	heatmap = cv::Mat::zeros(img.rows, img.cols, CV_8U); 
+	heatmap_blurred = cv::Mat::zeros(img.rows, img.cols, CV_8U); 
 	rectCountMap = cv::Mat::zeros(img.rows, img.cols, CV_8U);
 
 	//clone image for drawing shapes
@@ -698,12 +708,12 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 	for (int i = 0; i < contours.size(); i++)
 	{
 		//Calculate max value of the heatmap crop of the single contour
-		singleContour.clear();
-		singleContour.push_back(contours[i]);
-		singleContourMask = cv::Mat::zeros(img.rows, img.cols, CV_8U);
-		singleContourHeatmap = cv::Mat::zeros(img.rows, img.cols, CV_8U);
-		drawContours(singleContourMask, singleContour, -1, cv::Scalar( 255, 255, 255 ), CV_FILLED);
+		singleContourMask = cv::Mat::zeros(img.rows, img.cols, CV_8UC1);
+		singleContourHeatmap = cv::Mat::zeros(img.rows, img.cols, CV_8UC1);
+		singleContourHeatmap_blurred = cv::Mat::zeros(img.rows, img.cols, CV_8UC1);
+		drawContours(singleContourMask, contours, i, cv::Scalar( 255 ), CV_FILLED);
 		heatmap.copyTo(singleContourHeatmap, singleContourMask);
+		singleContourMask.release();
 
 		Point max_loc;
 		cv::minMaxLoc(singleContourHeatmap, NULL, &heatmap_max, NULL, &max_loc);
@@ -711,14 +721,17 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 		int rectCount =  (int)rectCountMap.at<uchar>(max_loc);
 		cout << "max_loc: " << max_loc << ", rectCount: " << rectCount << endl;
 
-		cv::GaussianBlur(singleContourHeatmap, singleContourHeatmap, cv::Size(171, 171), 0, 0);
-		threshold(singleContourHeatmap, mask_thresh, heatmap_threshold * rectCount, 255, cv::THRESH_BINARY);
+		cv::GaussianBlur(singleContourHeatmap, singleContourHeatmap_blurred, cv::Size(171, 171), 0, 0);
+		threshold(singleContourHeatmap_blurred, mask_thresh, heatmap_threshold * rectCount, 255, cv::THRESH_BINARY);
 
+		singleContourHeatmap.release();
+		singleContourHeatmap_blurred.release();
+		
 		mask_thresh.convertTo(mask_thresh,CV_8UC1,255,0);
 		findContours(mask_thresh, contours_thresh, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_TC89_KCOS);
 
 		//draw contours on tagged image
-		//drawContours(img_show, contours_thresh, -1, cv::Scalar( 0, 0, 255 ), 2, CV_AA);                   // you need to add a parameter here to set it
+		drawContours(img_show, contours_thresh, -1, cv::Scalar( 0, 0, 255 ), 2, CV_AA);                   // you need to add a parameter here to set it
 
 
 		if (contours_thresh.size() > 0)
@@ -869,10 +882,10 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 		mkdir(dir.c_str(), 0777);
 		dir = ("./ClassificationResults/" + startTime.str()).c_str();
 		mkdir(dir.c_str(), 0777);
-		//cv::imwrite( dir + "/" + imgName.insert(imgName.length()-5, "_0_heatmap"), heatmap );
-		//cv::imwrite( dir + "/" + imgName.insert(imgName.length()-5, "_1_heatmap_blurred"), heatmap_blurred );
-		//cv::imwrite( dir + "/" + imgName.insert(imgName.length()-5, "_2_mask.jpg"), mask );
-		cv::imwrite( dir + "/" + imgName.insert(imgName.length()-5, "_3_result"), img_show );		
+		//cv::imwrite( dir + "/" + imgName.insert(imgName.length()-4, "_0_heatmap"), heatmap );
+		//cv::imwrite( dir + "/" + imgName.insert(imgName.length()-4, "_1_heatmap_blurred"), heatmap_blurred );
+		//cv::imwrite( dir + "/" + imgName.insert(imgName.length()-4, "_2_mask"), mask );
+		cv::imwrite( dir + "/" + imgName.insert(imgName.length()-4, "_3_result"), img_show );		
 	}
 
 	
@@ -887,6 +900,7 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 	img_show.release();
 	singleContourMask.release();
 	singleContourHeatmap.release();
+	singleContourHeatmap_blurred.release();
 }
 
 
