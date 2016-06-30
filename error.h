@@ -6,5 +6,6 @@
 #define DIR_INVAL 2		/* invalid directory */
 #define DAT_INVAL 3		/* invalid data, e.g. null or empty */
 #define IMG_INVAL 4		/* invalid image, e.g. null or empty */
+#define VID_INVAL 5		/* invalid video */
 
 #endif

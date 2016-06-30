@@ -1,4 +1,12 @@
-path_c = 'C:\UbuntuShare\ROC\classify\';
+run('E:\Benutzer\Daniel\Documents\MATLAB\vlfeat-master\toolbox\vl_setup');
+ubuntuSharePath = 'E:\Benutzer\Daniel\Desktop\UbuntuShare\';
+%run('C:\Users\Kevin\Documents\MATLAB\vlfeat-master\toolbox\vl_setup');
+%ubuntuSharePath = 'C:\UbuntuShare\';
+
+
+
+
+path_c = strcat(ubuntuSharePath, 'ROC\classify\');
 file_end = '*csv';
 full_c = strcat(path_c, file_end);
 files_c = dir(full_c);
@@ -42,17 +50,33 @@ for file_c = files_c'
     [X,Y] = perfcurve(C(1,:), C(2,:), 1.0);
     figure(1); plot(X,Y);
     hold on;
+    
+    % plot recall-precision recall curve
+    [recall, precision] = vl_pr(C(1,:), C(2,:));
+    figure(2); plot(recall, precision);
+    hold on;
 end
 
+figure(1);
 xlabel('False positive rate');
 ylabel('True positive rate');
 title('ROC for Classification by SVM');
 legend(C_labels);
+
+figure(2);
+xlabel('Recall');
+ylabel('Precision');
+title('Recall-Precision for Classification by SVM');
+legend(C_labels);
 hold off;
 
 
+
+
+
+
 %get data of detector roc
-path_d = 'C:\UbuntuShare\ROC\detect\';
+path_d = strcat(ubuntuSharePath, 'ROC\detect\');
 full_d = strcat(path_d, file_end);
 files_d = dir(full_d);
 
@@ -92,14 +116,26 @@ for file_d = files_d'
     D_labels = [D_labels ; d_label];
     
     % plot roc
-    [X,Y] = perfcurve(D(1,:), D(2,:), 1.0);
-    figure(2); plot(X,Y);
-    hold on;
+    %[X,Y] = perfcurve(D(1,:), D(2,:), 1.0);
+    %figure(3); plot(X,Y);
+    %hold on;
+    
+    % plot recall-precision recall curve
+    [recall, precision] = vl_pr(D(1,:), D(2,:));
+    figure(4); plot(recall, precision);
+    hold on;    
 end
-  
-xlabel('False positive rate');
-ylabel('True positive rate');
-title('ROC for Detection by Clustering');
+
+%figure(3);
+%xlabel('False positive rate');
+%ylabel('True positive rate');
+%title('ROC for Detection by Clustering');
+%legend(D_labels);
+
+figure(4);
+xlabel('Recall');
+ylabel('Precision');
+title('Recall-Precision for Detection by Clustering');
 legend(D_labels);
 hold off;
         

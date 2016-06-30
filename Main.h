@@ -24,13 +24,14 @@ int cnt_TrainingImages, cnt_DiscardedTrainingImages;
 int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale_n, float scale_factor,
                        float initial_scale, int w_rows, int w_cols, int step_rows, int step_cols, const int operation, int originalImageHeight);
 
-int doSlidingImageOperation(Classifier &model, Mat frame, int scale_n, float scale_factor,
+int doSlidingImageOperation(Classifier &model, Mat frame, ClipperLib::Path labelPolygon, int scale_n, float scale_factor,
                        float initial_scale, int w_rows, int w_cols, int step_rows, int step_cols, const int operation, int originalImageHeight);
 
 int calculateBestSlidingWindow(vector<JSONImage> &imageSet, bool showResult, float initial_scale, int w_rows, int w_cols);
 
 static string getTimeString();
 static string TimeString;
+static int imageCounter;
 
 float overlapThreshold;
 
