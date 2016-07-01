@@ -6,6 +6,10 @@
 
 #IncludeRegexTransform: 
 
+/home/kevin/ComputerVision/Classifier/classifier.cc
+classifier.h
+/home/kevin/ComputerVision/Classifier/classifier.h
+
 /home/kevin/ComputerVision/Classifier/classifier.h
 opencv/cv.h
 -
@@ -56,54 +60,6 @@ functional
 queue
 -
 
-/home/kevin/ComputerVision/Data/./ImageObj.h
-
-/home/kevin/ComputerVision/Data/JSONImage.h
-../Classifier/classifier.h
-/home/kevin/ComputerVision/Classifier/classifier.h
-./ImageObj.h
-/home/kevin/ComputerVision/Data/./ImageObj.h
-
-/home/kevin/ComputerVision/Helper/FileManager.cpp
-FileManager.h
-/home/kevin/ComputerVision/Helper/FileManager.h
-
-/home/kevin/ComputerVision/Helper/FileManager.h
-boost/config/compiler/visualc.hpp
--
-boost/property_tree/ptree.hpp
--
-boost/property_tree/json_parser.hpp
--
-boost/foreach.hpp
--
-cassert
--
-exception
--
-sys/stat.h
--
-sys/types.h
--
-stdio.h
--
-dirent.h
--
-iostream
--
-string
--
-algorithm
--
-ctime
--
-cstdlib
--
-../Data/JSONImage.h
-/home/kevin/ComputerVision/Data/JSONImage.h
-../error.h
-/home/kevin/ComputerVision/error.h
-
 /home/kevin/ComputerVision/LBP/histogram.hpp
 cv.h
 -
@@ -125,8 +81,6 @@ lbp.hpp
 /home/kevin/ComputerVision/LBP/lbp.hpp
 histogram.hpp
 /home/kevin/ComputerVision/LBP/histogram.hpp
-
-/home/kevin/ComputerVision/error.h
 
 /home/kevin/opencv-2.4.9/include/opencv/cv.h
 opencv2/core/core_c.h

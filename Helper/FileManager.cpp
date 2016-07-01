@@ -77,7 +77,7 @@ vector<JSONImage> FileManager::GetImages(char* path)
         }
 
         // search & get files
-        cout << "Searching in \"" << path << "\":" << endl;
+        cout << "Searching in \"" << path << "\"" << endl;
         FileManager::GetFilesInDirectory(path, IMAGE_TYPE, files);
 
         /*cout << "\nFound the following JPG Files:" << endl;
@@ -117,7 +117,7 @@ vector<JSONImage> FileManager::GetJSONImages(char* path)
     }
 
     // search & get files
-    cout << "Searching in \"" << path << "\"." << endl;
+    cout << "Searching in \"" << path << "\"" << endl;
     FileManager::GetFilesInDirectory(path, SLOTH_ZEBRA, files);
 
     /*cout << "\nFound the following JSON files:" << endl;
@@ -228,7 +228,7 @@ vector<string> FileManager::GetVideosFromDirectory(char* path)
         }
 
         // search & get files
-        cout << "Searching in \"" << path << "\"." << endl;
+        cout << "Searching in \"" << path << "\"" << endl;
         FileManager::GetFilesInDirectory(path, VIDEO_TYPE, files);
 
         //cout << "\nFound the following MP4 Files:" << endl;

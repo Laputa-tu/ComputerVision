@@ -139,6 +139,12 @@ void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Re
     //do some lbp stuff here
     double *desc_lbp;
     int descriptor_size = lbp.compute(img2_color, desc_lbp);
+    /*
+    for(int k=0; k<descriptor_size; k++)
+    {
+        double val = (double)desc_lbp[k];
+        cout << val << endl;
+    }*/
 
 
 	cv::Mat1f descriptor(1,vDescriptor.size(),&vDescriptor[0]);

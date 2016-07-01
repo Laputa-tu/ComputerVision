@@ -13,6 +13,7 @@ int main(int argc, char* argv[])
     char* validationPath = argv[2];
     char* testPath = argv[3];
     vector<JSONImage> trainingSet, validationSet, testSet;
+    vector<string> testVideos;
     cnt_TrainingImages = 0;
     cnt_DiscardedTrainingImages = 0;
     imageCounter = 0;
@@ -31,51 +32,23 @@ int main(int argc, char* argv[])
     Classifier model(overlapThreshold, predictionThreshold, overlapThreshold2);
 
     // sliding window
-    int windows_n_rows = originalImageHeight * initial_scale * pow(scaling_factor, scale_n_times);
-    int windows_n_cols = originalImageHeight * initial_scale * pow(scaling_factor, scale_n_times);
-    windows_n_rows = max(windows_n_rows, 128); // if lower than 128, set to 128
-    windows_n_cols = max(windows_n_cols, 128); // if lower than 128, set to 128
-    windows_n_rows = 64;
-    windows_n_cols = 128;
+    int windows_n_rows = 64;
+    int windows_n_cols = 128;
     int step_slide_row = windows_n_rows/4;
     int step_slide_col = windows_n_cols/4;
 
     // check the number of parameters
     if (argc < 2)
     {
-        cerr << "Usage: " << argv[0] << " <DirTrainingImages> [<DirValidationImages> <DirTestImages>]" << endl;
+        cerr << "Usage: " << argv[0] << " <DirTrainingImages zebra.json> [<DirValidationImages zebra.json> <DirTestSet JPG or MP4>]" << endl;
         return WRONG_ARG;
     }
 
-    // get images from json
-    trainingSet = FileManager::GetJSONImages(trainingPath);
-    if(trainingSet.empty())
-    {
-        cerr << "No training images found." << endl;
-        return DAT_INVAL;
-    }
-
-    // get images from json
-    validationSet = FileManager::GetJSONImages(validationPath);
-    if(validationSet.empty())
-    {
-        cerr << "No validation images found." << endl;
-        return DAT_INVAL;
-    }
-
-    // get images from json
-    /*testSet = FileManager::GetJSONImages(testPath);
-    if(testSet.empty())
-    {
-        cerr << "No test images found." << endl;
-    }*/
-
-    // get videos from dir
-    vector<string> files = FileManager::GetVideosFromDirectory(testPath);
-    if(files.empty())
-    {
-        cerr << "No test videos found." << endl;
-    }
+    //get data
+    trainingSet = getTrainingSet(trainingPath);
+    validationSet = getValidationSet(validationPath);
+    testSet = getTestSet(testPath);
+    testVideos = getTestVideos(testPath);
 
     // print calculated scale steps
     cout << "\nOriginal Image Height: " << originalImageHeight  << endl;
@@ -125,8 +98,6 @@ int main(int argc, char* argv[])
         model.saveSVM(svm_savepath);
     }
 
-
-
     // validate
     cout << "Running Validation..." << endl;
     int res_val = doSlidingOperation(model, validationSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
@@ -140,9 +111,20 @@ int main(int argc, char* argv[])
 
 
     cout << "Running Classification..." << endl;
-    for(int it=0; it<files.size(); it++)
+    // validate
+    cout << "Running Validation..." << endl;
+    int res_test = doSlidingOperation(model, testSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
+                                       windows_n_cols, step_slide_row, step_slide_col, OPERATE_CLASSIFY, originalImageHeight);
+    if(res_test != 0)
     {
-        VideoCapture cap(files.at(it));
+        cerr << "Error occured during validation, errorcode: " << res_val;
+        return res_test;
+    }
+
+    // run classification on videos
+    for(int it=0; it<testVideos.size(); it++)
+    {
+        VideoCapture cap(testVideos.at(it));
         if(!cap.isOpened())
         {
             cout << "Cannot open the video file" << endl;
@@ -357,6 +339,63 @@ int doSlidingImageOperation(Classifier &model, Mat frame, ClipperLib::Path label
     image.release();
 
     return 0;
+}
+
+vector<JSONImage> getTrainingSet(char *trainingPath)
+{
+    // get training images
+    vector <JSONImage> trainingSet = FileManager::GetJSONImages(trainingPath);
+    if(trainingSet.empty())
+    {
+        cerr << "No training images found." << endl;
+    }
+    else
+    {
+        cout << "Found " << trainingSet.size() << " training images." << endl;
+    }
+    return trainingSet;
+}
+vector<JSONImage> getValidationSet(char *validationPath)
+{
+    // get validation images
+    vector<JSONImage> validationSet = FileManager::GetJSONImages(validationPath);
+    if(validationSet.empty())
+    {
+        cerr << "No validation images found." << endl;
+    }
+    else
+    {
+        cout << "Found " << validationSet.size() << " validation images." << endl;
+    }
+    return validationSet;
+}
+vector<JSONImage> getTestSet(char *testPath)
+{
+    // get test images
+    vector<JSONImage> testSet = FileManager::GetImages(testPath);
+    if(testSet.empty())
+    {
+        cerr << "No test images found." << endl;
+    }
+    else
+    {
+        cout << "Found " << testSet.size() << " test images." << endl;
+    }
+    return testSet;
+}
+vector<string> getTestVideos(char *testPath)
+{
+    // get test videos from dir
+    vector<string> testVideos = FileManager::GetVideosFromDirectory(testPath);
+    if(testVideos.empty())
+    {
+        cerr << "No test videos found." << endl;
+    }
+    else
+    {
+        cout << "Found " << testVideos.size() << " test videos." << endl;
+    }
+    return testVideos;
 }
 
 int calculateBestSlidingWindow(vector<JSONImage> &imageSet, bool showResult, float initial_scale, int w_rows, int w_cols)

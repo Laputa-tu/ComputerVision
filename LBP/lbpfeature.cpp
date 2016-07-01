@@ -16,7 +16,7 @@ public:
     /// <param name="cellSize"> the cellsize is used for the partial histograms that are then pushed into the spatial histogram</param>
     /// <param name="cellSize"> overlap of the cells </param>
     /// <returns> Returns the size of the feature vector </returns>
-    int compute(Mat image, double* descriptor, int radius = 1, int neighbours = 8, int cellSize = 30, int overlap = 0)
+    int compute(Mat image, double* &descriptor, int radius = 1, int neighbours = 8, int cellSize = 30, int overlap = 0)
     {
         Mat dst; //image after preproc.
         Mat lbp; //lbp image
