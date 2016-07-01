@@ -5,8 +5,9 @@
 
 int main(int argc, char* argv[])
 {
-    bool loadSVMFromFile = false;
-    string svm_loadpath = "./SVM_Savings/svm_nice_5_08_015_width128_jitter3_anglestep8.xml"; //_hardnegative
+    bool loadSVMFromFile = true;
+    //string svm_loadpath = "./SVM_Savings/svm_nice_5_08_015_width128_jitter3_anglestep8.xml"; //_hardnegative
+    string svm_loadpath = "./SVM_Savings/svm_2016_7_1__23_0_13.xml"; // lbp
     string svm_savepath = "./SVM_Savings/svm_" + getTimeString() + ".xml";
 
     char* trainingPath = argv[1];
@@ -19,6 +20,7 @@ int main(int argc, char* argv[])
     imageCounter = 0;
 
     // training parameters          3 75 15 nächster versuch - initial scale kleiner!
+    int feature = FEATURE_LBPH;
     int originalImageHeight = 1080; 	//1080;
     int scale_n_times = 5; 		//3;
     float scaling_factor = 0.8;	//0.75;
@@ -29,7 +31,7 @@ int main(int argc, char* argv[])
     float predictionThreshold = 0.5;	// svm prediction: -1 to +1
     float overlapThreshold2 = 0.06;	// overlap of the merged-slidingWindow-contour and the labelPolygon
 
-    Classifier model(overlapThreshold, predictionThreshold, overlapThreshold2);
+    Classifier model(overlapThreshold, predictionThreshold, overlapThreshold2, feature);
 
     // sliding window
     int windows_n_rows = 64;

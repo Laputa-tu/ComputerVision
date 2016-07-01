@@ -24,15 +24,19 @@ using namespace ClipperLib;
 using namespace cv;
 
 class Classifier {
+
+#define FEATURE_HOG 1
+#define FEATURE_LBPH 2
     
 private:
 	cv::Mat1f descriptors;
 	cv::Mat1f labels;
 	cv::Mat1f responses;	
-	cv::SVM svm;
-	cv::HOGDescriptor hog;
+	cv::SVM svm;	
 	cv::SVMParams svmParams;
 
+    int featureGenerator;
+    cv::HOGDescriptor hog;
     LBPFeature lbp;
 
 	ostringstream startTime;
@@ -68,9 +72,9 @@ private:
 	void shuffleTrainingData(cv::Mat1f  predictionsMatrix, cv::Mat1f labelsMatrix);
 	cv::Mat cropRotatedRect(const cv::Mat& img, Rect r, float angle);
 	cv::vector<Mat> doJitter(Mat img, Rect slidingWindow);
-
+    cv::Mat1f computeFeatureDescriptor(cv::Mat& img, cv::Mat& img_color);
 public:
-    	Classifier(float, float, float);
+        Classifier(float, float, float, int);
     	~Classifier();
     	void startTraining(string StartTime);
         void train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor, bool showImage);

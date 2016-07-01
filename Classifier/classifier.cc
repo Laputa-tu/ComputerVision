@@ -4,7 +4,7 @@ using namespace std;
 using namespace ClipperLib;
 
 /// Constructor
-Classifier::Classifier(float overlapLabels, float predictionThresh, float overlapDetector)
+Classifier::Classifier(float overlapLabels, float predictionThresh, float overlapDetector, int feature)
 {
     overlapThreshold = overlapLabels;		// label = Percentage of overlap -> 0 to 1.0
     predictionThreshold = predictionThresh;	// svm prediction: -1 to +1
@@ -29,6 +29,8 @@ Classifier::Classifier(float overlapLabels, float predictionThresh, float overla
 	unsigned int t = time(NULL);
 	srand (t);
 	cout << "srand: " << t << endl;
+
+    featureGenerator = feature;
 }
 
 /// Destructor
@@ -117,6 +119,33 @@ cv::Mat Classifier::cropRotatedRect(const cv::Mat& img, Rect rect, float angle)
     return rotatedImage(rect);
 }
 
+
+cv::Mat1f Classifier::computeFeatureDescriptor(cv::Mat& img, cv::Mat& img_color)
+{
+    cv::Mat1f descriptor;
+    if (featureGenerator == FEATURE_HOG)
+    {
+        //calculate Feature-Descriptor
+        vector<float> vDescriptor;
+        transpose(img, img);
+        hog.compute(img, vDescriptor);
+        descriptor = cv::Mat1f(1,vDescriptor.size(),&vDescriptor[0]);
+    }
+    else if (featureGenerator == FEATURE_LBPH)
+    {
+        double *desc_lbp;
+        int descriptor_size = lbp.compute(img_color, desc_lbp);
+        //cv::Mat descriptor = cv::Mat(1,descriptor_size, CV_64F, &desc_lbp[0]);
+        descriptor = cv::Mat1f(1, descriptor_size, CV_32F);
+        for (int i = 0; i < descriptor_size; i++)
+        {
+            descriptor.at<float>(0, i) = (float) desc_lbp[i];
+        }
+        //cout << descriptor << endl << endl << endl;
+    }
+    return descriptor;
+}
+
 /// Train with a new sliding window section of a training image.
 ///
 /// @param img:  input image
@@ -128,27 +157,10 @@ void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Re
 
     //extract slidingWindow and convert to grayscale
     cv::Mat img2, img2_color = img(slidingWindow);
-    cvtColor(img2_color,img2,CV_RGB2GRAY);
+    cvtColor(img2_color, img2, CV_RGB2GRAY);
 
-	//calculate Feature-Descriptor
-	vector<float> vDescriptor;	
-    transpose(img2, img2);
-	hog.compute(img2, vDescriptor);
-
-
-    //do some lbp stuff here
-    double *desc_lbp;
-    int descriptor_size = lbp.compute(img2_color, desc_lbp);
-    /*
-    for(int k=0; k<descriptor_size; k++)
-    {
-        double val = (double)desc_lbp[k];
-        cout << val << endl;
-    }*/
-
-
-	cv::Mat1f descriptor(1,vDescriptor.size(),&vDescriptor[0]);
-	//lbp.compute(img2, vDescriptor);
+    //calculate Feature-Descriptor
+    cv::Mat1f descriptor = computeFeatureDescriptor(img2, img2_color);
 
 	//calculate Label
 	float label = calculateLabel(img, labelPolygon, slidingWindow, imageScaleFactor, showImage);
@@ -166,9 +178,7 @@ void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Re
 
             for(int i=0; i<additionalImages.size(); i++)
             {
-                transpose (additionalImages[i], additionalImages[i]);
-                hog.compute(additionalImages[i], vDescriptor);
-                cv::Mat1f descriptor(1,vDescriptor.size(),&vDescriptor[0]);
+                descriptor = computeFeatureDescriptor(img2, img2_color);
                 labels.push_back(cv::Mat1f(1, 1, svmLabel));
                 descriptors.push_back(descriptor);
                 positiveTrainingWindows++;
@@ -239,14 +249,11 @@ void Classifier::loadSVM(string path)
 void Classifier::hardNegativeMine(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor)
 {	
     //extract slidingWindow and convert to grayscale
-    cv::Mat img2 = img(slidingWindow);
-    cvtColor(img2,img2,CV_RGB2GRAY);
+    cv::Mat img2, img2_color = img(slidingWindow);
+    cvtColor(img2_color, img2, CV_RGB2GRAY);
 
-	//calculate Feature-Descriptor
-	vector<float> vDescriptor;
-    transpose(img2, img2);
-	hog.compute(img2, vDescriptor);	
-	cv::Mat1f descriptor(1, vDescriptor.size(), &vDescriptor[0]);
+    //calculate Feature-Descriptor
+    cv::Mat1f descriptor = computeFeatureDescriptor(img2, img2_color);
 
 	//predict Result
 	double prediction = -svm.predict(descriptor, true);
@@ -296,15 +303,12 @@ void Classifier::finishHardNegativeMining()
 /// @return: probability of having a match for the target object inside the sliding window section
 double Classifier::classify(const cv::Mat& img, cv::Rect slidingWindow, float imageScaleFactor)
 {
-	//extract slidingWindow and convert to grayscale
-	cv::Mat img2 = img(slidingWindow);
-	cvtColor(img2,img2,CV_RGB2GRAY);
+    //extract slidingWindow and convert to grayscale
+    cv::Mat img2, img2_color = img(slidingWindow);
+    cvtColor(img2_color, img2, CV_RGB2GRAY);
 
-	//calculate Feature-Descriptor
-	vector<float> vDescriptor;
-    transpose(img2, img2);
-    hog.compute(img2, vDescriptor);
-	cv::Mat1f descriptor(1, vDescriptor.size(), &vDescriptor[0]);
+    //calculate Feature-Descriptor
+    cv::Mat1f descriptor = computeFeatureDescriptor(img2, img2_color);
 
 	//predict Result
 	double prediction = -svm.predict(descriptor, true);
