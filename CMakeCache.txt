@@ -193,6 +193,12 @@ OpenCV_LIB_DIR_DBG:PATH=
 //Path where release OpenCV libraries are located
 OpenCV_LIB_DIR_OPT:PATH=
 
+//Dependencies for target
+lib_vlfeat/vl/host.c_LIB_DEPENDS:STATIC=
+
+//Dependencies for target
+vlfeat_slic_LIB_DEPENDS:STATIC=
+
 
 ########################
 # INTERNAL cache entries

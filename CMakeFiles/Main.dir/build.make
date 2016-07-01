@@ -190,28 +190,74 @@ CMakeFiles/Main.dir/Helper/FileManager.cpp.o.provides: CMakeFiles/Main.dir/Helpe
 
 CMakeFiles/Main.dir/Helper/FileManager.cpp.o.provides.build: CMakeFiles/Main.dir/Helper/FileManager.cpp.o
 
-CMakeFiles/Main.dir/LBP/LBP.cpp.o: CMakeFiles/Main.dir/flags.make
-CMakeFiles/Main.dir/LBP/LBP.cpp.o: LBP/LBP.cpp
+CMakeFiles/Main.dir/LBP/lbpfeature.cpp.o: CMakeFiles/Main.dir/flags.make
+CMakeFiles/Main.dir/LBP/lbpfeature.cpp.o: LBP/lbpfeature.cpp
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/kevin/ComputerVision/CMakeFiles $(CMAKE_PROGRESS_7)
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/Main.dir/LBP/LBP.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/Main.dir/LBP/LBP.cpp.o -c /home/kevin/ComputerVision/LBP/LBP.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/Main.dir/LBP/lbpfeature.cpp.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/Main.dir/LBP/lbpfeature.cpp.o -c /home/kevin/ComputerVision/LBP/lbpfeature.cpp
 
-CMakeFiles/Main.dir/LBP/LBP.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Main.dir/LBP/LBP.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/kevin/ComputerVision/LBP/LBP.cpp > CMakeFiles/Main.dir/LBP/LBP.cpp.i
+CMakeFiles/Main.dir/LBP/lbpfeature.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Main.dir/LBP/lbpfeature.cpp.i"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/kevin/ComputerVision/LBP/lbpfeature.cpp > CMakeFiles/Main.dir/LBP/lbpfeature.cpp.i
 
-CMakeFiles/Main.dir/LBP/LBP.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Main.dir/LBP/LBP.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/kevin/ComputerVision/LBP/LBP.cpp -o CMakeFiles/Main.dir/LBP/LBP.cpp.s
+CMakeFiles/Main.dir/LBP/lbpfeature.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Main.dir/LBP/lbpfeature.cpp.s"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/kevin/ComputerVision/LBP/lbpfeature.cpp -o CMakeFiles/Main.dir/LBP/lbpfeature.cpp.s
 
-CMakeFiles/Main.dir/LBP/LBP.cpp.o.requires:
-.PHONY : CMakeFiles/Main.dir/LBP/LBP.cpp.o.requires
+CMakeFiles/Main.dir/LBP/lbpfeature.cpp.o.requires:
+.PHONY : CMakeFiles/Main.dir/LBP/lbpfeature.cpp.o.requires
 
-CMakeFiles/Main.dir/LBP/LBP.cpp.o.provides: CMakeFiles/Main.dir/LBP/LBP.cpp.o.requires
-	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/LBP/LBP.cpp.o.provides.build
-.PHONY : CMakeFiles/Main.dir/LBP/LBP.cpp.o.provides
+CMakeFiles/Main.dir/LBP/lbpfeature.cpp.o.provides: CMakeFiles/Main.dir/LBP/lbpfeature.cpp.o.requires
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/LBP/lbpfeature.cpp.o.provides.build
+.PHONY : CMakeFiles/Main.dir/LBP/lbpfeature.cpp.o.provides
 
-CMakeFiles/Main.dir/LBP/LBP.cpp.o.provides.build: CMakeFiles/Main.dir/LBP/LBP.cpp.o
+CMakeFiles/Main.dir/LBP/lbpfeature.cpp.o.provides.build: CMakeFiles/Main.dir/LBP/lbpfeature.cpp.o
+
+CMakeFiles/Main.dir/LBP/lbp.cpp.o: CMakeFiles/Main.dir/flags.make
+CMakeFiles/Main.dir/LBP/lbp.cpp.o: LBP/lbp.cpp
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/kevin/ComputerVision/CMakeFiles $(CMAKE_PROGRESS_8)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/Main.dir/LBP/lbp.cpp.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/Main.dir/LBP/lbp.cpp.o -c /home/kevin/ComputerVision/LBP/lbp.cpp
+
+CMakeFiles/Main.dir/LBP/lbp.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Main.dir/LBP/lbp.cpp.i"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/kevin/ComputerVision/LBP/lbp.cpp > CMakeFiles/Main.dir/LBP/lbp.cpp.i
+
+CMakeFiles/Main.dir/LBP/lbp.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Main.dir/LBP/lbp.cpp.s"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/kevin/ComputerVision/LBP/lbp.cpp -o CMakeFiles/Main.dir/LBP/lbp.cpp.s
+
+CMakeFiles/Main.dir/LBP/lbp.cpp.o.requires:
+.PHONY : CMakeFiles/Main.dir/LBP/lbp.cpp.o.requires
+
+CMakeFiles/Main.dir/LBP/lbp.cpp.o.provides: CMakeFiles/Main.dir/LBP/lbp.cpp.o.requires
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/LBP/lbp.cpp.o.provides.build
+.PHONY : CMakeFiles/Main.dir/LBP/lbp.cpp.o.provides
+
+CMakeFiles/Main.dir/LBP/lbp.cpp.o.provides.build: CMakeFiles/Main.dir/LBP/lbp.cpp.o
+
+CMakeFiles/Main.dir/LBP/histogram.cpp.o: CMakeFiles/Main.dir/flags.make
+CMakeFiles/Main.dir/LBP/histogram.cpp.o: LBP/histogram.cpp
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/kevin/ComputerVision/CMakeFiles $(CMAKE_PROGRESS_9)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/Main.dir/LBP/histogram.cpp.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/Main.dir/LBP/histogram.cpp.o -c /home/kevin/ComputerVision/LBP/histogram.cpp
+
+CMakeFiles/Main.dir/LBP/histogram.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Main.dir/LBP/histogram.cpp.i"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/kevin/ComputerVision/LBP/histogram.cpp > CMakeFiles/Main.dir/LBP/histogram.cpp.i
+
+CMakeFiles/Main.dir/LBP/histogram.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Main.dir/LBP/histogram.cpp.s"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/kevin/ComputerVision/LBP/histogram.cpp -o CMakeFiles/Main.dir/LBP/histogram.cpp.s
+
+CMakeFiles/Main.dir/LBP/histogram.cpp.o.requires:
+.PHONY : CMakeFiles/Main.dir/LBP/histogram.cpp.o.requires
+
+CMakeFiles/Main.dir/LBP/histogram.cpp.o.provides: CMakeFiles/Main.dir/LBP/histogram.cpp.o.requires
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/LBP/histogram.cpp.o.provides.build
+.PHONY : CMakeFiles/Main.dir/LBP/histogram.cpp.o.provides
+
+CMakeFiles/Main.dir/LBP/histogram.cpp.o.provides.build: CMakeFiles/Main.dir/LBP/histogram.cpp.o
 
 # Object files for target Main
 Main_OBJECTS = \
@@ -221,7 +267,9 @@ Main_OBJECTS = \
 "CMakeFiles/Main.dir/Data/ImageObj.cpp.o" \
 "CMakeFiles/Main.dir/Data/JSONImage.cpp.o" \
 "CMakeFiles/Main.dir/Helper/FileManager.cpp.o" \
-"CMakeFiles/Main.dir/LBP/LBP.cpp.o"
+"CMakeFiles/Main.dir/LBP/lbpfeature.cpp.o" \
+"CMakeFiles/Main.dir/LBP/lbp.cpp.o" \
+"CMakeFiles/Main.dir/LBP/histogram.cpp.o"
 
 # External object files for target Main
 Main_EXTERNAL_OBJECTS =
@@ -232,7 +280,9 @@ Main: CMakeFiles/Main.dir/Classifier/clipper.cpp.o
 Main: CMakeFiles/Main.dir/Data/ImageObj.cpp.o
 Main: CMakeFiles/Main.dir/Data/JSONImage.cpp.o
 Main: CMakeFiles/Main.dir/Helper/FileManager.cpp.o
-Main: CMakeFiles/Main.dir/LBP/LBP.cpp.o
+Main: CMakeFiles/Main.dir/LBP/lbpfeature.cpp.o
+Main: CMakeFiles/Main.dir/LBP/lbp.cpp.o
+Main: CMakeFiles/Main.dir/LBP/histogram.cpp.o
 Main: CMakeFiles/Main.dir/build.make
 Main: /home/kevin/opencv-2.4.9/lib/libopencv_videostab.so.2.4.9
 Main: /home/kevin/opencv-2.4.9/lib/libopencv_video.so.2.4.9
@@ -253,6 +303,7 @@ Main: /home/kevin/opencv-2.4.9/lib/libopencv_features2d.so.2.4.9
 Main: /home/kevin/opencv-2.4.9/lib/libopencv_core.so.2.4.9
 Main: /home/kevin/opencv-2.4.9/lib/libopencv_contrib.so.2.4.9
 Main: /home/kevin/opencv-2.4.9/lib/libopencv_calib3d.so.2.4.9
+Main: libvlfeat_slic.a
 Main: /home/kevin/opencv-2.4.9/lib/libopencv_nonfree.so.2.4.9
 Main: /home/kevin/opencv-2.4.9/lib/libopencv_ocl.so.2.4.9
 Main: /home/kevin/opencv-2.4.9/lib/libopencv_gpu.so.2.4.9
@@ -281,7 +332,9 @@ CMakeFiles/Main.dir/requires: CMakeFiles/Main.dir/Classifier/clipper.cpp.o.requi
 CMakeFiles/Main.dir/requires: CMakeFiles/Main.dir/Data/ImageObj.cpp.o.requires
 CMakeFiles/Main.dir/requires: CMakeFiles/Main.dir/Data/JSONImage.cpp.o.requires
 CMakeFiles/Main.dir/requires: CMakeFiles/Main.dir/Helper/FileManager.cpp.o.requires
-CMakeFiles/Main.dir/requires: CMakeFiles/Main.dir/LBP/LBP.cpp.o.requires
+CMakeFiles/Main.dir/requires: CMakeFiles/Main.dir/LBP/lbpfeature.cpp.o.requires
+CMakeFiles/Main.dir/requires: CMakeFiles/Main.dir/LBP/lbp.cpp.o.requires
+CMakeFiles/Main.dir/requires: CMakeFiles/Main.dir/LBP/histogram.cpp.o.requires
 .PHONY : CMakeFiles/Main.dir/requires
 
 CMakeFiles/Main.dir/clean:

@@ -1,0 +1,2 @@
+/usr/bin/ar cr libvlfeat_slic.a  CMakeFiles/vlfeat_slic.dir/lib_vlfeat/vl/host.c.o CMakeFiles/vlfeat_slic.dir/lib_vlfeat/vl/random.c.o CMakeFiles/vlfeat_slic.dir/lib_vlfeat/vl/generic.c.o CMakeFiles/vlfeat_slic.dir/lib_vlfeat/vl/lbp.c.o
+/usr/bin/ranlib libvlfeat_slic.a

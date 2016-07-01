@@ -11,6 +11,12 @@
 #include "Helper/FileManager.h"
 #include "error.h"
 
+// The VLFeat header files need to be declared external.
+extern "C" {
+    #include "lib_vlfeat/vl/generic.h"
+    #include "lib_vlfeat/vl/lbp.h"
+}
+
 #define OPERATE_TRAIN 1
 #define OPERATE_CLASSIFY 2
 #define OPERATE_VALIDATE 3

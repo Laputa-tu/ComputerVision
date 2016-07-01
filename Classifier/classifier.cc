@@ -127,13 +127,20 @@ void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Re
     vector<Mat> additionalImages;
 
     //extract slidingWindow and convert to grayscale
-    cv::Mat img2 = img(slidingWindow);
-    cvtColor(img2,img2,CV_RGB2GRAY);
+    cv::Mat img2, img2_color = img(slidingWindow);
+    cvtColor(img2_color,img2,CV_RGB2GRAY);
 
 	//calculate Feature-Descriptor
 	vector<float> vDescriptor;	
     transpose(img2, img2);
 	hog.compute(img2, vDescriptor);
+
+
+    //do some lbp stuff here
+    double *desc_lbp;
+    int descriptor_size = lbp.compute(img2_color, desc_lbp);
+
+
 	cv::Mat1f descriptor(1,vDescriptor.size(),&vDescriptor[0]);
 	//lbp.compute(img2, vDescriptor);
 

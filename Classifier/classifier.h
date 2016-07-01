@@ -5,7 +5,7 @@
 #include <opencv/highgui.h>
 #include <opencv2/ml/ml.hpp>
 #include "clipper.hpp"
-#include "../LBP/LBP.h"
+#include "../LBP/lbpfeature.cpp"
 
 #include <memory>
 #include <string>
@@ -21,6 +21,7 @@
 
 using namespace std;
 using namespace ClipperLib;
+using namespace cv;
 
 class Classifier {
     
@@ -32,7 +33,8 @@ private:
 	cv::HOGDescriptor hog;
 	cv::SVMParams svmParams;
 
-	LBP lbp;
+    LBPFeature lbp;
+
 	ostringstream startTime;
 	
 	std::vector<cv::Rect> predictedSlidingWindows;

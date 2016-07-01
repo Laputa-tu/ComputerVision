@@ -42,21 +42,19 @@ void FileManager::GetFilesInDirectory(char *path, const char *name, int depth, v
                 GetFilesInDirectory(newpath, name, depth+1, files);
             else
             {
-                cout << "\t";
-                for(int i=0; i<depth; i++) cout << " =";
-                cout << "> " << path << "/" << dp->d_name;
+                //cout << "\t";
+                //for(int i=0; i<depth; i++) cout << " =";
+                //cout << "> " << path << "/" << dp->d_name;
 
                 char* output = NULL;
                 output = strstr(dp->d_name, name);
 
                 if(output)
                 {
-                    cout << "\t\t<=== Found " << name << " File!" << endl;
+                    //cout << "\t\t<=== Found " << name << " File!" << endl;
                     string file_path(newpath);
                     files->push_back(file_path);
                 }
-                else
-                    cout << endl;
             }
         }
     }
@@ -82,11 +80,11 @@ vector<JSONImage> FileManager::GetImages(char* path)
         cout << "Searching in \"" << path << "\":" << endl;
         FileManager::GetFilesInDirectory(path, IMAGE_TYPE, files);
 
-        cout << "\nFound the following JPG Files:" << endl;
+        /*cout << "\nFound the following JPG Files:" << endl;
         for(vector<string>::iterator it = files->begin(); it != files->end(); ++it)
         {
             cout << "\tFile: " << *it << endl;
-        }
+        }*/
 
         for(vector<string>::iterator it = files->begin(); it != files->end(); ++it)
         {
@@ -119,14 +117,14 @@ vector<JSONImage> FileManager::GetJSONImages(char* path)
     }
 
     // search & get files
-    cout << "Searching in \"" << path << "\":" << endl;
+    cout << "Searching in \"" << path << "\"." << endl;
     FileManager::GetFilesInDirectory(path, SLOTH_ZEBRA, files);
 
-    cout << "\nFound the following JSON files:" << endl;
+    /*cout << "\nFound the following JSON files:" << endl;
     for(vector<string>::iterator it = files->begin(); it != files->end(); ++it)
     {
         cout << "\tFile: " << *it << endl;
-    }
+    }*/
 
     // collect images for each json file
     for(vector<string>::iterator it = files->begin(); it != files->end(); ++it)
@@ -230,45 +228,14 @@ vector<string> FileManager::GetVideosFromDirectory(char* path)
         }
 
         // search & get files
-        cout << "\nSearching in \"" << path << "\":" << endl;
+        cout << "Searching in \"" << path << "\"." << endl;
         FileManager::GetFilesInDirectory(path, VIDEO_TYPE, files);
 
-        cout << "\nFound the following MP4 Files:" << endl;
+        //cout << "\nFound the following MP4 Files:" << endl;
         for(vector<string>::iterator it = files->begin(); it != files->end(); ++it)
         {
-            cout << "\tFile: " << *it << endl;
+            //cout << "\tFile: " << *it << endl;
             videoFiles.push_back(*it);
-
-            /*
-            VideoCapture cap(*it);
-            if(!cap.isOpened())
-            {
-                cout << "Cannot open the video file" << endl;
-            }
-
-            //cap.set(CV_CAP_PROP_POS_MSEC, 300); //start the video at 300ms
-            double fps = cap.get(CV_CAP_PROP_FPS); //get the frames per seconds of the video
-            cout << "Frame per seconds : " << fps << endl;
-            namedWindow("MyVideo",CV_WINDOW_AUTOSIZE); //create a window called "MyVideo"
-
-            while(1)
-            {
-                Mat frame;
-                bool bSuccess = cap.read(frame); // read a new frame from video
-                if (!bSuccess) //if not success, break loop
-                {
-                   cout << "Cannot read the frame from video file" << endl;
-                   break;
-                }
-
-                imshow("MyVideo", frame); //show the frame in "MyVideo" window
-
-                if(waitKey(30) == 27) //wait for 'esc' key press for 30 ms. If 'esc' key is pressed, break loop
-                {
-                    cout << "esc key is pressed by user" << endl;
-                    break;
-                }
-            }*/
         }
     }
 

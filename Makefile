@@ -114,6 +114,19 @@ Main/fast:
 	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/build
 .PHONY : Main/fast
 
+#=============================================================================
+# Target rules for targets named vlfeat_slic
+
+# Build rule for target.
+vlfeat_slic: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 vlfeat_slic
+.PHONY : vlfeat_slic
+
+# fast build rule for target.
+vlfeat_slic/fast:
+	$(MAKE) -f CMakeFiles/vlfeat_slic.dir/build.make CMakeFiles/vlfeat_slic.dir/build
+.PHONY : vlfeat_slic/fast
+
 Classifier/classifier.o: Classifier/classifier.cc.o
 .PHONY : Classifier/classifier.o
 
@@ -234,29 +247,77 @@ Helper/FileManager.cpp.s:
 	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/Helper/FileManager.cpp.s
 .PHONY : Helper/FileManager.cpp.s
 
-LBP/LBP.o: LBP/LBP.cpp.o
-.PHONY : LBP/LBP.o
+LBP/histogram.o: LBP/histogram.cpp.o
+.PHONY : LBP/histogram.o
 
 # target to build an object file
-LBP/LBP.cpp.o:
-	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/LBP/LBP.cpp.o
-.PHONY : LBP/LBP.cpp.o
+LBP/histogram.cpp.o:
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/LBP/histogram.cpp.o
+.PHONY : LBP/histogram.cpp.o
 
-LBP/LBP.i: LBP/LBP.cpp.i
-.PHONY : LBP/LBP.i
+LBP/histogram.i: LBP/histogram.cpp.i
+.PHONY : LBP/histogram.i
 
 # target to preprocess a source file
-LBP/LBP.cpp.i:
-	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/LBP/LBP.cpp.i
-.PHONY : LBP/LBP.cpp.i
+LBP/histogram.cpp.i:
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/LBP/histogram.cpp.i
+.PHONY : LBP/histogram.cpp.i
 
-LBP/LBP.s: LBP/LBP.cpp.s
-.PHONY : LBP/LBP.s
+LBP/histogram.s: LBP/histogram.cpp.s
+.PHONY : LBP/histogram.s
 
 # target to generate assembly for a file
-LBP/LBP.cpp.s:
-	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/LBP/LBP.cpp.s
-.PHONY : LBP/LBP.cpp.s
+LBP/histogram.cpp.s:
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/LBP/histogram.cpp.s
+.PHONY : LBP/histogram.cpp.s
+
+LBP/lbp.o: LBP/lbp.cpp.o
+.PHONY : LBP/lbp.o
+
+# target to build an object file
+LBP/lbp.cpp.o:
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/LBP/lbp.cpp.o
+.PHONY : LBP/lbp.cpp.o
+
+LBP/lbp.i: LBP/lbp.cpp.i
+.PHONY : LBP/lbp.i
+
+# target to preprocess a source file
+LBP/lbp.cpp.i:
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/LBP/lbp.cpp.i
+.PHONY : LBP/lbp.cpp.i
+
+LBP/lbp.s: LBP/lbp.cpp.s
+.PHONY : LBP/lbp.s
+
+# target to generate assembly for a file
+LBP/lbp.cpp.s:
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/LBP/lbp.cpp.s
+.PHONY : LBP/lbp.cpp.s
+
+LBP/lbpfeature.o: LBP/lbpfeature.cpp.o
+.PHONY : LBP/lbpfeature.o
+
+# target to build an object file
+LBP/lbpfeature.cpp.o:
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/LBP/lbpfeature.cpp.o
+.PHONY : LBP/lbpfeature.cpp.o
+
+LBP/lbpfeature.i: LBP/lbpfeature.cpp.i
+.PHONY : LBP/lbpfeature.i
+
+# target to preprocess a source file
+LBP/lbpfeature.cpp.i:
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/LBP/lbpfeature.cpp.i
+.PHONY : LBP/lbpfeature.cpp.i
+
+LBP/lbpfeature.s: LBP/lbpfeature.cpp.s
+.PHONY : LBP/lbpfeature.s
+
+# target to generate assembly for a file
+LBP/lbpfeature.cpp.s:
+	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/LBP/lbpfeature.cpp.s
+.PHONY : LBP/lbpfeature.cpp.s
 
 Main.o: Main.cpp.o
 .PHONY : Main.o
@@ -282,6 +343,102 @@ Main.cpp.s:
 	$(MAKE) -f CMakeFiles/Main.dir/build.make CMakeFiles/Main.dir/Main.cpp.s
 .PHONY : Main.cpp.s
 
+lib_vlfeat/vl/generic.o: lib_vlfeat/vl/generic.c.o
+.PHONY : lib_vlfeat/vl/generic.o
+
+# target to build an object file
+lib_vlfeat/vl/generic.c.o:
+	$(MAKE) -f CMakeFiles/vlfeat_slic.dir/build.make CMakeFiles/vlfeat_slic.dir/lib_vlfeat/vl/generic.c.o
+.PHONY : lib_vlfeat/vl/generic.c.o
+
+lib_vlfeat/vl/generic.i: lib_vlfeat/vl/generic.c.i
+.PHONY : lib_vlfeat/vl/generic.i
+
+# target to preprocess a source file
+lib_vlfeat/vl/generic.c.i:
+	$(MAKE) -f CMakeFiles/vlfeat_slic.dir/build.make CMakeFiles/vlfeat_slic.dir/lib_vlfeat/vl/generic.c.i
+.PHONY : lib_vlfeat/vl/generic.c.i
+
+lib_vlfeat/vl/generic.s: lib_vlfeat/vl/generic.c.s
+.PHONY : lib_vlfeat/vl/generic.s
+
+# target to generate assembly for a file
+lib_vlfeat/vl/generic.c.s:
+	$(MAKE) -f CMakeFiles/vlfeat_slic.dir/build.make CMakeFiles/vlfeat_slic.dir/lib_vlfeat/vl/generic.c.s
+.PHONY : lib_vlfeat/vl/generic.c.s
+
+lib_vlfeat/vl/host.o: lib_vlfeat/vl/host.c.o
+.PHONY : lib_vlfeat/vl/host.o
+
+# target to build an object file
+lib_vlfeat/vl/host.c.o:
+	$(MAKE) -f CMakeFiles/vlfeat_slic.dir/build.make CMakeFiles/vlfeat_slic.dir/lib_vlfeat/vl/host.c.o
+.PHONY : lib_vlfeat/vl/host.c.o
+
+lib_vlfeat/vl/host.i: lib_vlfeat/vl/host.c.i
+.PHONY : lib_vlfeat/vl/host.i
+
+# target to preprocess a source file
+lib_vlfeat/vl/host.c.i:
+	$(MAKE) -f CMakeFiles/vlfeat_slic.dir/build.make CMakeFiles/vlfeat_slic.dir/lib_vlfeat/vl/host.c.i
+.PHONY : lib_vlfeat/vl/host.c.i
+
+lib_vlfeat/vl/host.s: lib_vlfeat/vl/host.c.s
+.PHONY : lib_vlfeat/vl/host.s
+
+# target to generate assembly for a file
+lib_vlfeat/vl/host.c.s:
+	$(MAKE) -f CMakeFiles/vlfeat_slic.dir/build.make CMakeFiles/vlfeat_slic.dir/lib_vlfeat/vl/host.c.s
+.PHONY : lib_vlfeat/vl/host.c.s
+
+lib_vlfeat/vl/lbp.o: lib_vlfeat/vl/lbp.c.o
+.PHONY : lib_vlfeat/vl/lbp.o
+
+# target to build an object file
+lib_vlfeat/vl/lbp.c.o:
+	$(MAKE) -f CMakeFiles/vlfeat_slic.dir/build.make CMakeFiles/vlfeat_slic.dir/lib_vlfeat/vl/lbp.c.o
+.PHONY : lib_vlfeat/vl/lbp.c.o
+
+lib_vlfeat/vl/lbp.i: lib_vlfeat/vl/lbp.c.i
+.PHONY : lib_vlfeat/vl/lbp.i
+
+# target to preprocess a source file
+lib_vlfeat/vl/lbp.c.i:
+	$(MAKE) -f CMakeFiles/vlfeat_slic.dir/build.make CMakeFiles/vlfeat_slic.dir/lib_vlfeat/vl/lbp.c.i
+.PHONY : lib_vlfeat/vl/lbp.c.i
+
+lib_vlfeat/vl/lbp.s: lib_vlfeat/vl/lbp.c.s
+.PHONY : lib_vlfeat/vl/lbp.s
+
+# target to generate assembly for a file
+lib_vlfeat/vl/lbp.c.s:
+	$(MAKE) -f CMakeFiles/vlfeat_slic.dir/build.make CMakeFiles/vlfeat_slic.dir/lib_vlfeat/vl/lbp.c.s
+.PHONY : lib_vlfeat/vl/lbp.c.s
+
+lib_vlfeat/vl/random.o: lib_vlfeat/vl/random.c.o
+.PHONY : lib_vlfeat/vl/random.o
+
+# target to build an object file
+lib_vlfeat/vl/random.c.o:
+	$(MAKE) -f CMakeFiles/vlfeat_slic.dir/build.make CMakeFiles/vlfeat_slic.dir/lib_vlfeat/vl/random.c.o
+.PHONY : lib_vlfeat/vl/random.c.o
+
+lib_vlfeat/vl/random.i: lib_vlfeat/vl/random.c.i
+.PHONY : lib_vlfeat/vl/random.i
+
+# target to preprocess a source file
+lib_vlfeat/vl/random.c.i:
+	$(MAKE) -f CMakeFiles/vlfeat_slic.dir/build.make CMakeFiles/vlfeat_slic.dir/lib_vlfeat/vl/random.c.i
+.PHONY : lib_vlfeat/vl/random.c.i
+
+lib_vlfeat/vl/random.s: lib_vlfeat/vl/random.c.s
+.PHONY : lib_vlfeat/vl/random.s
+
+# target to generate assembly for a file
+lib_vlfeat/vl/random.c.s:
+	$(MAKE) -f CMakeFiles/vlfeat_slic.dir/build.make CMakeFiles/vlfeat_slic.dir/lib_vlfeat/vl/random.c.s
+.PHONY : lib_vlfeat/vl/random.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -291,6 +448,7 @@ help:
 	@echo "... Main"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... vlfeat_slic"
 	@echo "... Classifier/classifier.o"
 	@echo "... Classifier/classifier.i"
 	@echo "... Classifier/classifier.s"
@@ -306,12 +464,30 @@ help:
 	@echo "... Helper/FileManager.o"
 	@echo "... Helper/FileManager.i"
 	@echo "... Helper/FileManager.s"
-	@echo "... LBP/LBP.o"
-	@echo "... LBP/LBP.i"
-	@echo "... LBP/LBP.s"
+	@echo "... LBP/histogram.o"
+	@echo "... LBP/histogram.i"
+	@echo "... LBP/histogram.s"
+	@echo "... LBP/lbp.o"
+	@echo "... LBP/lbp.i"
+	@echo "... LBP/lbp.s"
+	@echo "... LBP/lbpfeature.o"
+	@echo "... LBP/lbpfeature.i"
+	@echo "... LBP/lbpfeature.s"
 	@echo "... Main.o"
 	@echo "... Main.i"
 	@echo "... Main.s"
+	@echo "... lib_vlfeat/vl/generic.o"
+	@echo "... lib_vlfeat/vl/generic.i"
+	@echo "... lib_vlfeat/vl/generic.s"
+	@echo "... lib_vlfeat/vl/host.o"
+	@echo "... lib_vlfeat/vl/host.i"
+	@echo "... lib_vlfeat/vl/host.s"
+	@echo "... lib_vlfeat/vl/lbp.o"
+	@echo "... lib_vlfeat/vl/lbp.i"
+	@echo "... lib_vlfeat/vl/lbp.s"
+	@echo "... lib_vlfeat/vl/random.o"
+	@echo "... lib_vlfeat/vl/random.i"
+	@echo "... lib_vlfeat/vl/random.s"
 .PHONY : help
 
 

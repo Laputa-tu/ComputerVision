@@ -5,7 +5,9 @@ FILE(REMOVE_RECURSE
   "CMakeFiles/Main.dir/Data/ImageObj.cpp.o"
   "CMakeFiles/Main.dir/Data/JSONImage.cpp.o"
   "CMakeFiles/Main.dir/Helper/FileManager.cpp.o"
-  "CMakeFiles/Main.dir/LBP/LBP.cpp.o"
+  "CMakeFiles/Main.dir/LBP/lbpfeature.cpp.o"
+  "CMakeFiles/Main.dir/LBP/lbp.cpp.o"
+  "CMakeFiles/Main.dir/LBP/histogram.cpp.o"
   "Main.pdb"
   "Main"
 )

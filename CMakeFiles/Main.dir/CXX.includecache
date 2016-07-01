@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/kevin/ComputerVision/./Classifier/classifier.h
+/home/kevin/ComputerVision/Classifier/classifier.h
 opencv/cv.h
 -
 opencv/highgui.h
@@ -14,9 +14,9 @@ opencv/highgui.h
 opencv2/ml/ml.hpp
 -
 clipper.hpp
-/home/kevin/ComputerVision/./Classifier/clipper.hpp
-../LBP/LBP.h
-/home/kevin/ComputerVision/./LBP/LBP.h
+/home/kevin/ComputerVision/Classifier/clipper.hpp
+../LBP/lbpfeature.cpp
+/home/kevin/ComputerVision/LBP/lbpfeature.cpp
 memory
 -
 string
@@ -38,7 +38,7 @@ stdlib.h
 math.h
 -
 
-/home/kevin/ComputerVision/./Classifier/clipper.hpp
+/home/kevin/ComputerVision/Classifier/clipper.hpp
 vector
 -
 set
@@ -56,15 +56,19 @@ functional
 queue
 -
 
-/home/kevin/ComputerVision/./Data/./ImageObj.h
+/home/kevin/ComputerVision/Data/./ImageObj.h
 
-/home/kevin/ComputerVision/./Data/JSONImage.h
+/home/kevin/ComputerVision/Data/JSONImage.h
 ../Classifier/classifier.h
-/home/kevin/ComputerVision/./Classifier/classifier.h
+/home/kevin/ComputerVision/Classifier/classifier.h
 ./ImageObj.h
-/home/kevin/ComputerVision/./Data/./ImageObj.h
+/home/kevin/ComputerVision/Data/./ImageObj.h
 
-/home/kevin/ComputerVision/./Helper/FileManager.h
+/home/kevin/ComputerVision/Helper/FileManager.cpp
+FileManager.h
+/home/kevin/ComputerVision/Helper/FileManager.h
+
+/home/kevin/ComputerVision/Helper/FileManager.h
 boost/config/compiler/visualc.hpp
 -
 boost/property_tree/ptree.hpp
@@ -96,45 +100,33 @@ ctime
 cstdlib
 -
 ../Data/JSONImage.h
-/home/kevin/ComputerVision/./Data/JSONImage.h
+/home/kevin/ComputerVision/Data/JSONImage.h
 ../error.h
-/home/kevin/ComputerVision/./error.h
+/home/kevin/ComputerVision/error.h
 
-/home/kevin/ComputerVision/./LBP/LBP.h
-opencv2/core/core.hpp
+/home/kevin/ComputerVision/LBP/histogram.hpp
+cv.h
 -
-opencv2/highgui/highgui.hpp
--
-opencv2/imgproc/imgproc.hpp
--
-iostream
+limits
 -
 
-/home/kevin/ComputerVision/./Main.h
-opencv2/core/core.hpp
+/home/kevin/ComputerVision/LBP/lbp.hpp
+cv.h
 -
-opencv2/highgui/highgui.hpp
+limits
 -
-opencv2/imgproc/imgproc.hpp
--
-time.h
--
-stdlib.h
--
-math.h
--
-ctime
--
-Helper/FileManager.h
-/home/kevin/ComputerVision/./Helper/FileManager.h
-error.h
-/home/kevin/ComputerVision/./error.h
 
-/home/kevin/ComputerVision/./error.h
+/home/kevin/ComputerVision/LBP/lbpfeature.cpp
+cv.h
+-
+highgui.h
+-
+lbp.hpp
+/home/kevin/ComputerVision/LBP/lbp.hpp
+histogram.hpp
+/home/kevin/ComputerVision/LBP/histogram.hpp
 
-/home/kevin/ComputerVision/Main.cpp
-./Main.h
-/home/kevin/ComputerVision/./Main.h
+/home/kevin/ComputerVision/error.h
 
 /home/kevin/opencv-2.4.9/include/opencv/cv.h
 opencv2/core/core_c.h

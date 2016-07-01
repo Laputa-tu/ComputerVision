@@ -9,13 +9,16 @@ SET(CMAKE_DEPENDS_CHECK_CXX
   "/home/kevin/ComputerVision/Data/ImageObj.cpp" "/home/kevin/ComputerVision/CMakeFiles/Main.dir/Data/ImageObj.cpp.o"
   "/home/kevin/ComputerVision/Data/JSONImage.cpp" "/home/kevin/ComputerVision/CMakeFiles/Main.dir/Data/JSONImage.cpp.o"
   "/home/kevin/ComputerVision/Helper/FileManager.cpp" "/home/kevin/ComputerVision/CMakeFiles/Main.dir/Helper/FileManager.cpp.o"
-  "/home/kevin/ComputerVision/LBP/LBP.cpp" "/home/kevin/ComputerVision/CMakeFiles/Main.dir/LBP/LBP.cpp.o"
+  "/home/kevin/ComputerVision/LBP/histogram.cpp" "/home/kevin/ComputerVision/CMakeFiles/Main.dir/LBP/histogram.cpp.o"
+  "/home/kevin/ComputerVision/LBP/lbp.cpp" "/home/kevin/ComputerVision/CMakeFiles/Main.dir/LBP/lbp.cpp.o"
+  "/home/kevin/ComputerVision/LBP/lbpfeature.cpp" "/home/kevin/ComputerVision/CMakeFiles/Main.dir/LBP/lbpfeature.cpp.o"
   "/home/kevin/ComputerVision/Main.cpp" "/home/kevin/ComputerVision/CMakeFiles/Main.dir/Main.cpp.o"
   )
 SET(CMAKE_CXX_COMPILER_ID "GNU")
 
 # Targets to which this target links.
 SET(CMAKE_TARGET_LINKED_INFO_FILES
+  "/home/kevin/ComputerVision/CMakeFiles/vlfeat_slic.dir/DependInfo.cmake"
   )
 
 # The include file search paths:

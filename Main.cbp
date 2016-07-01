@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+   <FileVersion major="1" minor="6" />
+   <Project>
+      <Option title="Main" />
+      <Option makefile_is_custom="1" />
+      <Option compiler="gcc" />
+      <Option virtualFolders="CMake Files\;CMake Files\..\;CMake Files\..\opencv-2.4.9\;" />
+      <Build>
+      <Target title="all">
+         <Option working_dir="/home/kevin/ComputerVision" />
+         <Option type="4" />
+         <MakeCommands>
+            <Build command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 all" />
+            <CompileFile command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 clean" />
+         </MakeCommands>
+      </Target>
+      <Target title="Main">
+         <Option output="/home/kevin/ComputerVision/Main" prefix_auto="0" extension_auto="0" />
+         <Option working_dir="/home/kevin/ComputerVision" />
+         <Option object_output="./" />
+         <Option type="1" />
+         <Option compiler="gcc" />
+         <Compiler>
+            <Add directory="/home/kevin/opencv-2.4.9" />
+            <Add directory="/home/kevin/opencv-2.4.9/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/include/opencv" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/calib3d/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/contrib/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/core/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/features2d/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/flann/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/gpu/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/highgui/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/imgproc/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/legacy/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/ml/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/nonfree/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/objdetect/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/ocl/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/photo/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/stitching/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/superres/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/ts/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/video/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/videostab/include" />
+         </Compiler>
+         <MakeCommands>
+            <Build command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 Main" />
+            <CompileFile command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 clean" />
+         </MakeCommands>
+      </Target>
+      <Target title="Main/fast">
+         <Option output="/home/kevin/ComputerVision/Main" prefix_auto="0" extension_auto="0" />
+         <Option working_dir="/home/kevin/ComputerVision" />
+         <Option object_output="./" />
+         <Option type="1" />
+         <Option compiler="gcc" />
+         <Compiler>
+            <Add directory="/home/kevin/opencv-2.4.9" />
+            <Add directory="/home/kevin/opencv-2.4.9/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/include/opencv" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/calib3d/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/contrib/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/core/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/features2d/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/flann/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/gpu/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/highgui/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/imgproc/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/legacy/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/ml/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/nonfree/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/objdetect/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/ocl/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/photo/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/stitching/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/superres/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/ts/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/video/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/videostab/include" />
+         </Compiler>
+         <MakeCommands>
+            <Build command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 Main/fast" />
+            <CompileFile command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 clean" />
+         </MakeCommands>
+      </Target>
+      <Target title="edit_cache">
+         <Option working_dir="/home/kevin/ComputerVision" />
+         <Option type="4" />
+         <MakeCommands>
+            <Build command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 edit_cache" />
+            <CompileFile command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 clean" />
+         </MakeCommands>
+      </Target>
+      <Target title="rebuild_cache">
+         <Option working_dir="/home/kevin/ComputerVision" />
+         <Option type="4" />
+         <MakeCommands>
+            <Build command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 rebuild_cache" />
+            <CompileFile command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 clean" />
+         </MakeCommands>
+      </Target>
+      <Target title="vlfeat_slic">
+         <Option output="/home/kevin/ComputerVision/libvlfeat_slic.a" prefix_auto="0" extension_auto="0" />
+         <Option working_dir="/home/kevin/ComputerVision" />
+         <Option object_output="./" />
+         <Option type="2" />
+         <Option compiler="gcc" />
+         <Compiler>
+            <Add directory="/home/kevin/opencv-2.4.9" />
+            <Add directory="/home/kevin/opencv-2.4.9/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/include/opencv" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/calib3d/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/contrib/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/core/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/features2d/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/flann/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/gpu/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/highgui/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/imgproc/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/legacy/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/ml/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/nonfree/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/objdetect/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/ocl/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/photo/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/stitching/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/superres/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/ts/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/video/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/videostab/include" />
+         </Compiler>
+         <MakeCommands>
+            <Build command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 vlfeat_slic" />
+            <CompileFile command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 clean" />
+         </MakeCommands>
+      </Target>
+      <Target title="vlfeat_slic/fast">
+         <Option output="/home/kevin/ComputerVision/libvlfeat_slic.a" prefix_auto="0" extension_auto="0" />
+         <Option working_dir="/home/kevin/ComputerVision" />
+         <Option object_output="./" />
+         <Option type="2" />
+         <Option compiler="gcc" />
+         <Compiler>
+            <Add directory="/home/kevin/opencv-2.4.9" />
+            <Add directory="/home/kevin/opencv-2.4.9/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/include/opencv" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/calib3d/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/contrib/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/core/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/features2d/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/flann/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/gpu/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/highgui/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/imgproc/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/legacy/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/ml/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/nonfree/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/objdetect/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/ocl/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/photo/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/stitching/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/superres/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/ts/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/video/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/videostab/include" />
+         </Compiler>
+         <MakeCommands>
+            <Build command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 vlfeat_slic/fast" />
+            <CompileFile command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 clean" />
+         </MakeCommands>
+      </Target>
+      </Build>
+      <Unit filename="/home/kevin/ComputerVision/Classifier/classifier.cc">
+      </Unit>
+      <Unit filename="/home/kevin/ComputerVision/Classifier/clipper.cpp">
+      </Unit>
+      <Unit filename="/home/kevin/ComputerVision/Data/ImageObj.cpp">
+      </Unit>
+      <Unit filename="/home/kevin/ComputerVision/Data/JSONImage.cpp">
+      </Unit>
+      <Unit filename="/home/kevin/ComputerVision/Helper/FileManager.cpp">
+      </Unit>
+      <Unit filename="/home/kevin/ComputerVision/LBP/histogram.cpp">
+      </Unit>
+      <Unit filename="/home/kevin/ComputerVision/LBP/lbp.cpp">
+      </Unit>
+      <Unit filename="/home/kevin/ComputerVision/LBP/lbpfeature.cpp">
+      </Unit>
+      <Unit filename="/home/kevin/ComputerVision/Main.cpp">
+      </Unit>
+      <Unit filename="/home/kevin/ComputerVision/lib_vlfeat/vl/generic.c">
+      </Unit>
+      <Unit filename="/home/kevin/ComputerVision/lib_vlfeat/vl/host.c">
+      </Unit>
+      <Unit filename="/home/kevin/ComputerVision/lib_vlfeat/vl/lbp.c">
+      </Unit>
+      <Unit filename="/home/kevin/ComputerVision/lib_vlfeat/vl/random.c">
+      </Unit>
+      <Unit filename="/home/kevin/ComputerVision/Classifier/classifier.h">
+      </Unit>
+      <Unit filename="/home/kevin/ComputerVision/Classifier/clipper.hpp">
+      </Unit>
+      <Unit filename="/home/kevin/ComputerVision/Data/ImageObj.h">
+      </Unit>
+      <Unit filename="/home/kevin/ComputerVision/Data/JSONImage.h">
+      </Unit>
+      <Unit filename="/home/kevin/ComputerVision/Helper/FileManager.h">
+      </Unit>
+      <Unit filename="/home/kevin/ComputerVision/LBP/histogram.hpp">
+      </Unit>
+      <Unit filename="/home/kevin/ComputerVision/LBP/lbp.hpp">
+      </Unit>
+      <Unit filename="/home/kevin/ComputerVision/Main.h">
+      </Unit>
+      <Unit filename="/home/kevin/ComputerVision/lib_vlfeat/vl/generic.h">
+      </Unit>
+      <Unit filename="/home/kevin/ComputerVision/lib_vlfeat/vl/host.h">
+      </Unit>
+      <Unit filename="/home/kevin/ComputerVision/lib_vlfeat/vl/lbp.h">
+      </Unit>
+      <Unit filename="/home/kevin/ComputerVision/lib_vlfeat/vl/random.h">
+      </Unit>
+      <Unit filename="/home/kevin/ComputerVision/CMakeLists.txt">
+          <Option virtualFolder="CMake Files\" />
+      </Unit>
+      <Unit filename="/home/kevin/ComputerVision/../opencv-2.4.9/OpenCVConfig-version.cmake">
+          <Option virtualFolder="CMake Files\..\opencv-2.4.9\" />
+      </Unit>
+      <Unit filename="/home/kevin/ComputerVision/../opencv-2.4.9/OpenCVConfig.cmake">
+          <Option virtualFolder="CMake Files\..\opencv-2.4.9\" />
+      </Unit>
+      <Unit filename="/home/kevin/ComputerVision/../opencv-2.4.9/OpenCVModules.cmake">
+          <Option virtualFolder="CMake Files\..\opencv-2.4.9\" />
+      </Unit>
+   </Project>
+</CodeBlocks_project_file>

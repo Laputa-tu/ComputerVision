@@ -1,5 +1,7 @@
 #include "./Main.h"
 
+#include <math.h>
+
 
 int main(int argc, char* argv[])
 {
@@ -136,10 +138,7 @@ int main(int argc, char* argv[])
         return res_val;
     }
 
-    model.printEvaluation(true);
-    model.showROC(true);
 
-    /*
     cout << "Running Classification..." << endl;
     for(int it=0; it<files.size(); it++)
     {
@@ -180,7 +179,11 @@ int main(int argc, char* argv[])
                 }
             }
         }
-    }*/
+    }
+
+
+    model.printEvaluation(true);
+    model.showROC(true);
 
     waitKey(0);
     return 0;

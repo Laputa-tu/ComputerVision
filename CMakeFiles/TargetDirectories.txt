@@ -1,1 +1,2 @@
 /home/kevin/ComputerVision/CMakeFiles/Main.dir
+/home/kevin/ComputerVision/CMakeFiles/vlfeat_slic.dir
