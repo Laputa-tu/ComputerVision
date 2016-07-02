@@ -29,6 +29,10 @@ public:
         lbp::ELBP(dst, lbp, radius, neighbours);
         normalize(lbp, lbp, 0, 255, NORM_MINMAX, CV_8UC1);
 
+        //imshow("image", image);
+        //imshow("Display window", lbp);
+        //waitKey(0);
+
         Size window(cellSize, cellSize);
         lbp::spatial_histogram(lbp, sp_hist, 255, window, overlap);
 

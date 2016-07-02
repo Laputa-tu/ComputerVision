@@ -40,10 +40,28 @@ int doSlidingImageOperation(Classifier &model, Mat frame, ClipperLib::Path label
 
 int calculateBestSlidingWindow(vector<JSONImage> &imageSet, bool showResult, float initial_scale, int w_rows, int w_cols);
 
+void loadLBPConfiguration();
+void loadHOGConfiguration();
+
 static string getTimeString();
 static string TimeString;
 static int imageCounter;
 
+// training parameters
+int originalImageHeight;
+int scale_n_times;
+float scaling_factor;
+float initial_scale;
+
+// sliding window
+int windows_n_rows;
+int windows_n_cols;
+int step_slide_row;
+int step_slide_col;
+
+// classification parameters
 float overlapThreshold;
+float predictionThreshold;
+float overlapThreshold2;
 
 

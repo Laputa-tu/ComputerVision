@@ -6,9 +6,9 @@ using namespace ClipperLib;
 /// Constructor
 Classifier::Classifier(float overlapLabels, float predictionThresh, float overlapDetector, int feature)
 {
-    overlapThreshold = overlapLabels;		// label = Percentage of overlap -> 0 to 1.0
-    predictionThreshold = predictionThresh;	// svm prediction: -1 to +1
-    detectionOverlapThreshold = overlapDetector;	// overlap of the merged-slidingWindow-contour and the labelPolygon
+    overlapThreshold = overlapLabels;               // label = Percentage of overlap -> 0 to 1.0
+    predictionThreshold = predictionThresh;         // svm prediction: -1 to +1
+    detectionOverlapThreshold = overlapDetector;    // overlap of the merged-slidingWindow-contour and the labelPolygon
 
 	cnt_Classified = 0;
 	cnt_TP = 0;
@@ -23,7 +23,7 @@ Classifier::Classifier(float overlapLabels, float predictionThresh, float overla
 
 	svmParams.svm_type    = CvSVM::C_SVC;
 	svmParams.kernel_type = CvSVM::LINEAR;
-	svmParams.term_crit   = cvTermCriteria(CV_TERMCRIT_ITER, 100, 1e-6);
+    svmParams.term_crit   = cvTermCriteria(CV_TERMCRIT_ITER, 1000, 1e-6);
 
 	// initialize random seed   
 	unsigned int t = time(NULL);
@@ -134,14 +134,14 @@ cv::Mat1f Classifier::computeFeatureDescriptor(cv::Mat& img, cv::Mat& img_color)
     else if (featureGenerator == FEATURE_LBPH)
     {
         double *desc_lbp;
-        int descriptor_size = lbp.compute(img_color, desc_lbp);
+        int descriptor_size = lbp.compute(img_color, desc_lbp, 1, 8, 30);
         //cv::Mat descriptor = cv::Mat(1,descriptor_size, CV_64F, &desc_lbp[0]);
         descriptor = cv::Mat1f(1, descriptor_size, CV_32F);
         for (int i = 0; i < descriptor_size; i++)
         {
             descriptor.at<float>(0, i) = (float) desc_lbp[i];
         }
-        //cout << descriptor << endl << endl << endl;
+        //cout << descriptor_size << endl;
     }
     return descriptor;
 }
@@ -409,7 +409,7 @@ void Classifier::printEvaluation(bool saveResult)
 		outDetectionResult_share.close();
 
 
-		std::ofstream outDetectionResult2( (dir + "/" + "result_detector2_" + startTime.str() + ".csv").c_str() );
+        /*std::ofstream outDetectionResult2( (dir + "/" + "result_detector2_" + startTime.str() + ".csv").c_str() );
 		std::ofstream outDetectionResult2_share( ("/home/kevin/share/ROC/detect/result_detector2_" + startTime.str() + ".csv").c_str()  );
 		for (unsigned i = 0; i < detectionLabels2.size(); i++)
 		{
@@ -438,7 +438,7 @@ void Classifier::printEvaluation(bool saveResult)
 			outDetectionResult3_share << detectionPredictions3[i] << endl;
 		}
 		outDetectionResult3.close();
-		outDetectionResult3_share.close();
+        outDetectionResult3_share.close();*/
 
 
 		std::ofstream out( (dir + "/" + "_evaluation.txt").c_str() );

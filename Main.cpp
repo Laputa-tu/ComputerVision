@@ -2,10 +2,50 @@
 
 #include <math.h>
 
+void loadLBPConfiguration()
+{
+    // training parameters
+    originalImageHeight = 1080;
+    scale_n_times = 5;
+    scaling_factor = 0.8;
+    initial_scale = 0.15;
+
+    windows_n_rows = 64;
+    windows_n_cols = 128;
+    step_slide_row = windows_n_rows/4;
+    step_slide_col = windows_n_cols/4;
+
+    // classification
+    overlapThreshold = 0.8;
+    predictionThreshold = 0.5;
+    overlapThreshold2 = 0.06;
+}
+
+
+void loadHOGConfiguration()
+{
+    // training parameters
+    originalImageHeight = 1080; 	//1080;
+    scale_n_times = 5;              //3;
+    scaling_factor = 0.8;           //0.75;
+    initial_scale = 0.15;           //0.25;
+
+    // sliding window
+    windows_n_rows = 64;
+    windows_n_cols = 128;
+    step_slide_row = windows_n_rows/4;
+    step_slide_col = windows_n_cols/4;
+
+    // classification
+    overlapThreshold = 0.5;		// label = Percentage of overlap -> 0 to 1.0
+    predictionThreshold = 0.5;	// svm prediction: -1 to +1
+    overlapThreshold2 = 0.06;	// overlap of the merged-slidingWindow-contour and the labelPolygon
+}
+
 
 int main(int argc, char* argv[])
 {
-    bool loadSVMFromFile = true;
+    bool loadSVMFromFile = false;
     //string svm_loadpath = "./SVM_Savings/svm_nice_5_08_015_width128_jitter3_anglestep8.xml"; //_hardnegative
     string svm_loadpath = "./SVM_Savings/svm_2016_7_1__23_0_13.xml"; // lbp
     string svm_savepath = "./SVM_Savings/svm_" + getTimeString() + ".xml";
@@ -19,25 +59,11 @@ int main(int argc, char* argv[])
     cnt_DiscardedTrainingImages = 0;
     imageCounter = 0;
 
-    // training parameters          3 75 15 nächster versuch - initial scale kleiner!
-    int feature = FEATURE_LBPH;
-    int originalImageHeight = 1080; 	//1080;
-    int scale_n_times = 5; 		//3;
-    float scaling_factor = 0.8;	//0.75;
-    float initial_scale = 0.15;		//0.25;
+    //load lbp parameters
+    loadLBPConfiguration();
 
-    // classification parameters
-    overlapThreshold = 0.5;		// label = Percentage of overlap -> 0 to 1.0
-    float predictionThreshold = 0.5;	// svm prediction: -1 to +1
-    float overlapThreshold2 = 0.06;	// overlap of the merged-slidingWindow-contour and the labelPolygon
-
-    Classifier model(overlapThreshold, predictionThreshold, overlapThreshold2, feature);
-
-    // sliding window
-    int windows_n_rows = 64;
-    int windows_n_cols = 128;
-    int step_slide_row = windows_n_rows/4;
-    int step_slide_col = windows_n_cols/4;
+    // create model
+    Classifier model(overlapThreshold, predictionThreshold, overlapThreshold2, FEATURE_LBPH);
 
     // check the number of parameters
     if (argc < 2)
@@ -111,10 +137,8 @@ int main(int argc, char* argv[])
         return res_val;
     }
 
-
+    // classify
     cout << "Running Classification..." << endl;
-    // validate
-    cout << "Running Validation..." << endl;
     int res_test = doSlidingOperation(model, testSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
                                        windows_n_cols, step_slide_row, step_slide_col, OPERATE_CLASSIFY, originalImageHeight);
     if(res_test != 0)
