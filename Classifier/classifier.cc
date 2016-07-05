@@ -135,7 +135,6 @@ cv::Mat1f Classifier::computeFeatureDescriptor(cv::Mat& img, cv::Mat& img_color)
     {
         double *desc_lbp;
         int descriptor_size = lbp.compute(img_color, desc_lbp, 1, 8, 30);
-        //cv::Mat descriptor = cv::Mat(1,descriptor_size, CV_64F, &desc_lbp[0]);
         descriptor = cv::Mat1f(1, descriptor_size, CV_32F);
         for (int i = 0; i < descriptor_size; i++)
         {
@@ -151,7 +150,7 @@ cv::Mat1f Classifier::computeFeatureDescriptor(cv::Mat& img, cv::Mat& img_color)
 /// @param img:  input image
 /// @param labelPolygon: a set of points which enwrap the target object
 /// @param slidingWindow: the window section of the image that has to be trained
-void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor, bool showImage)
+void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor, bool doJittering, bool showImage)
 {		
     vector<Mat> additionalImages;
 
@@ -173,19 +172,31 @@ void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Re
 
 		if(label > overlapThreshold) 
 		{
-            // jitter positive images
-            additionalImages = doJitter(img, slidingWindow);
+            if(doJittering)
+            {
+                // jitter positive images
+                additionalImages = doJitter(img, slidingWindow);
 
-            for(int i=0; i<additionalImages.size(); i++)
+                for(int i=0; i<additionalImages.size(); i++)
+                {
+                    descriptor = computeFeatureDescriptor(img2, img2_color);
+                    labels.push_back(cv::Mat1f(1, 1, svmLabel));
+                    descriptors.push_back(descriptor);
+                    positiveTrainingWindows++;
+                    additionalImages[i].release();
+                }
+
+                additionalImages.clear();
+            }
+            else
             {
                 descriptor = computeFeatureDescriptor(img2, img2_color);
                 labels.push_back(cv::Mat1f(1, 1, svmLabel));
                 descriptors.push_back(descriptor);
                 positiveTrainingWindows++;
-                additionalImages[i].release();
             }
 
-            additionalImages.clear();
+
 
 			cv::Rect r = cv::Rect(slidingWindow.x / imageScaleFactor, 
 				slidingWindow.y / imageScaleFactor, 

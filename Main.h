@@ -47,11 +47,14 @@ static string getTimeString();
 static string TimeString;
 static int imageCounter;
 
+
+
 // training parameters
 int originalImageHeight;
 int scale_n_times;
 float scaling_factor;
 float initial_scale;
+bool doHardNegativeMining;
 
 // sliding window
 int windows_n_rows;

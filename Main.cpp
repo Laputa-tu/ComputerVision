@@ -9,6 +9,7 @@ void loadLBPConfiguration()
     scale_n_times = 5;
     scaling_factor = 0.8;
     initial_scale = 0.15;
+    doHardNegativeMining = false;
 
     windows_n_rows = 64;
     windows_n_cols = 128;
@@ -29,6 +30,7 @@ void loadHOGConfiguration()
     scale_n_times = 5;              //3;
     scaling_factor = 0.8;           //0.75;
     initial_scale = 0.15;           //0.25;
+    doHardNegativeMining = true;
 
     // sliding window
     windows_n_rows = 64;
@@ -45,9 +47,9 @@ void loadHOGConfiguration()
 
 int main(int argc, char* argv[])
 {
-    bool loadSVMFromFile = false;
+    bool loadSVMFromFile = true;
     //string svm_loadpath = "./SVM_Savings/svm_nice_5_08_015_width128_jitter3_anglestep8.xml"; //_hardnegative
-    string svm_loadpath = "./SVM_Savings/svm_2016_7_1__23_0_13.xml"; // lbp
+    string svm_loadpath = "./SVM_Savings/svm_2016_7_2__20_2_29.xml"; // lbp
     string svm_savepath = "./SVM_Savings/svm_" + getTimeString() + ".xml";
 
     char* trainingPath = argv[1];
@@ -112,17 +114,20 @@ int main(int argc, char* argv[])
         cout << "\nFinishing Training ..." << endl;
         model.finishTraining();
 
-        // do hard negative mining
-        int res_train_neg = doSlidingOperation(model, trainingSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
-                                            windows_n_cols, step_slide_row, step_slide_col, OPERATE_TRAIN_NEG, originalImageHeight);
-        if(res_train_neg != 0)
+        if(doHardNegativeMining)
         {
-            cerr << "Error occured during training, errorcode: " << res_train;
-            return res_train_neg;
+            int res_train_neg = doSlidingOperation(model, trainingSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
+                                                windows_n_cols, step_slide_row, step_slide_col, OPERATE_TRAIN_NEG, originalImageHeight);
+            if(res_train_neg != 0)
+            {
+                cerr << "Error occured during training, errorcode: " << res_train;
+                return res_train_neg;
+            }
+
+            // finish hard negative mining
+            model.finishHardNegativeMining();
         }
 
-        // finish hard negative mining
-        model.finishHardNegativeMining();
         model.saveSVM(svm_savepath);
     }
 

@@ -23,7 +23,7 @@ public:
         Mat sp_hist; // for spatial histogram
 
         cvtColor(image, dst, CV_BGR2GRAY);
-        GaussianBlur(dst, dst, Size(7,7), 5, 3, BORDER_CONSTANT); // tiny bit of smoothing is always a good idea
+        //GaussianBlur(dst, dst, Size(7,7), 5, 3, BORDER_CONSTANT); // tiny bit of smoothing is always a good idea
 
         // do lbp
         lbp::ELBP(dst, lbp, radius, neighbours);
