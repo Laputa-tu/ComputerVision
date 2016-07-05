@@ -10,6 +10,7 @@ void loadLBPConfiguration()
     scaling_factor = 0.8;
     initial_scale = 0.15;
     doHardNegativeMining = false;
+    doJitter = true;
 
     windows_n_rows = 64;
     windows_n_cols = 128;
@@ -31,6 +32,7 @@ void loadHOGConfiguration()
     scaling_factor = 0.8;           //0.75;
     initial_scale = 0.15;           //0.25;
     doHardNegativeMining = true;
+    doJitter = false;
 
     // sliding window
     windows_n_rows = 64;
@@ -311,7 +313,6 @@ int doSlidingImageOperation(Classifier &model, Mat frame, ClipperLib::Path label
                 {
                     case OPERATE_TRAIN:
                     {
-                        bool doJitter = true;
                         model.train(rescaled_gray, rescaled, labelPolygon, windows, current_scaling, doJitter, showTaggedImage);
                         break;
                     }

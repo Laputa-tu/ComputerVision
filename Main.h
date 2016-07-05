@@ -55,6 +55,7 @@ int scale_n_times;
 float scaling_factor;
 float initial_scale;
 bool doHardNegativeMining;
+bool doJitter;
 
 // sliding window
 int windows_n_rows;
