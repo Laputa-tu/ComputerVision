@@ -47,7 +47,7 @@ void loadHOGConfiguration()
 
 int main(int argc, char* argv[])
 {
-    bool loadSVMFromFile = true;
+    bool loadSVMFromFile = false;
     //string svm_loadpath = "./SVM_Savings/svm_nice_5_08_015_width128_jitter3_anglestep8.xml"; //_hardnegative
     string svm_loadpath = "./SVM_Savings/svm_2016_7_2__20_2_29.xml"; // lbp
     string svm_savepath = "./SVM_Savings/svm_" + getTimeString() + ".xml";
@@ -236,7 +236,7 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
 int doSlidingImageOperation(Classifier &model, Mat frame, ClipperLib::Path labelPolygon, int scale_n, float scale_factor,
                        float initial_scale, int w_rows, int w_cols, int step_rows, int step_cols, const int operation, int originalImageHeight)
 {
-    Mat image, rescaled;
+    Mat image, rescaled, rescaled_gray;
     string result_tag;
     float current_scaling;
     bool showTaggedImage = false;
@@ -274,6 +274,8 @@ int doSlidingImageOperation(Classifier &model, Mat frame, ClipperLib::Path label
 
     for(int j=0; j<=scale_n; j++)
     {
+        cvtColor(rescaled, rescaled_gray, CV_RGB2GRAY);
+
         // build sliding window
         for(int row = 0; row <= rescaled.rows; row += step_rows)
         {
@@ -308,19 +310,22 @@ int doSlidingImageOperation(Classifier &model, Mat frame, ClipperLib::Path label
                 switch (operation)
                 {
                     case OPERATE_TRAIN:
-                        model.train(rescaled, labelPolygon, windows, current_scaling, showTaggedImage);
+                    {
+                        bool doJitter = true;
+                        model.train(rescaled_gray, rescaled, labelPolygon, windows, current_scaling, doJitter, showTaggedImage);
                         break;
+                    }
                     case OPERATE_TRAIN_NEG:
-                        model.hardNegativeMine(rescaled, labelPolygon, windows, current_scaling);
+                        model.hardNegativeMine(rescaled_gray, rescaled, labelPolygon, windows, current_scaling);
                         break;
                     case OPERATE_VALIDATE:
                     {
-                        double prediction = model.classify(rescaled, windows, current_scaling);
+                        double prediction = model.classify(rescaled_gray, rescaled, windows, current_scaling);
                         model.evaluate(prediction, labelPolygon, windows, current_scaling);
                         break;
                     }
                     case OPERATE_CLASSIFY:
-                        model.classify(rescaled, windows, current_scaling);
+                        model.classify(rescaled_gray, rescaled, windows, current_scaling);
                         break;
                 }
 

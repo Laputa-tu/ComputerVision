@@ -73,8 +73,8 @@ vector<Mat> Classifier::doJitter(Mat img, Rect slidingWindow)
             }
         }
 	
-	// calculate random jitter for next loop
-	jitterMinX = max(-jitterX, -slidingWindow.x);
+        // calculate random jitter for next loop
+        jitterMinX = max(-jitterX, -slidingWindow.x);
         jitterMinY = max(-jitterY, -slidingWindow.y);
         jitterMaxX = min(jitterX, img.cols - slidingWindow.x - slidingWindow.width);
         jitterMaxY = min(jitterY, img.rows - slidingWindow.y - slidingWindow.height);
@@ -120,15 +120,15 @@ cv::Mat Classifier::cropRotatedRect(const cv::Mat& img, Rect rect, float angle)
 }
 
 
-cv::Mat1f Classifier::computeFeatureDescriptor(cv::Mat& img, cv::Mat& img_color)
+cv::Mat1f Classifier::computeFeatureDescriptor(const cv::Mat& img_gray, const cv::Mat& img_color)
 {
     cv::Mat1f descriptor;
     if (featureGenerator == FEATURE_HOG)
     {
         //calculate Feature-Descriptor
         vector<float> vDescriptor;
-        transpose(img, img);
-        hog.compute(img, vDescriptor);
+        transpose(img_gray, img_gray);
+        hog.compute(img_gray, vDescriptor);
         descriptor = cv::Mat1f(1,vDescriptor.size(),&vDescriptor[0]);
     }
     else if (featureGenerator == FEATURE_LBPH)
@@ -150,19 +150,19 @@ cv::Mat1f Classifier::computeFeatureDescriptor(cv::Mat& img, cv::Mat& img_color)
 /// @param img:  input image
 /// @param labelPolygon: a set of points which enwrap the target object
 /// @param slidingWindow: the window section of the image that has to be trained
-void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor, bool doJittering, bool showImage)
+void Classifier::train(const cv::Mat& img_gray, const cv::Mat& img_color, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor, bool doJittering, bool showImage)
 {		
     vector<Mat> additionalImages;
 
     //extract slidingWindow and convert to grayscale
-    cv::Mat img2, img2_color = img(slidingWindow);
-    cvtColor(img2_color, img2, CV_RGB2GRAY);
+    cv::Mat img_crop_gray = img_gray(slidingWindow);
+    cv::Mat img_crop_color = img_color(slidingWindow);
 
     //calculate Feature-Descriptor
-    cv::Mat1f descriptor = computeFeatureDescriptor(img2, img2_color);
+    cv::Mat1f descriptor = computeFeatureDescriptor(img_crop_gray, img_crop_color);
 
 	//calculate Label
-	float label = calculateLabel(img, labelPolygon, slidingWindow, imageScaleFactor, showImage);
+	float label = calculateLabel(img_color, labelPolygon, slidingWindow, imageScaleFactor, showImage);
 
 	// do not train with windows which contain only small parts of the object
 	// Only train if sliding window is either a strong positive or a strong negative
@@ -175,11 +175,13 @@ void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Re
             if(doJittering)
             {
                 // jitter positive images
-                additionalImages = doJitter(img, slidingWindow);
+                additionalImages = doJitter(img_color, slidingWindow);
 
                 for(int i=0; i<additionalImages.size(); i++)
                 {
-                    descriptor = computeFeatureDescriptor(img2, img2_color);
+                    img_crop_color = additionalImages[i];
+                    cvtColor(img_crop_color, img_crop_gray, CV_RGB2GRAY);
+                    descriptor = computeFeatureDescriptor(img_crop_gray, img_crop_color);
                     labels.push_back(cv::Mat1f(1, 1, svmLabel));
                     descriptors.push_back(descriptor);
                     positiveTrainingWindows++;
@@ -190,18 +192,15 @@ void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Re
             }
             else
             {
-                descriptor = computeFeatureDescriptor(img2, img2_color);
                 labels.push_back(cv::Mat1f(1, 1, svmLabel));
                 descriptors.push_back(descriptor);
                 positiveTrainingWindows++;
             }
 
-
-
 			cv::Rect r = cv::Rect(slidingWindow.x / imageScaleFactor, 
-				slidingWindow.y / imageScaleFactor, 
-				slidingWindow.width / imageScaleFactor, 
-				slidingWindow.height / imageScaleFactor);
+                                slidingWindow.y / imageScaleFactor,
+                                slidingWindow.width / imageScaleFactor,
+                                slidingWindow.height / imageScaleFactor);
 			predictedSlidingWindows.push_back ( r );
 			predictedSlidingWindowWeights.push_back ( label * 2.0 - 1.0 );
 
@@ -213,7 +212,6 @@ void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Re
             {
 				labels.push_back(cv::Mat1f(1, 1, svmLabel));
 				descriptors.push_back(descriptor);  
-
 				negativeTrainingWindows++;
             }
 			else
@@ -223,7 +221,8 @@ void Classifier::train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Re
 		}			
     }
     
-    img2.release();
+    img_crop_gray.release();
+    img_crop_color.release();
 }
 
 /// Finish the training. This finalizes the model. Do not call train() afterwards anymore.
@@ -257,14 +256,14 @@ void Classifier::loadSVM(string path)
     svm.load(path.c_str());
 }
 
-void Classifier::hardNegativeMine(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor)
+void Classifier::hardNegativeMine(const cv::Mat& img_gray, const cv::Mat& img_color, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor)
 {	
     //extract slidingWindow and convert to grayscale
-    cv::Mat img2, img2_color = img(slidingWindow);
-    cvtColor(img2_color, img2, CV_RGB2GRAY);
+    cv::Mat img_crop_gray = img_gray(slidingWindow);
+    cv::Mat img_crop_color = img_color(slidingWindow);
 
     //calculate Feature-Descriptor
-    cv::Mat1f descriptor = computeFeatureDescriptor(img2, img2_color);
+    cv::Mat1f descriptor = computeFeatureDescriptor(img_crop_gray, img_crop_color);
 
 	//predict Result
 	double prediction = -svm.predict(descriptor, true);
@@ -272,7 +271,7 @@ void Classifier::hardNegativeMine(const cv::Mat& img, ClipperLib::Path labelPoly
 	if(prediction > predictionThreshold) //classified as positive
 	{
 		//calculate Label
-		float label = calculateLabel(img, labelPolygon, slidingWindow, imageScaleFactor, false);
+        float label = calculateLabel(img_color, labelPolygon, slidingWindow, imageScaleFactor, false);
 
 		if ( label <= 0.0 ) // classified as positive but no overlap with labelPolygon -> false Positive (hard Negative)
 		{		
@@ -282,6 +281,8 @@ void Classifier::hardNegativeMine(const cv::Mat& img, ClipperLib::Path labelPoly
 			hardNegativeMinedWindows++;
 		}
 	}
+    img_crop_gray.release();
+    img_crop_color.release();
 }
 
 void Classifier::finishHardNegativeMining()
@@ -312,14 +313,14 @@ void Classifier::finishHardNegativeMining()
 /// @param img: unknown test image
 /// @param slidingWindow: the window section of the image that has to be classified
 /// @return: probability of having a match for the target object inside the sliding window section
-double Classifier::classify(const cv::Mat& img, cv::Rect slidingWindow, float imageScaleFactor)
+double Classifier::classify(const cv::Mat& img_gray, const cv::Mat& img_color, cv::Rect slidingWindow, float imageScaleFactor)
 {
     //extract slidingWindow and convert to grayscale
-    cv::Mat img2, img2_color = img(slidingWindow);
-    cvtColor(img2_color, img2, CV_RGB2GRAY);
+    cv::Mat img_crop_gray = img_gray(slidingWindow);
+    cv::Mat img_crop_color = img_color(slidingWindow);
 
     //calculate Feature-Descriptor
-    cv::Mat1f descriptor = computeFeatureDescriptor(img2, img2_color);
+    cv::Mat1f descriptor = computeFeatureDescriptor(img_crop_gray, img_crop_color);
 
 	//predict Result
 	double prediction = -svm.predict(descriptor, true);
@@ -334,6 +335,9 @@ double Classifier::classify(const cv::Mat& img, cv::Rect slidingWindow, float im
 		predictedSlidingWindows.push_back ( r );
 		predictedSlidingWindowWeights.push_back ( (float) prediction );
 	}
+
+    img_crop_gray.release();
+    img_crop_color.release();
 
     return prediction;
 }

@@ -72,17 +72,16 @@ private:
 	void shuffleTrainingData(cv::Mat1f  predictionsMatrix, cv::Mat1f labelsMatrix);
 	cv::Mat cropRotatedRect(const cv::Mat& img, Rect r, float angle);
 	cv::vector<Mat> doJitter(Mat img, Rect slidingWindow);
-    cv::Mat1f computeFeatureDescriptor(cv::Mat& img, cv::Mat& img_color);
+    cv::Mat1f computeFeatureDescriptor(const cv::Mat& img_gray, const cv::Mat& img_color);
 public:
     Classifier(float, float, float, int);
     ~Classifier();
     void startTraining(string StartTime);
-    void train(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor, bool doJittering, bool showImage);
-	void trainNegativeSample(const cv::Mat& img, cv::Rect slidingWindow, float imageScaleFactor);
+    void train(const cv::Mat& img_gray, const cv::Mat& img_color, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor, bool doJittering, bool showImage);
     void finishTraining();
-	void hardNegativeMine(const cv::Mat& img, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor);
+    void hardNegativeMine(const cv::Mat& img_gray, const cv::Mat& img_color, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor);
 	void finishHardNegativeMining();
-    double classify(const cv::Mat& img, cv::Rect slidingWindow, float imageScaleFactor);
+    double classify(const cv::Mat& img_gray, const cv::Mat& img_color, cv::Rect slidingWindow, float imageScaleFactor);
 	void evaluate(double prediction, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor);
 	void printEvaluation(bool saveResult);
 	void showROC(bool saveROC);	
