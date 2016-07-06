@@ -19,7 +19,7 @@ void loadLBPConfiguration()
 
     // classification
     overlapThreshold = 0.5;
-    predictionThreshold = 0.5;
+    predictionThreshold = 0.999;
     overlapThreshold2 = 0.06;
 }
 
@@ -49,9 +49,9 @@ void loadHOGConfiguration()
 
 int main(int argc, char* argv[])
 {
-    bool loadSVMFromFile = false;
+    bool loadSVMFromFile = true;
     //string svm_loadpath = "./SVM_Savings/svm_nice_5_08_015_width128_jitter3_anglestep8.xml"; //_hardnegative
-    string svm_loadpath = "./SVM_Savings/svm_2016_7_2__20_2_29.xml"; // lbp
+    string svm_loadpath = "./SVM_Savings/svm_2016_7_6__4_6_37.xml"; // lbp
     string svm_savepath = "./SVM_Savings/svm_" + getTimeString() + ".xml";
 
     char* trainingPath = argv[1];
