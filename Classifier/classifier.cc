@@ -23,7 +23,7 @@ Classifier::Classifier(float overlapLabels, float predictionThresh, float overla
 
 	svmParams.svm_type    = CvSVM::C_SVC;
 	svmParams.kernel_type = CvSVM::LINEAR;
-    svmParams.term_crit   = cvTermCriteria(CV_TERMCRIT_ITER, 1000, 1e-6);
+    svmParams.term_crit   = cvTermCriteria(CV_TERMCRIT_ITER, 1000, 1e-5);
 
 	// initialize random seed   
 	unsigned int t = time(NULL);
@@ -134,7 +134,7 @@ cv::Mat1f Classifier::computeFeatureDescriptor(const cv::Mat& img_gray, const cv
     else if (featureGenerator == FEATURE_LBPH)
     {
         double *desc_lbp;
-        int descriptor_size = lbp.compute(img_color, desc_lbp, 1, 8, 30);
+        int descriptor_size = lbp.compute(img_color, desc_lbp, 5, 8, 26);
         descriptor = cv::Mat1f(1, descriptor_size, CV_32F);
         for (int i = 0; i < descriptor_size; i++)
         {
@@ -208,7 +208,7 @@ void Classifier::train(const cv::Mat& img_gray, const cv::Mat& img_color, Clippe
 		else 
 		{
             //if( (1.0 * rand() / RAND_MAX) < 0.2) // is statistically every 5th time true -> reduce negative training samples
-            if(((negativeTrainingWindows+discardedTrainingWindows)%1) == 0 )
+            if(((negativeTrainingWindows+discardedTrainingWindows)%7) == 0 )
             {
 				labels.push_back(cv::Mat1f(1, 1, svmLabel));
 				descriptors.push_back(descriptor);  
@@ -229,7 +229,8 @@ void Classifier::train(const cv::Mat& img_gray, const cv::Mat& img_color, Clippe
 void Classifier::finishTraining()
 {
 	//shuffleTrainingData(descriptors, labels);
-	svm.train( descriptors, labels, cv::Mat(), cv::Mat(), svmParams );
+    svm.train( descriptors, labels, cv::Mat(), cv::Mat(), svmParams );
+    //svm.train_auto(descriptors, labels, cv::Mat(), cv::Mat(), svmParams);
 	cout << "SVM has been trained" << endl;
 
 	detectionLabels.clear();	

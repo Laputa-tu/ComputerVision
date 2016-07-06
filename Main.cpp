@@ -10,7 +10,7 @@ void loadLBPConfiguration()
     scaling_factor = 0.8;
     initial_scale = 0.15;
     doHardNegativeMining = false;
-    doJitter = true;
+    doJitter = false;
 
     windows_n_rows = 64;
     windows_n_cols = 128;
@@ -18,7 +18,7 @@ void loadLBPConfiguration()
     step_slide_col = windows_n_cols/4;
 
     // classification
-    overlapThreshold = 0.8;
+    overlapThreshold = 0.5;
     predictionThreshold = 0.5;
     overlapThreshold2 = 0.06;
 }
