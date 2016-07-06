@@ -8,12 +8,12 @@ void loadLBPConfiguration()
     originalImageHeight = 1080;
     scale_n_times = 5;
     scaling_factor = 0.8;
-    initial_scale = 0.15;
+    initial_scale = 0.2;
     doHardNegativeMining = false;
     doJitter = false;
 
     windows_n_rows = 64;
-    windows_n_cols = 128;
+    windows_n_cols = 64;
     step_slide_row = windows_n_rows/4;
     step_slide_col = windows_n_cols/4;
 
@@ -49,7 +49,7 @@ void loadHOGConfiguration()
 
 int main(int argc, char* argv[])
 {
-    bool loadSVMFromFile = true;
+    bool loadSVMFromFile = false;
     //string svm_loadpath = "./SVM_Savings/svm_nice_5_08_015_width128_jitter3_anglestep8.xml"; //_hardnegative
     string svm_loadpath = "./SVM_Savings/svm_2016_7_6__12_11_37.xml"; // lbp
     string svm_savepath = "./SVM_Savings/svm_" + getTimeString() + ".xml";

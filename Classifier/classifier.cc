@@ -134,7 +134,7 @@ cv::Mat1f Classifier::computeFeatureDescriptor(const cv::Mat& img_gray, const cv
     else if (featureGenerator == FEATURE_LBPH)
     {
         double *desc_lbp;
-        int descriptor_size = lbp.compute(img_color, desc_lbp, 5, 8, 26);
+        int descriptor_size = lbp.compute(img_color, desc_lbp, 5, 8);
         descriptor = cv::Mat1f(1, descriptor_size, CV_32F);
         for (int i = 0; i < descriptor_size; i++)
         {

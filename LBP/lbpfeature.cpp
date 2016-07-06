@@ -16,7 +16,7 @@ public:
     /// <param name="cellSize"> the cellsize is used for the partial histograms that are then pushed into the spatial histogram</param>
     /// <param name="cellSize"> overlap of the cells </param>
     /// <returns> Returns the size of the feature vector </returns>
-    int compute(Mat image, double* &descriptor, int radius = 1, int neighbours = 8, int cellSize = 30, int overlap = 0)
+    int compute(Mat image, double* &descriptor, int radius = 1, int neighbours = 8, int width = 128,int height = 64, int overlap = 0)
     {
         Mat dst; //image after preproc.
         Mat lbp; //lbp image
@@ -27,26 +27,62 @@ public:
 
         // do lbp
         lbp::ELBP(dst, lbp, radius, neighbours);
-        normalize(lbp, lbp, 0, 255, NORM_MINMAX, CV_8UC1);
+        //normalize(lbp, lbp, 0, 255, NORM_MINMAX, CV_8UC1);
 
         //imshow("image", image);
         //imshow("Display window", lbp);
         //waitKey(0);
 
-        Size window(cellSize, cellSize);
-        lbp::spatial_histogram(lbp, sp_hist, 255, window, overlap);
+        //Size window(width, height);
+        //lbp::spatial_histogram(lbp, sp_hist, 255, window, overlap);
+        lbp::histogram(lbp, sp_hist, pow(2,neighbours));
+
+        //quantisize
+        int n_bins = 32;
+        int c_bins = sp_hist.cols;
+
+        if((c_bins%n_bins) != 0)
+        {
+            cerr << "Cannot quantisize histogram. Bins: " << c_bins << " / " << n_bins << " not without rest." << endl;
+            return -1;
+        }
+
+        // calculate combined bins
+        Mat hist_q = Mat::zeros(1, n_bins, CV_32SC1);
+        int hist_index = 0;
+        int combined_bins = c_bins/n_bins;
+        int val_bin = 0;
+
+        for(int bin = 0; bin <= sp_hist.cols; bin++)
+        {
+            if((bin % combined_bins) == 0 && bin != 0)
+            {
+                hist_index = (bin/combined_bins)-1;
+                hist_q.at<int>(0, hist_index) = val_bin;
+                val_bin = 0;
+            }
+
+            if(bin < sp_hist.cols)
+            {
+                val_bin += sp_hist.at<int>(0,bin);
+            }
+        }
+
+        //cout << "sp_hist " << sp_hist << endl;
+        //cout << "hist_q " << hist_q << endl;
 
         // get max value for normalization
         double maxVal;
-        minMaxLoc(sp_hist, NULL, &maxVal, NULL, NULL);
+        minMaxLoc(hist_q, NULL, &maxVal, NULL, NULL);
 
-        int desc_size = sp_hist.cols;
+        int desc_size = hist_q.cols;
         descriptor = new double[desc_size];
         for(int i=0; i<desc_size; i++)
         {
             // save normalized value (range: 0-1)
-            descriptor[i] = sp_hist.at<int>(0, i)/maxVal;
+            descriptor[i] = hist_q.at<int>(0, i)/maxVal;
         }
+        //cout << "Desc size: " << desc_size << endl;
 
         return desc_size;
     }

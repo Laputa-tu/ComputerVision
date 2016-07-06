@@ -5,7 +5,7 @@
       <Option title="Main" />
       <Option makefile_is_custom="1" />
       <Option compiler="gcc" />
-      <Option virtualFolders="CMake Files\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\usr\;CMake Files\..\..\..\usr\share\;CMake Files\..\..\..\usr\share\OpenCV\;" />
+      <Option virtualFolders="CMake Files\;CMake Files\..\;CMake Files\..\opencv-2.4.9\;" />
       <Build>
       <Target title="all">
          <Option working_dir="/home/kevin/ComputerVision" />
@@ -24,7 +24,28 @@
          <Option type="1" />
          <Option compiler="gcc" />
          <Compiler>
-            <Add directory="/usr/include/opencv" />
+            <Add directory="/home/kevin/opencv-2.4.9" />
+            <Add directory="/home/kevin/opencv-2.4.9/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/include/opencv" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/calib3d/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/contrib/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/core/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/features2d/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/flann/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/gpu/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/highgui/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/imgproc/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/legacy/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/ml/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/nonfree/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/objdetect/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/ocl/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/photo/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/stitching/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/superres/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/ts/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/video/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/videostab/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 Main" />
@@ -40,7 +61,28 @@
          <Option type="1" />
          <Option compiler="gcc" />
          <Compiler>
-            <Add directory="/usr/include/opencv" />
+            <Add directory="/home/kevin/opencv-2.4.9" />
+            <Add directory="/home/kevin/opencv-2.4.9/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/include/opencv" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/calib3d/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/contrib/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/core/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/features2d/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/flann/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/gpu/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/highgui/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/imgproc/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/legacy/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/ml/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/nonfree/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/objdetect/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/ocl/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/photo/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/stitching/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/superres/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/ts/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/video/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/videostab/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 Main/fast" />
@@ -76,7 +118,28 @@
          <Option type="2" />
          <Option compiler="gcc" />
          <Compiler>
-            <Add directory="/usr/include/opencv" />
+            <Add directory="/home/kevin/opencv-2.4.9" />
+            <Add directory="/home/kevin/opencv-2.4.9/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/include/opencv" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/calib3d/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/contrib/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/core/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/features2d/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/flann/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/gpu/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/highgui/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/imgproc/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/legacy/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/ml/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/nonfree/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/objdetect/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/ocl/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/photo/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/stitching/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/superres/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/ts/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/video/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/videostab/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 vlfeat_slic" />
@@ -92,7 +155,28 @@
          <Option type="2" />
          <Option compiler="gcc" />
          <Compiler>
-            <Add directory="/usr/include/opencv" />
+            <Add directory="/home/kevin/opencv-2.4.9" />
+            <Add directory="/home/kevin/opencv-2.4.9/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/include/opencv" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/calib3d/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/contrib/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/core/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/features2d/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/flann/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/gpu/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/highgui/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/imgproc/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/legacy/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/ml/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/nonfree/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/objdetect/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/ocl/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/photo/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/stitching/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/superres/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/ts/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/video/include" />
+            <Add directory="/home/kevin/opencv-2.4.9/modules/videostab/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 vlfeat_slic/fast" />
@@ -155,17 +239,14 @@
       <Unit filename="/home/kevin/ComputerVision/CMakeLists.txt">
           <Option virtualFolder="CMake Files\" />
       </Unit>
-      <Unit filename="/home/kevin/ComputerVision/../../../usr/share/OpenCV/OpenCVConfig-version.cmake">
-          <Option virtualFolder="CMake Files\..\..\..\usr\share\OpenCV\" />
+      <Unit filename="/home/kevin/ComputerVision/../opencv-2.4.9/OpenCVConfig-version.cmake">
+          <Option virtualFolder="CMake Files\..\opencv-2.4.9\" />
       </Unit>
-      <Unit filename="/home/kevin/ComputerVision/../../../usr/share/OpenCV/OpenCVConfig.cmake">
-          <Option virtualFolder="CMake Files\..\..\..\usr\share\OpenCV\" />
+      <Unit filename="/home/kevin/ComputerVision/../opencv-2.4.9/OpenCVConfig.cmake">
+          <Option virtualFolder="CMake Files\..\opencv-2.4.9\" />
       </Unit>
-      <Unit filename="/home/kevin/ComputerVision/../../../usr/share/OpenCV/OpenCVModules.cmake">
-          <Option virtualFolder="CMake Files\..\..\..\usr\share\OpenCV\" />
-      </Unit>
-      <Unit filename="/home/kevin/ComputerVision/../../../usr/share/OpenCV/OpenCVModules-release.cmake">
-          <Option virtualFolder="CMake Files\..\..\..\usr\share\OpenCV\" />
+      <Unit filename="/home/kevin/ComputerVision/../opencv-2.4.9/OpenCVModules.cmake">
+          <Option virtualFolder="CMake Files\..\opencv-2.4.9\" />
       </Unit>
    </Project>
 </CodeBlocks_project_file>
