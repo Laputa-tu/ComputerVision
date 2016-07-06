@@ -679,7 +679,7 @@ void Classifier::generateTaggedResultImage(const cv::Mat& img, string imgName, b
 
 void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Path labelPolygon, string imgName, bool showResult, bool saveResult)
 {
-	double heatmap_threshold = 0.325;
+    double heatmap_threshold = 1.45;
 	double area_clippedContourPolygon, area_contourPolygon, area_labelPolygon, TP, FP, overlap, heatmap_max;
 	bool targetObjectDetected = false;
 	bool targetObjectDetected2 = false;
@@ -704,7 +704,7 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 		{		
 			continue;
 		}		
-		rectangle( img_show, predictedSlidingWindows[i], cv::Scalar( 0, 255, 0 ), 1, CV_AA, 0 );      // you need to add a parameter here to set it
+        //rectangle( img_show, predictedSlidingWindows[i], cv::Scalar( 0, 255, 0 ), 1, CV_AA, 0 );      // you need to add a parameter here to set it
 		heatmap(predictedSlidingWindows[i]) += (double) 1.0 * predictedSlidingWindowWeights[i];
 
 		// count number of windows
@@ -764,7 +764,7 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 		findContours(mask_thresh, contours_thresh, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_TC89_KCOS);
 
 		//draw contours on tagged image
-		drawContours(img_show, contours_thresh, -1, cv::Scalar( 0, 0, 255 ), 2, CV_AA);                   // you need to add a parameter here to set it
+        //drawContours(img_show, contours_thresh, -1, cv::Scalar( 0, 0, 255 ), 2, CV_AA);                   // you need to add a parameter here to set it
 
 
 		if (contours_thresh.size() > 0)
