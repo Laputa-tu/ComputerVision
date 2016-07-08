@@ -1,6 +1,96 @@
 #include "histogram.hpp"
 #include <vector>
 
+
+Mat lbp::createSpatialHistogram(vector<Mat> histograms, int binCount)
+{
+    //shift all hists into spatial histogram
+    Mat spatial_hist = Mat::zeros(1, histograms.size() * binCount, CV_32SC1);
+    for(int histIdx = 0; histIdx < histograms.size(); histIdx++)
+    {
+        for(int bin = 0; bin < binCount; bin++)
+        {
+            int newBin = histIdx * binCount +  bin;
+            spatial_hist.at<int>(0, newBin) = histograms[histIdx].at<int>(bin);
+        }
+    }
+
+    return spatial_hist;
+}
+
+Mat lbp::createRotationInvariantHistogram(Mat hist)
+{
+    Mat hist_rotInv = Mat::zeros(1, hist.cols, CV_32SC1);
+
+    //get max value
+    int index_maxVal = 0;
+    for(int bin = 0; bin < hist.cols; bin++)
+    {
+        int val = hist.at<int>(0, bin);
+        if(val >= hist.at<int>(0, index_maxVal))
+        {
+            index_maxVal = bin;
+        }
+    }
+
+    // prepare shifting, calculate index distance
+    int distanceToLast = (hist.cols - 1) - index_maxVal;
+
+    // shift bins (low values >> max values )
+    int newBin;
+    for(int bin = 0; bin < hist.cols; bin++)
+    {
+        if(bin <= index_maxVal)
+        {
+            newBin = bin + distanceToLast;
+        }
+        else
+        {
+            newBin = bin - index_maxVal - 1;
+        }
+
+        hist_rotInv.at<int>(0, newBin) = hist.at<int>(0, bin);
+    }
+
+    return hist_rotInv;
+}
+Mat lbp::quantisizeHistogram(Mat hist, int newBinCount)
+{
+    Mat emptyMat;
+    Mat quantisizedHist = Mat::zeros(1, newBinCount, CV_32SC1);
+
+    int binCount = hist.cols;
+    if(newBinCount > binCount || (binCount % newBinCount) != 0)
+    {
+        cerr << "Cannot quantisize histogram. Bins: " << binCount << " / " << newBinCount << " not without rest." << endl;
+        return hist;
+    }
+
+    int hist_index = 0;
+    int combined_bins = binCount / newBinCount;
+    int val_bin = 0;
+
+    for(int bin = 0; bin <= binCount; bin++)
+    {
+        if((bin % combined_bins) == 0 && bin != 0)
+        {
+            hist_index = (bin / combined_bins) - 1;
+            quantisizedHist.at<int>(0, hist_index) = val_bin;
+            val_bin = 0;
+        }
+
+        if(bin < binCount)
+        {
+            val_bin += hist.at<int>(0, bin);
+        }
+    }
+
+    return quantisizedHist;
+}
+
+
+
+
 template <typename _Tp>
 void lbp::histogram_(const Mat& src, Mat& hist, int numPatterns) {
     hist = Mat::zeros(1, numPatterns, CV_32SC1);

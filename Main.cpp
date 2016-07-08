@@ -8,18 +8,18 @@ void loadLBPConfiguration()
     originalImageHeight = 1080;
     scale_n_times = 5;
     scaling_factor = 0.8;
-    initial_scale = 0.2;
+    initial_scale = 0.15;
     doHardNegativeMining = false;
     doJitter = false;
 
     windows_n_rows = 64;
-    windows_n_cols = 64;
-    step_slide_row = windows_n_rows/4;
-    step_slide_col = windows_n_cols/4;
+    windows_n_cols = 128;
+    step_slide_row = windows_n_rows / 4;
+    step_slide_col = windows_n_cols / 4;
 
     // classification
     overlapThreshold = 0.5;
-    predictionThreshold = 2.0;
+    predictionThreshold = 1.0;
     overlapThreshold2 = 0.06;
 }
 
@@ -37,8 +37,8 @@ void loadHOGConfiguration()
     // sliding window
     windows_n_rows = 64;
     windows_n_cols = 128;
-    step_slide_row = windows_n_rows/4;
-    step_slide_col = windows_n_cols/4;
+    step_slide_row = windows_n_rows / 4;
+    step_slide_col = windows_n_cols / 4;
 
     // classification
     overlapThreshold = 0.5;		// label = Percentage of overlap -> 0 to 1.0

@@ -12,6 +12,11 @@ using namespace std;
 
 namespace lbp {
 
+Mat createSpatialHistogram(vector<Mat> histograms, int binCount);
+Mat createRotationInvariantHistogram(Mat hist);
+Mat quantisizeHistogram(Mat hist, int newBinCount);
+
+
 // templated functions
 template <typename _Tp>
 void histogram_(const Mat& src, Mat& hist, int numPatterns);

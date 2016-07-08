@@ -8,6 +8,7 @@ using namespace cv;
 class LBPFeature
 {
 public:
+
     /// <summary> Computes the feature vector of an ELBP's spatial histogram</summary>
     /// <param name="image"> image on which the elbp is computed </param>
     /// <param name="descriptor"> feature vecture which contains results after computation</param>
@@ -16,76 +17,104 @@ public:
     /// <param name="cellSize"> the cellsize is used for the partial histograms that are then pushed into the spatial histogram</param>
     /// <param name="cellSize"> overlap of the cells </param>
     /// <returns> Returns the size of the feature vector </returns>
-    int compute(Mat image, double* &descriptor, int radius = 1, int neighbours = 8, int width = 128,int height = 64, int overlap = 0)
+    int compute(Mat img_color, double* &descriptor, int radius = 5, int neighbours = 8, int width = 128,int height = 64, int overlap = 0)
     {
-        Mat dst; //image after preproc.
-        Mat lbp; //lbp image
-        Mat sp_hist; // for spatial histogram
+        bool doBlur = false;
+        bool doQuantisize = false;
+        bool doRotInv = false;
+        int cellCount_x = 4;
+        int cellCount_y = 2;
+        int quantization_factor = 32;
 
-        cvtColor(image, dst, CV_BGR2GRAY);
-        //GaussianBlur(dst, dst, Size(3,3), 5, 3, BORDER_CONSTANT); // tiny bit of smoothing is always a good idea
+        Mat img_gray, img_blurred, img_lbp, cell, cellHist, spatialHist;
+        vector<Mat> histograms;
+        Rect cellRectangle;
+        int cellPos_x, cellPos_y, cellWidth, cellHeight;
 
-        // do lbp
-        lbp::ELBP(dst, lbp, radius, neighbours);
-        //normalize(lbp, lbp, 0, 255, NORM_MINMAX, CV_8UC1);
 
-        //imshow("image", image);
-        //imshow("Display window", lbp);
-        //waitKey(0);
+        cvtColor(img_color, img_gray, CV_BGR2GRAY);
 
-        //Size window(width, height);
-        //lbp::spatial_histogram(lbp, sp_hist, 255, window, overlap);
-        lbp::histogram(lbp, sp_hist, pow(2,neighbours));
-
-        //quantisize
-        int n_bins = 32;
-        int c_bins = sp_hist.cols;
-
-        if((c_bins%n_bins) != 0)
+        if(doBlur)
         {
-            cerr << "Cannot quantisize histogram. Bins: " << c_bins << " / " << n_bins << " not without rest." << endl;
-            return -1;
+            int sigmaX = 3;
+            int sigmaY = 3;
+            GaussianBlur(img_gray, img_blurred, Size(0, 0), sigmaX, sigmaY, BORDER_CONSTANT); // tiny bit of smoothing is always a good idea
+        }
+        else
+        {
+            img_blurred = img_gray;
         }
 
-        // calculate combined bins
-        Mat hist_q = Mat::zeros(1, n_bins, CV_32SC1);
-        int hist_index = 0;
-        int combined_bins = c_bins/n_bins;
-        int val_bin = 0;
+        lbp::ELBP(img_blurred, img_lbp, radius, neighbours);
 
-        for(int bin = 0; bin <= sp_hist.cols; bin++)
+        // for each cell, calculate histogram, do rotation invariance, add it to vector
+        cellWidth = img_lbp.cols/cellCount_x;
+        cellHeight = img_lbp.rows/cellCount_y;
+        //cellWidth = 26;
+        //cellHeight = 26;
+        //cout << "LBP Cell Size: " << cellWidth << " x " << cellHeight << endl;
+        for (int cellIndex_x = 0; cellIndex_x < cellCount_x; cellIndex_x++)
         {
-            if((bin % combined_bins) == 0 && bin != 0)
+            for (int cellIndex_y = 0; cellIndex_y < cellCount_y; cellIndex_y++)
             {
-                hist_index = (bin/combined_bins)-1;
-                hist_q.at<int>(0, hist_index) = val_bin;
-                val_bin = 0;
-            }
+                // Setup a rectangle to define your region of interest
+                cellPos_x = cellIndex_x * cellWidth;
+                cellPos_y = cellIndex_y * cellHeight;
+                cellRectangle = Rect(cellPos_x, cellPos_y, cellWidth, cellHeight);
 
-            if(bin < sp_hist.cols)
-            {
-                val_bin += sp_hist.at<int>(0,bin);
+                // Crop the full image to that image contained by the rectangle myROI
+                // Note that this doesn't copy the data
+                cell = img_lbp(cellRectangle);
+
+                //calculate histogram
+                lbp::histogram(cell, cellHist, pow(2, neighbours));
+
+                if(doQuantisize)
+                {
+                    cellHist = lbp::quantisizeHistogram(cellHist, quantization_factor);
+                }
+
+                if(doRotInv)
+                {
+                    cellHist = lbp::createRotationInvariantHistogram(cellHist);
+                }
+
+                histograms.push_back(cellHist);
             }
         }
 
-        //cout << "sp_hist " << sp_hist << endl;
-        //cout << "hist_q " << hist_q << endl;
+        spatialHist = lbp::createSpatialHistogram(histograms, histograms[0].cols);
 
-        // get max value for normalization
+
+        //normalize spatial histogram and create the final descriptor
         double maxVal;
-        minMaxLoc(hist_q, NULL, &maxVal, NULL, NULL);
-
-        int desc_size = hist_q.cols;
+        minMaxLoc(spatialHist, NULL, &maxVal, NULL, NULL);
+        int desc_size = spatialHist.cols;
         descriptor = new double[desc_size];
-        for(int i=0; i<desc_size; i++)
+        for(int bin = 0; bin < desc_size; bin++)
         {
             // save normalized value (range: 0-1)
-            descriptor[i] = hist_q.at<int>(0, i)/maxVal;
+            descriptor[bin] = spatialHist.at<int>(0, bin) / maxVal;
         }
-        //cout << "Desc size: " << desc_size << endl;
 
+        //cout << "Descriptor Size: " << desc_size << endl;
         return desc_size;
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     int doLBP(int argc, char *argv[])
     {
