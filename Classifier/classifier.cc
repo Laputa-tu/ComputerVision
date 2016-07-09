@@ -134,7 +134,7 @@ cv::Mat1f Classifier::computeFeatureDescriptor(const cv::Mat& img_gray, const cv
     else if (featureGenerator == FEATURE_LBPH)
     {
         double *desc_lbp;
-        int descriptor_size = lbp.compute(img_color, desc_lbp, 5, 8);
+        int descriptor_size = lbp.compute(img_color, desc_lbp, 6, 10, 26);
         descriptor = cv::Mat1f(1, descriptor_size, CV_32F);
         for (int i = 0; i < descriptor_size; i++)
         {
@@ -151,7 +151,7 @@ cv::Mat1f Classifier::computeFeatureDescriptor(const cv::Mat& img_gray, const cv
 /// @param labelPolygon: a set of points which enwrap the target object
 /// @param slidingWindow: the window section of the image that has to be trained
 void Classifier::train(const cv::Mat& img_gray, const cv::Mat& img_color, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor, bool doJittering, bool showImage)
-{		
+{
     vector<Mat> additionalImages;
 
     //extract slidingWindow and convert to grayscale
@@ -679,7 +679,7 @@ void Classifier::generateTaggedResultImage(const cv::Mat& img, string imgName, b
 
 void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Path labelPolygon, string imgName, bool showResult, bool saveResult)
 {
-    double heatmap_threshold = 1.45;
+    double heatmap_threshold = 0.3;
 	double area_clippedContourPolygon, area_contourPolygon, area_labelPolygon, TP, FP, overlap, heatmap_max;
 	bool targetObjectDetected = false;
 	bool targetObjectDetected2 = false;

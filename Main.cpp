@@ -6,20 +6,20 @@ void loadLBPConfiguration()
 {
     // training parameters
     originalImageHeight = 1080;
-    scale_n_times = 5;
+    scale_n_times = 3;
     scaling_factor = 0.8;
-    initial_scale = 0.15;
+    initial_scale = 0.225;
     doHardNegativeMining = false;
     doJitter = false;
 
-    windows_n_rows = 64;
-    windows_n_cols = 128;
+    windows_n_rows = 96;
+    windows_n_cols = 192;
     step_slide_row = windows_n_rows / 4;
     step_slide_col = windows_n_cols / 4;
 
     // classification
     overlapThreshold = 0.5;
-    predictionThreshold = 1.0;
+    predictionThreshold = 1.3;
     overlapThreshold2 = 0.06;
 }
 

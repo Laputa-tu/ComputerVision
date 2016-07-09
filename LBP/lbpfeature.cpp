@@ -2,6 +2,7 @@
 #include <highgui.h>
 #include "lbp.hpp"
 #include "histogram.hpp"
+#include <bitset>
 
 using namespace cv;
 
@@ -24,7 +25,7 @@ public:
         bool doRotInv = false;
         int cellCount_x = 4;
         int cellCount_y = 2;
-        int quantization_factor = 32;
+        int quantization_factor = 256;
 
         Mat img_gray, img_blurred, img_lbp, cell, cellHist, spatialHist;
         vector<Mat> histograms;
@@ -46,13 +47,12 @@ public:
         }
 
         lbp::ELBP(img_blurred, img_lbp, radius, neighbours);
+        //interpretGrayCode(img_lbp);
+        //normalize(img_lbp, img_lbp, 0, 255, NORM_MINMAX, CV_8UC1);
 
         // for each cell, calculate histogram, do rotation invariance, add it to vector
         cellWidth = img_lbp.cols/cellCount_x;
         cellHeight = img_lbp.rows/cellCount_y;
-        //cellWidth = 26;
-        //cellHeight = 26;
-        //cout << "LBP Cell Size: " << cellWidth << " x " << cellHeight << endl;
         for (int cellIndex_x = 0; cellIndex_x < cellCount_x; cellIndex_x++)
         {
             for (int cellIndex_y = 0; cellIndex_y < cellCount_y; cellIndex_y++)
@@ -67,7 +67,7 @@ public:
                 cell = img_lbp(cellRectangle);
 
                 //calculate histogram
-                lbp::histogram(cell, cellHist, pow(2, neighbours));
+                cellHist = lbp::histogram(cell, pow(2, neighbours));
 
                 if(doQuantisize)
                 {
@@ -227,6 +227,86 @@ public:
 
         }
     return 0; // success
+    }
+
+
+
+
+
+
+
+
+
+
+    void interpretGrayCode(Mat img_lbp)
+    {
+        for (int col = 0; col < img_lbp.cols; col++)
+        {
+            for (int row = 0; row < img_lbp.rows; row++)
+            {
+                int lbp_bitCode = img_lbp.at<int>(row, col);
+                string gray = bitset<64>(lbp_bitCode).to_string(); //to binary
+                string binary = graytoBinary(gray);
+                img_lbp.at<int>(row, col) = (int) (bitset<64>(binary).to_ulong());
+            }
+        }
+    }
+
+
+    char xor_c(char a, char b)
+    {
+        return (a == b)? '0': '1';
+    }
+
+
+    char flip(char c)
+    {
+        return (c == '0')? '1': '0';
+    }
+
+    //  function to convert binary string to gray string
+    string binarytoGray(string binary)
+    {
+        string gray = "";
+
+        //  MSB of gray code is same as binary code
+        gray += binary[0];
+
+        // Compute remaining bits, next bit is comuted by
+        // doing XOR of previous and current in Binary
+        for (int i = 1; i < binary.length(); i++)
+        {
+            // Concatenate XOR of previous bit with current bit
+            gray += xor_c(binary[i - 1], binary[i]);
+        }
+
+        return gray;
+    }
+
+
+
+    //  function to convert gray code string to binary string
+    string graytoBinary(string gray)
+    {
+        string binary  = "";
+
+        //  MSB of binary code is same as gray code
+        binary += gray[0];
+
+
+        // Compute remaining bits
+        for (int i = 1; i < gray.length(); i++)
+        {
+            // If current bit is 0, concatenate previous bit
+            if (gray[i] == '0')
+                binary += binary[i - 1];
+
+            // Else, concatenate invert of previous bit
+            else
+                binary += flip(binary[i - 1]);
+        }
+
+        return binary;
     }
 
 };
