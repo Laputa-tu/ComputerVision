@@ -134,7 +134,7 @@ cv::Mat1f Classifier::computeFeatureDescriptor(const cv::Mat& img_gray, const cv
     else if (featureGenerator == FEATURE_LBPH)
     {
         double *desc_lbp;
-        int descriptor_size = lbp.compute(img_color, desc_lbp, 6, 10, 26);
+        int descriptor_size = lbp.compute(img_color, desc_lbp, 6, 10);
         descriptor = cv::Mat1f(1, descriptor_size, CV_32F);
         for (int i = 0; i < descriptor_size; i++)
         {
@@ -679,7 +679,7 @@ void Classifier::generateTaggedResultImage(const cv::Mat& img, string imgName, b
 
 void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Path labelPolygon, string imgName, bool showResult, bool saveResult)
 {
-    double heatmap_threshold = 0.3;
+    double heatmap_threshold = 1.1;
 	double area_clippedContourPolygon, area_contourPolygon, area_labelPolygon, TP, FP, overlap, heatmap_max;
 	bool targetObjectDetected = false;
 	bool targetObjectDetected2 = false;
@@ -704,7 +704,7 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 		{		
 			continue;
 		}		
-        //rectangle( img_show, predictedSlidingWindows[i], cv::Scalar( 0, 255, 0 ), 1, CV_AA, 0 );      // you need to add a parameter here to set it
+        rectangle( img_show, predictedSlidingWindows[i], cv::Scalar( 0, 255, 0 ), 1, CV_AA, 0 );      // you need to add a parameter here to set it
 		heatmap(predictedSlidingWindows[i]) += (double) 1.0 * predictedSlidingWindowWeights[i];
 
 		// count number of windows

@@ -97,7 +97,10 @@ void lbp::histogram_(const Mat& src, Mat& hist, int numPatterns) {
     for(int i = 0; i < src.rows; i++) {
         for(int j = 0; j < src.cols; j++) {
             int bin = src.at<_Tp>(i,j);
-            hist.at<int>(0,bin) += 1;
+            if(bin < numPatterns)
+            {
+                hist.at<int>(0,bin) += 1;
+            }
         }
     }
 }

@@ -2,6 +2,7 @@
 
 #include <math.h>
 
+
 void loadLBPConfiguration()
 {
     // training parameters
@@ -19,7 +20,7 @@ void loadLBPConfiguration()
 
     // classification
     overlapThreshold = 0.5;
-    predictionThreshold = 1.3;
+    predictionThreshold = 1.0;
     overlapThreshold2 = 0.06;
 }
 

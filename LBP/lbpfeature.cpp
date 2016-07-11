@@ -18,14 +18,16 @@ public:
     /// <param name="cellSize"> the cellsize is used for the partial histograms that are then pushed into the spatial histogram</param>
     /// <param name="cellSize"> overlap of the cells </param>
     /// <returns> Returns the size of the feature vector </returns>
-    int compute(Mat img_color, double* &descriptor, int radius = 5, int neighbours = 8, int width = 128,int height = 64, int overlap = 0)
+    int compute(Mat img_color, double* &descriptor, int radius = 5, int neighbours = 8)
     {
         bool doBlur = false;
         bool doQuantisize = false;
-        bool doRotInv = false;
+        bool useRotInv = true;
+        bool useUniformEncoding = false;
         int cellCount_x = 4;
         int cellCount_y = 2;
         int quantization_factor = 256;
+        int cellHistSize;
 
         Mat img_gray, img_blurred, img_lbp, cell, cellHist, spatialHist;
         vector<Mat> histograms;
@@ -46,13 +48,15 @@ public:
             img_blurred = img_gray;
         }
 
-        lbp::ELBP(img_blurred, img_lbp, radius, neighbours);
-        //interpretGrayCode(img_lbp);
-        //normalize(img_lbp, img_lbp, 0, 255, NORM_MINMAX, CV_8UC1);
+        lbp::uRLBP(img_blurred, img_lbp, cellHistSize, radius, neighbours, useUniformEncoding, useRotInv);
+
+
+        //interpretGrayCode(img_lbp);        
+
 
         // for each cell, calculate histogram, do rotation invariance, add it to vector
-        cellWidth = img_lbp.cols/cellCount_x;
-        cellHeight = img_lbp.rows/cellCount_y;
+        cellWidth = img_lbp.cols / cellCount_x;
+        cellHeight = img_lbp.rows / cellCount_y;
         for (int cellIndex_x = 0; cellIndex_x < cellCount_x; cellIndex_x++)
         {
             for (int cellIndex_y = 0; cellIndex_y < cellCount_y; cellIndex_y++)
@@ -67,23 +71,25 @@ public:
                 cell = img_lbp(cellRectangle);
 
                 //calculate histogram
-                cellHist = lbp::histogram(cell, pow(2, neighbours));
+                cellHist = lbp::histogram(cell, cellHistSize);
 
                 if(doQuantisize)
                 {
                     cellHist = lbp::quantisizeHistogram(cellHist, quantization_factor);
                 }
 
-                if(doRotInv)
+                /*if(doRotInv)
                 {
                     cellHist = lbp::createRotationInvariantHistogram(cellHist);
-                }
+                }*/
 
+                //normalizeHistogram(cellHist, 1000);
+                //cout << cellHist;
                 histograms.push_back(cellHist);
             }
         }
 
-        spatialHist = lbp::createSpatialHistogram(histograms, histograms[0].cols);
+        spatialHist = lbp::createSpatialHistogram(histograms, cellHistSize);
 
 
         //normalize spatial histogram and create the final descriptor
@@ -100,6 +106,9 @@ public:
         //cout << "Descriptor Size: " << desc_size << endl;
         return desc_size;
     }
+
+
+
 
 
 
@@ -235,6 +244,16 @@ public:
 
 
 
+    void normalizeHistogram(Mat& hist, int maxValue)
+    {
+        double oldMaxVal;
+        minMaxLoc(hist, NULL, &oldMaxVal, NULL, NULL);
+
+        for(int bin = 0; bin < hist.cols; bin++)
+        {
+            hist.at<int>(0, bin) = maxValue * hist.at<int>(0, bin) / oldMaxVal;
+        }
+    }
 
 
 
