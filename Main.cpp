@@ -7,20 +7,20 @@ void loadLBPConfiguration()
 {
     // training parameters
     originalImageHeight = 1080;
-    scale_n_times = 0;
+    scale_n_times = 3;
     scaling_factor = 0.8;
-    initial_scale = 0.15;
+    initial_scale = 0.225;
     doHardNegativeMining = false;
     doJitter = false;
 
-    windows_n_rows = 64;
-    windows_n_cols = 128;
-    step_slide_row = windows_n_rows / 2;
-    step_slide_col = windows_n_cols / 2;
+    windows_n_rows = 96;
+    windows_n_cols = 192;
+    step_slide_row = windows_n_rows / 4;
+    step_slide_col = windows_n_cols / 4;
 
     // classification
     overlapThreshold = 0.5;
-    predictionThreshold = 0.9;
+    predictionThreshold = 1.0;
     overlapThreshold2 = 0.06;
 }
 
@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
 {
     bool loadSVMFromFile = true;
     //string svm_loadpath = "./SVM_Savings/svm_nice_5_08_015_width128_jitter3_anglestep8.xml"; //_hardnegative
-    string svm_loadpath = "./SVM_Savings/svm_2016_7_11__8_0_11.xml"; // lbp
+    string svm_loadpath = "./SVM_Savings/svm_2016_7_11__11_57_6.xml"; // lbp
     string svm_savepath = "./SVM_Savings/svm_" + getTimeString() + ".xml";
 
     char* trainingPath = argv[1];
@@ -231,11 +231,11 @@ int classify(Classifier &model, vector<string> testVideos)
 int classify(Classifier &model, vector<JSONImage> testSet, vector<string> testVideos)
 {
     int res_pic, res_vid;
-    /*res_pic = classify(model, testSet);
+    res_pic = classify(model, testSet);
     if(res_pic != 0)
     {
         return res_pic;
-    }*/
+    }
 
     res_vid = classify(model, testVideos);
     if(res_vid != 0)

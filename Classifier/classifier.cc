@@ -134,7 +134,7 @@ cv::Mat1f Classifier::computeFeatureDescriptor(const cv::Mat& img_gray, const cv
     else if (featureGenerator == FEATURE_LBPH)
     {
         double *desc_lbp;
-        int descriptor_size = lbp.compute(img_color, desc_lbp, 5, 8);
+        int descriptor_size = lbp.compute(img_color, desc_lbp, 6, 10);
         descriptor = cv::Mat1f(1, descriptor_size, CV_32F);
         for (int i = 0; i < descriptor_size; i++)
         {
@@ -779,6 +779,10 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 			}
 			rectangle(img_show, boundRect.tl(), boundRect.br(), cv::Scalar( 0, 0, 255 ), 2, 8, 0 );
 
+            // get direction
+            Direction direction = getDirection(boundRect, img.cols);
+            cout << DirectionStrings[direction] << endl;
+
 			//draw center point of bounding rect (detected)			
 			circle( img_show, rect_center, 10, Scalar( 0, 0, 255 ), -1, 8);  
 
@@ -906,6 +910,7 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 	if(showResult)
 	{
         imshow("MyVideo", img_show);
+        //waitKey(0);
 	}
 	if(saveResult)
 	{	
@@ -935,6 +940,50 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 	singleContourHeatmap_blurred.release();
 }
 
+
+Classifier::Direction Classifier::getDirection(Rect boundRect, int imageWidth)
+{
+    Direction d;
+    int region_size = imageWidth/3;
+    if(boundRect.x < region_size)
+    {
+        //left image region
+        if(boundRect.x+boundRect.width < region_size)
+        {
+            d = left;
+        }
+        else if (boundRect.x+boundRect.width < 2* region_size)
+        {
+            d = slightly_left;
+        }
+        else if(boundRect.x+boundRect.width >= 2* region_size)
+        {
+            d = center;
+        }
+    }
+    else if(boundRect.x < 2*region_size)
+    {
+        //center image region
+        if(boundRect.x+boundRect.width < 2*region_size)
+        {
+            d = center;
+        }
+        else if(boundRect.x+boundRect.width >= 2* region_size)
+        {
+            d = slightly_right;
+        }
+    }
+    else if(boundRect.x >= 2* region_size)
+    {
+        d = right;
+    }
+    else
+    {
+        d = unknown;
+    }
+
+    return d;
+}
 
 
 // generate Image which shows the clipped polygon and overlap of a single Sliding Window
