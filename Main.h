@@ -53,7 +53,6 @@ static int imageCounter;
 
 int train(Classifier &model, bool loadSVMFromFile, string svm_loadpath, string svm_savepath, vector<JSONImage> trainingSet);
 int validate(Classifier &model, vector<JSONImage> validationSet);
-int runMultiThreadClassification(Classifier &model, vector<JSONImage> testSet, vector<string> testVideos);
 int classify(Classifier &model, vector<JSONImage> testSet, vector<string> testVideos);
 int classify(Classifier &model, vector<JSONImage> testSet);
 int classify(Classifier &model, vector<string> testVideos);

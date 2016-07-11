@@ -74,10 +74,8 @@ private:
 	cv::vector<Mat> doJitter(Mat img, Rect slidingWindow);
     cv::Mat1f computeFeatureDescriptor(const cv::Mat& img_gray, const cv::Mat& img_color);
 
-
-    typedef enum { left, slightly_left, center, slightly_right, right, unknown, direction_size
-    } Direction;
-    string DirectionStrings[direction_size] = { "left", "slightly left", "center", "slightly right", "right", "unknown" };
+    typedef enum { left, slightly_left, center, slightly_right, right, unknown, direction_size }Direction;
+    string *DirectionStrings;
     Direction getDirection(Rect detection, int imageWidth);
 
 public:
@@ -96,5 +94,4 @@ public:
 	void evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Path labelPolygon, string imgName, bool showResult, bool saveResult);
 	void loadSVM(string path);
 	void saveSVM(string path);
-    void printany();
 };

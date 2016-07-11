@@ -28,7 +28,14 @@ Classifier::Classifier(float overlapLabels, float predictionThresh, float overla
 	// initialize random seed   
 	unsigned int t = time(NULL);
 	srand (t);
-	cout << "srand: " << t << endl;
+
+    // initialize direction strings
+    DirectionStrings = new string[direction_size];
+    DirectionStrings[left] = "left";
+    DirectionStrings[slightly_left] = "slightly left";
+    DirectionStrings[center] = "straight";
+    DirectionStrings[slightly_right] = "slightly right";
+    DirectionStrings[right] = "right";
 
     featureGenerator = feature;
 }
@@ -779,9 +786,10 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 			}
 			rectangle(img_show, boundRect.tl(), boundRect.br(), cv::Scalar( 0, 0, 255 ), 2, 8, 0 );
 
-            // get direction
-            Direction direction = getDirection(boundRect, img.cols);
-            cout << DirectionStrings[direction] << endl;
+            // draw Direction
+            ostringstream oss;
+            oss << "Direction: " << DirectionStrings[getDirection(boundRect, img.cols)];
+            putText(img_show, oss.str(), cv::Point(10, 120), cv::FONT_HERSHEY_DUPLEX, 1.3, cv::Scalar( 0, 0, 255 ), 2, CV_AA);
 
 			//draw center point of bounding rect (detected)			
 			circle( img_show, rect_center, 10, Scalar( 0, 0, 255 ), -1, 8);  
@@ -1035,11 +1043,6 @@ void Classifier::showTaggedOverlapImage(const cv::Mat& img, ClipperLib::Path lab
 	//show image with shapes
 	cv::imshow("Overlap Image", img_show);
 	cv::waitKey(0);
-}
-
-void Classifier::printany()
-{
-    cout << "PredictionThreshold: " << predictionThreshold << endl;
 }
 
 
