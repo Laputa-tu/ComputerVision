@@ -7,16 +7,16 @@ void loadLBPConfiguration()
 {
     // training parameters
     originalImageHeight = 1080;
-    scale_n_times = 3;
+    scale_n_times = 0;
     scaling_factor = 0.8;
-    initial_scale = 0.225;
+    initial_scale = 0.15;
     doHardNegativeMining = false;
     doJitter = false;
 
-    windows_n_rows = 96;
-    windows_n_cols = 192;
-    step_slide_row = windows_n_rows / 4;
-    step_slide_col = windows_n_cols / 4;
+    windows_n_rows = 64;
+    windows_n_cols = 128;
+    step_slide_row = windows_n_rows / 2;
+    step_slide_col = windows_n_cols / 2;
 
     // classification
     overlapThreshold = 0.5;
