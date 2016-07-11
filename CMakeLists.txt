@@ -10,6 +10,6 @@ lib_vlfeat/vl/generic.c
 lib_vlfeat/vl/lbp.c)
 
 add_executable( Main Main.h  Main.cpp Classifier/classifier.h Classifier/classifier.cc Classifier/clipper.hpp Classifier/clipper.cpp Data/ImageObj.h Data/ImageObj.cpp Data/JSONImage.h Data/JSONImage.cpp Helper/FileManager.h Helper/FileManager.cpp LBP/lbpfeature.cpp LBP/lbp.hpp LBP/lbp.cpp LBP/histogram.cpp LBP/histogram.hpp)
-target_link_libraries( Main ${OpenCV_LIBS} vlfeat_slic)
+target_link_libraries( Main ${OpenCV_LIBS} vlfeat_slic -lpthread)
 
 

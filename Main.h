@@ -2,6 +2,10 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
+#include <iostream>
+#include <cstdlib>
+#include <pthread.h>
+
 #include <time.h>
 #include <stdlib.h>     /* abs */
 #include <math.h>       /* pow */
@@ -47,6 +51,14 @@ static string getTimeString();
 static string TimeString;
 static int imageCounter;
 
+int train(Classifier &model, bool loadSVMFromFile, string svm_loadpath, string svm_savepath, vector<JSONImage> trainingSet);
+int validate(Classifier &model, vector<JSONImage> validationSet);
+int runMultiThreadClassification(Classifier &model, vector<JSONImage> testSet, vector<string> testVideos);
+int classify(Classifier &model, vector<JSONImage> testSet, vector<string> testVideos);
+int classify(Classifier &model, vector<JSONImage> testSet);
+int classify(Classifier &model, vector<string> testVideos);
+void *runThread(void* threadid);
+void printScaleSteps();
 
 
 // training parameters

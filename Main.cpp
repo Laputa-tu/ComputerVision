@@ -1,6 +1,6 @@
 #include "./Main.h"
 
-#include <math.h>
+#define NUM_THREADS 5
 
 
 void loadLBPConfiguration()
@@ -20,7 +20,7 @@ void loadLBPConfiguration()
 
     // classification
     overlapThreshold = 0.5;
-    predictionThreshold = 1.0;
+    predictionThreshold = 0.9;
     overlapThreshold2 = 0.06;
 }
 
@@ -47,12 +47,11 @@ void loadHOGConfiguration()
     overlapThreshold2 = 0.06;	// overlap of the merged-slidingWindow-contour and the labelPolygon
 }
 
-
 int main(int argc, char* argv[])
 {
-    bool loadSVMFromFile = false;
+    bool loadSVMFromFile = true;
     //string svm_loadpath = "./SVM_Savings/svm_nice_5_08_015_width128_jitter3_anglestep8.xml"; //_hardnegative
-    string svm_loadpath = "./SVM_Savings/svm_2016_7_6__12_11_37.xml"; // lbp
+    string svm_loadpath = "./SVM_Savings/svm_2016_7_11__8_0_11.xml"; // lbp
     string svm_savepath = "./SVM_Savings/svm_" + getTimeString() + ".xml";
 
     char* trainingPath = argv[1];
@@ -83,20 +82,37 @@ int main(int argc, char* argv[])
     testSet = getTestSet(testPath);
     testVideos = getTestVideos(testPath);
 
-    // print calculated scale steps
-    cout << "\nOriginal Image Height: " << originalImageHeight  << endl;
-    cout << "\nScale Steps: " << scale_n_times << endl;    
-    for (int i = 0; i <= scale_n_times; i++)
-    {
-        cout << "\tScale Step " << i << " -> Image-Height: " << (originalImageHeight * initial_scale * pow(scaling_factor, i)) << ((i==0) ? " (Initial Scale)" : "") << endl;
-    }
-    cout << "\nSliding Window Size: " << windows_n_cols << " x " << windows_n_rows << endl;
-
-    // Calculate average bounding box of label-polygons to get the best sliding window size
-    cout << "\nCalculating best sliding window size..." << endl;
+    printScaleSteps();
     calculateBestSlidingWindow(trainingSet, false, initial_scale, windows_n_rows, windows_n_cols);
 
+    //train
+    int trainingResult = train(model, loadSVMFromFile, svm_loadpath, svm_savepath, trainingSet);
+    if(trainingResult != 0)
+    {
+        return trainingResult;
+    }
 
+    // validate
+    int validationResult = validate(model, validationSet);
+    if(validationResult != 0)
+    {
+        return validationResult;
+    }
+
+    //classify
+    int classificationResult = classify(model, testSet, testVideos);
+    if(classificationResult != 0)
+    {
+        return classificationResult;
+    }
+
+    model.printEvaluation(true);
+    model.showROC(true);
+    return 0;
+}
+
+int train(Classifier &model, bool loadSVMFromFile, string svm_loadpath, string svm_savepath, vector<JSONImage> trainingSet)
+{
     cout << "\nStarting training..." << endl;
     model.startTraining(TimeString);
 
@@ -134,27 +150,41 @@ int main(int argc, char* argv[])
         model.saveSVM(svm_savepath);
     }
 
-    // validate
+    return 0;
+}
+
+int validate(Classifier &model, vector<JSONImage> validationSet)
+{
     cout << "Running Validation..." << endl;
-    int res_val = doSlidingOperation(model, validationSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
+    int validationResult = doSlidingOperation(model, validationSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
                                        windows_n_cols, step_slide_row, step_slide_col, OPERATE_VALIDATE, originalImageHeight);
-
-    if(res_val != 0)
+    if(validationResult != 0)
     {
-        cerr << "Error occured during validation, errorcode: " << res_val;
-        return res_val;
+        cerr << "Error occured during validation, errorcode: " << validationResult;
+        return validationResult;
     }
+    else
+    {
+        return 0;
+    }
+}
 
-    // classify
+int classify(Classifier &model, vector<JSONImage> testSet)
+{
     cout << "Running Classification..." << endl;
     int res_test = doSlidingOperation(model, testSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
                                        windows_n_cols, step_slide_row, step_slide_col, OPERATE_CLASSIFY, originalImageHeight);
     if(res_test != 0)
     {
-        cerr << "Error occured during validation, errorcode: " << res_val;
+        cerr << "Error occured during validation, errorcode: " << res_test;
         return res_test;
     }
 
+    return 0;
+}
+
+int classify(Classifier &model, vector<string> testVideos)
+{
     // run classification on videos
     for(int it=0; it<testVideos.size(); it++)
     {
@@ -165,7 +195,7 @@ int main(int argc, char* argv[])
             return IMG_INVAL;
         }
 
-        cap.set(CV_CAP_PROP_POS_MSEC, 20000); //start the video at 300ms
+        cap.set(CV_CAP_PROP_POS_MSEC, 1); //start the video at 300ms
         double fps = cap.get(CV_CAP_PROP_FPS); //get the frames per seconds of the video
         cout << "Frame per seconds : " << fps << endl;
         namedWindow("MyVideo",CV_WINDOW_AUTOSIZE); //create a window called "MyVideo"
@@ -181,28 +211,51 @@ int main(int argc, char* argv[])
                break;
             }
 
-            if(frameCount++ % 30 != 0)
-            {
-                //imshow("MyVideo", frame); //show the frame in "MyVideo" window
-                ClipperLib::Path emptyPolygon;
-                int res_test = doSlidingImageOperation(model, frame, emptyPolygon, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
-                                                   windows_n_cols, step_slide_row, step_slide_col, OPERATE_CLASSIFY, originalImageHeight);
+            //imshow("MyVideo", frame); //show the frame in "MyVideo" window
+            ClipperLib::Path emptyPolygon;
+            int res_test = doSlidingImageOperation(model, frame, emptyPolygon, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
+                                               windows_n_cols, step_slide_row, step_slide_col, OPERATE_CLASSIFY, originalImageHeight);
 
-                if(waitKey(30) == 27) //wait for 'esc' key press for 30 ms. If 'esc' key is pressed, break loop
-                {
-                    cout << "esc key is pressed by user" << endl;
-                    break;
-                }
+            if(waitKey(30) == 27) //wait for 'esc' key press for 30 ms. If 'esc' key is pressed, break loop
+            {
+                cout << "esc key is pressed by user" << endl;
+                break;
             }
+
         }
     }
 
-
-    model.printEvaluation(true);
-    model.showROC(true);
-
-    waitKey(0);
     return 0;
+}
+
+int classify(Classifier &model, vector<JSONImage> testSet, vector<string> testVideos)
+{
+    int res_pic, res_vid;
+    /*res_pic = classify(model, testSet);
+    if(res_pic != 0)
+    {
+        return res_pic;
+    }*/
+
+    res_vid = classify(model, testVideos);
+    if(res_vid != 0)
+    {
+        return res_vid;
+    }
+
+    return 0;
+}
+
+void printScaleSteps()
+{
+    // print calculated scale steps
+    cout << "\nOriginal Image Height: " << originalImageHeight  << endl;
+    cout << "\nScale Steps: " << scale_n_times << endl;
+    for (int i = 0; i <= scale_n_times; i++)
+    {
+        cout << "\tScale Step " << i << " -> Image-Height: " << (originalImageHeight * initial_scale * pow(scaling_factor, i)) << ((i==0) ? " (Initial Scale)" : "") << endl;
+    }
+    cout << "\nSliding Window Size: " << windows_n_cols << " x " << windows_n_rows << endl;
 }
 
 int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale_n, float scale_factor,
@@ -365,7 +418,7 @@ int doSlidingImageOperation(Classifier &model, Mat frame, ClipperLib::Path label
             break;
         case OPERATE_CLASSIFY:
             result_tag = "c_";
-            model.evaluateMergedSlidingWindows(image, labelPolygon, result_tag + oss.str(), showResult, saveResult);
+            model.evaluateMergedSlidingWindows(image, labelPolygon, result_tag + oss.str(), true, saveResult);
             break;
         case OPERATE_VALIDATE:
             result_tag = "v_";
@@ -447,6 +500,7 @@ int calculateBestSlidingWindow(vector<JSONImage> &imageSet, bool showResult, flo
     Rect boundRect;
     float slidingWindowArea = w_rows * w_cols;
 
+    cout << "\nCalculating best sliding window size..." << endl;
     for(int i = 0; i < imageSet.size(); i++)
     {
         // check size of LabelPolygon area

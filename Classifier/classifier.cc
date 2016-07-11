@@ -567,7 +567,7 @@ void Classifier::showROC(bool saveROC)
 	}
 
 	// show ROC graphics
-	cv::imshow("ROC", roc);
+    //cv::imshow("ROC", roc);
 
 
 	if(saveROC)
@@ -752,7 +752,7 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 		cv::minMaxLoc(singleContourHeatmap, NULL, &heatmap_max, NULL, &max_loc);
 
 		int rectCount =  (int)rectCountMap.at<uchar>(max_loc);
-		cout << "max_loc: " << max_loc << ", rectCount: " << rectCount << endl;
+        //cout << "max_loc: " << max_loc << ", rectCount: " << rectCount << endl;
 
 		cv::GaussianBlur(singleContourHeatmap, singleContourHeatmap_blurred, cv::Size(171, 171), 0, 0);
 		threshold(singleContourHeatmap_blurred, mask_thresh, heatmap_threshold * rectCount, 255, cv::THRESH_BINARY);
@@ -905,8 +905,7 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 	
 	if(showResult)
 	{
-		cv::imshow("Tagged Image: " + imgName, img_show);		
-        cv::waitKey(27);
+        imshow("MyVideo", img_show);
 	}
 	if(saveResult)
 	{	
@@ -987,6 +986,11 @@ void Classifier::showTaggedOverlapImage(const cv::Mat& img, ClipperLib::Path lab
 	//show image with shapes
 	cv::imshow("Overlap Image", img_show);
 	cv::waitKey(0);
+}
+
+void Classifier::printany()
+{
+    cout << "PredictionThreshold: " << predictionThreshold << endl;
 }
 
 

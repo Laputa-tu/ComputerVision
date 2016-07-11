@@ -89,4 +89,5 @@ public:
 	void evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Path labelPolygon, string imgName, bool showResult, bool saveResult);
 	void loadSVM(string path);
 	void saveSVM(string path);
+    void printany();
 };
