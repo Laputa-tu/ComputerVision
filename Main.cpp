@@ -59,6 +59,7 @@ int main(int argc, char* argv[])
     char* testPath = argv[3];
     vector<JSONImage> trainingSet, validationSet, testSet;
     vector<string> testVideos;
+    string videoPath = "./ClassificationResults/Videos/";
     cnt_TrainingImages = 0;
     cnt_DiscardedTrainingImages = 0;
     imageCounter = 0;
@@ -100,10 +101,16 @@ int main(int argc, char* argv[])
     }
 
     //classify
-    int classificationResult = classify(model, testSet, testVideos);
+    int classificationResult = classify(model, testSet, testVideos, videoPath);
     if(classificationResult != 0)
     {
         return classificationResult;
+    }
+
+    // finish
+    if(testVideos.size() > 0)
+    {
+        createVideo(videoPath+getTimeString());
     }
 
     model.printEvaluation(true);
@@ -169,11 +176,11 @@ int validate(Classifier &model, vector<JSONImage> validationSet)
     }
 }
 
-int classify(Classifier &model, vector<JSONImage> testSet)
+int classify(Classifier &model, vector<JSONImage> testSet, string dir)
 {
     cout << "Running Classification..." << endl;
     int res_test = doSlidingOperation(model, testSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
-                                       windows_n_cols, step_slide_row, step_slide_col, OPERATE_CLASSIFY, originalImageHeight);
+                                       windows_n_cols, step_slide_row, step_slide_col, OPERATE_CLASSIFY, originalImageHeight, dir);
     if(res_test != 0)
     {
         cerr << "Error occured during validation, errorcode: " << res_test;
@@ -183,7 +190,7 @@ int classify(Classifier &model, vector<JSONImage> testSet)
     return 0;
 }
 
-int classify(Classifier &model, vector<string> testVideos)
+int classify(Classifier &model, vector<string> testVideos, string dir)
 {
     // run classification on videos
     for(int it=0; it<testVideos.size(); it++)
@@ -196,9 +203,14 @@ int classify(Classifier &model, vector<string> testVideos)
         }
 
         cap.set(CV_CAP_PROP_POS_MSEC, 1); //start the video at 300ms
-        double fps = cap.get(CV_CAP_PROP_FPS); //get the frames per seconds of the video
-        cout << "Frame per seconds : " << fps << endl;
-        namedWindow("MyVideo",CV_WINDOW_AUTOSIZE); //create a window called "MyVideo"
+
+        //save video codec, size and fps for output
+        ex_video_output = static_cast<int>(cap.get(CV_CAP_PROP_FOURCC));        // Get Codec Type- Int form
+        fps_video_output = cap.get(CV_CAP_PROP_FPS); //get the frames per seconds of the video
+        s_video_output = Size((int) cap.get(CV_CAP_PROP_FRAME_WIDTH),    // Acquire input size
+                        (int) cap.get(CV_CAP_PROP_FRAME_HEIGHT));
+
+        cout << "Frame per seconds : " << fps_video_output << endl;
         int frameCount = 0;
 
         while(1)
@@ -211,16 +223,20 @@ int classify(Classifier &model, vector<string> testVideos)
                break;
             }
 
-            //imshow("MyVideo", frame); //show the frame in "MyVideo" window
             ClipperLib::Path emptyPolygon;
-            int res_test = doSlidingImageOperation(model, frame, emptyPolygon, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
-                                               windows_n_cols, step_slide_row, step_slide_col, OPERATE_CLASSIFY, originalImageHeight);
 
+            if((frameCount++ % 1) == 0)
+            {
+                int res_test = doSlidingImageOperation(model, frame, emptyPolygon, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
+                                                   windows_n_cols, step_slide_row, step_slide_col, OPERATE_CLASSIFY, originalImageHeight, dir);
+            }
+
+            /*
             if(waitKey(30) == 27) //wait for 'esc' key press for 30 ms. If 'esc' key is pressed, break loop
             {
                 cout << "esc key is pressed by user" << endl;
                 break;
-            }
+            }*/
 
         }
     }
@@ -228,16 +244,17 @@ int classify(Classifier &model, vector<string> testVideos)
     return 0;
 }
 
-int classify(Classifier &model, vector<JSONImage> testSet, vector<string> testVideos)
+int classify(Classifier &model, vector<JSONImage> testSet, vector<string> testVideos, string dir)
 {
-    int res_pic, res_vid;
+
+    int res_pic, res_vid;/*
     res_pic = classify(model, testSet);
     if(res_pic != 0)
     {
         return res_pic;
-    }
+    }*/
 
-    res_vid = classify(model, testVideos);
+    res_vid = classify(model, testVideos, dir);
     if(res_vid != 0)
     {
         return res_vid;
@@ -258,8 +275,8 @@ void printScaleSteps()
     cout << "\nSliding Window Size: " << windows_n_cols << " x " << windows_n_rows << endl;
 }
 
-int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale_n, float scale_factor,
-                       float initial_scale, int w_rows, int w_cols, int step_rows, int step_cols, const int operation, int originalImageHeight)
+int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale_n, float scale_factor, float initial_scale, int w_rows, int w_cols,
+                       int step_rows, int step_cols, const int operation, int originalImageHeight, string dir)
 {
     Mat image;
     int res;
@@ -289,8 +306,8 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
 }
 
 
-int doSlidingImageOperation(Classifier &model, Mat frame, ClipperLib::Path labelPolygon, int scale_n, float scale_factor,
-                       float initial_scale, int w_rows, int w_cols, int step_rows, int step_cols, const int operation, int originalImageHeight)
+int doSlidingImageOperation(Classifier &model, Mat frame, ClipperLib::Path labelPolygon, int scale_n, float scale_factor, float initial_scale, int w_rows,
+                            int w_cols, int step_rows, int step_cols, const int operation, int originalImageHeight, string dir)
 {
     Mat image, rescaled, rescaled_gray;
     string result_tag;
@@ -407,8 +424,9 @@ int doSlidingImageOperation(Classifier &model, Mat frame, ClipperLib::Path label
         }
     }
 
+    // add leading zeros for asc. order
     ostringstream oss;
-    oss << ++imageCounter << ".jpg";
+    oss << setw(5) << setfill('0') << ++imageCounter << ".jpg";
 
     switch(operation)
     {
@@ -418,7 +436,7 @@ int doSlidingImageOperation(Classifier &model, Mat frame, ClipperLib::Path label
             break;
         case OPERATE_CLASSIFY:
             result_tag = "c_";
-            model.evaluateMergedSlidingWindows(image, labelPolygon, result_tag + oss.str(), true, saveResult);
+            model.evaluateMergedSlidingWindows(image, labelPolygon, result_tag + oss.str(), showResult, saveResult, dir);
             break;
         case OPERATE_VALIDATE:
             result_tag = "v_";
@@ -463,7 +481,7 @@ vector<JSONImage> getValidationSet(char *validationPath)
 vector<JSONImage> getTestSet(char *testPath)
 {
     // get test images
-    vector<JSONImage> testSet = FileManager::GetImages(testPath);
+    vector<JSONImage> testSet = FileManager::GetImages(testPath, IMAGE_JPG);
     if(testSet.empty())
     {
         cerr << "No test images found." << endl;
@@ -557,5 +575,48 @@ string getTimeString()
     }
 
     return TimeString;
+}
+
+void createVideo(string dir)
+{
+    Mat image;
+    JSONImage jsonImage;
+
+    char * path = const_cast<char*> ( dir.c_str() );
+    vector<string> images = FileManager::GetImageFilesFromDirectory(path);
+
+    // write video
+    VideoWriter outputVideo;
+    string name = dir+getTimeString()+".avi";
+    outputVideo.open(name.c_str(),CV_FOURCC('M', 'P', '4', '2') , fps_video_output, s_video_output, true);
+
+    // Transform from int to char via Bitwise operators
+    char EXT[] = {(char)(ex_video_output & 0XFF) , (char)((ex_video_output & 0XFF00) >> 8),
+                  (char)((ex_video_output & 0XFF0000) >> 16),(char)((ex_video_output & 0XFF000000) >> 24), 0};
+
+    cout << "Output frame resolution: Width=" << s_video_output.width << "  Height=" << s_video_output.height << endl;
+    cout << "Output codec type: " << EXT << endl;
+
+    if (!outputVideo.isOpened())
+    {
+        cerr  << "Could not open the output video for write: " << name.c_str() << endl;
+        return;
+    }
+
+    std::sort(images.begin(), images.end());
+    for(vector<string>::iterator it = images.begin(); it != images.end(); ++it)
+    {
+        // get directory
+        string file_path = *it;
+        size_t found = file_path.find_last_of("/\\");
+        string file_name = file_path.substr(found+1);
+
+        cout << "Processing frame " << file_name << endl;
+        image = imread(file_path, CV_LOAD_IMAGE_COLOR);
+        outputVideo.write(image);
+        image.release();
+    }
+
+    outputVideo.release();
 }
 

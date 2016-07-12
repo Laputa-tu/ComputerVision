@@ -36,11 +36,11 @@ vector<JSONImage> getValidationSet(char *validationPath);
 vector<JSONImage> getTestSet(char *testPath);
 vector<string> getTestVideos(char *testPath);
 
-int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale_n, float scale_factor,
-                       float initial_scale, int w_rows, int w_cols, int step_rows, int step_cols, const int operation, int originalImageHeight);
+int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale_n, float scale_factor, float initial_scale, int w_rows,
+                       int w_cols, int step_rows, int step_cols, const int operation, int originalImageHeight, string dir = "./ClassificationResults/");
 
-int doSlidingImageOperation(Classifier &model, Mat frame, ClipperLib::Path labelPolygon, int scale_n, float scale_factor,
-                       float initial_scale, int w_rows, int w_cols, int step_rows, int step_cols, const int operation, int originalImageHeight);
+int doSlidingImageOperation(Classifier &model, Mat frame, ClipperLib::Path labelPolygon, int scale_n, float scale_factor, float initial_scale, int w_rows,
+                            int w_cols, int step_rows, int step_cols, const int operation, int originalImageHeight, string dir = "./ClassificationResults/");
 
 int calculateBestSlidingWindow(vector<JSONImage> &imageSet, bool showResult, float initial_scale, int w_rows, int w_cols);
 
@@ -53,11 +53,11 @@ static int imageCounter;
 
 int train(Classifier &model, bool loadSVMFromFile, string svm_loadpath, string svm_savepath, vector<JSONImage> trainingSet);
 int validate(Classifier &model, vector<JSONImage> validationSet);
-int classify(Classifier &model, vector<JSONImage> testSet, vector<string> testVideos);
-int classify(Classifier &model, vector<JSONImage> testSet);
-int classify(Classifier &model, vector<string> testVideos);
-void *runThread(void* threadid);
+int classify(Classifier &model, vector<JSONImage> testSet, vector<string> testVideos, string dir = "./ClassificationResults/");
+int classify(Classifier &model, vector<JSONImage> testSet, string dir = "./ClassificationResults/");
+int classify(Classifier &model, vector<string> testVideos, string dir = "./ClassificationResults/");
 void printScaleSteps();
+void createVideo(string dir);
 
 
 // training parameters
@@ -78,5 +78,10 @@ int step_slide_col;
 float overlapThreshold;
 float predictionThreshold;
 float overlapThreshold2;
+
+//video output
+int ex_video_output;
+Size s_video_output;
+double fps_video_output;
 
 

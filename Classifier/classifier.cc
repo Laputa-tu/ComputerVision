@@ -395,10 +395,10 @@ void Classifier::printEvaluation(bool saveResult)
 
 	if(saveResult)
 	{	
-		string dir;
-		dir = "./ClassificationResults/";
+        string dir;
+        dir = "./ClassificationResults/";
 		mkdir(dir.c_str(), 0777);
-		dir = ("./ClassificationResults/" + startTime.str()).c_str();
+        dir = (dir + startTime.str()).c_str();
 		mkdir(dir.c_str(), 0777);
 
 		std::ofstream outClassificationResult( (dir + "/" + "result_classify_" + startTime.str() + ".csv").c_str() );
@@ -643,8 +643,6 @@ float Classifier::calculateLabel(const cv::Mat& img, ClipperLib::Path labelPolyg
 	return overlapPercentage;	
 }
 
-
-
 // generate Image with markers for ALL Sliding Windows that are labeled/classified  
 void Classifier::generateTaggedResultImage(const cv::Mat& img, string imgName, bool showResult, bool saveResult)
 {
@@ -655,9 +653,9 @@ void Classifier::generateTaggedResultImage(const cv::Mat& img, string imgName, b
 	cv::Mat segmented;
 
 	//draw sliding predicted sliding windows
-	for(int i = 0; i < predictedSlidingWindows.size(); i++){
+    for(int i = 0; i < predictedSlidingWindows.size(); i++)
+    {
 		rectangle( img_show, predictedSlidingWindows[i], cv::Scalar( 0, 255, 0 ), 2, CV_AA, 0 );
-
 		mask(predictedSlidingWindows[i]) += 10;
 		threshold(mask, segmented, 30, 255, cv::THRESH_BINARY);		
 	}
@@ -668,13 +666,12 @@ void Classifier::generateTaggedResultImage(const cv::Mat& img, string imgName, b
 	}
 	if(saveResult)
 	{	
-		string dir;
-		dir = "./ClassificationResults/";
-		mkdir(dir.c_str(), 0777);
-		dir = ("./ClassificationResults/" + startTime.str()).c_str();
-		mkdir(dir.c_str(), 0777);
-		cv::imwrite( dir + "/" + imgName, img_show );
-		cv::imwrite( dir + "/mask_" + imgName, mask );
+        string dir = "./ClassificationResults/";
+        mkdir(dir.c_str(), 0777);
+        dir = ("./ClassificationResults/" + startTime.str()).c_str();
+        mkdir(dir.c_str(), 0777);
+        cv::imwrite( dir + "/" + imgName, img_show );
+        cv::imwrite( dir + "/mask_" + imgName, mask );
 	}
 
 	// reset sliding window array for next image
@@ -684,7 +681,7 @@ void Classifier::generateTaggedResultImage(const cv::Mat& img, string imgName, b
 
 
 
-void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Path labelPolygon, string imgName, bool showResult, bool saveResult)
+void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Path labelPolygon, string imgName, bool showResult, bool saveResult, string dir)
 {
     double heatmap_threshold = 1.1;
 	double area_clippedContourPolygon, area_contourPolygon, area_labelPolygon, TP, FP, overlap, heatmap_max;
@@ -922,15 +919,13 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 	}
 	if(saveResult)
 	{	
-		string dir;
-		dir = "./ClassificationResults/";
-		mkdir(dir.c_str(), 0777);
-		dir = ("./ClassificationResults/" + startTime.str()).c_str();
-		mkdir(dir.c_str(), 0777);
+        mkdir(dir.c_str(), 0777);
+        dir = (dir.c_str() + startTime.str()).c_str();
+        mkdir(dir.c_str(), 0777);
 		//cv::imwrite( dir + "/" + imgName.insert(imgName.length()-4, "_0_heatmap"), heatmap );
 		//cv::imwrite( dir + "/" + imgName.insert(imgName.length()-4, "_1_heatmap_blurred"), heatmap_blurred );
 		//cv::imwrite( dir + "/" + imgName.insert(imgName.length()-4, "_2_mask"), mask );
-		cv::imwrite( dir + "/" + imgName.insert(imgName.length()-4, "_3_result"), img_show );		
+        cv::imwrite( dir + "/" + imgName.insert(imgName.length()-4, "_3_result"), img_show );
 	}
 
 	

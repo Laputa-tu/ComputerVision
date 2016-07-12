@@ -62,7 +62,7 @@ void FileManager::GetFilesInDirectory(char *path, const char *name, int depth, v
     closedir(dirp);
 }
 
-vector<JSONImage> FileManager::GetImages(char* path)
+vector<JSONImage> FileManager::GetImages(char* path, const char *image_type)
 {
     vector<string> files[MAX_NUMBER_FILES];
     vector<JSONImage> imageList;
@@ -78,7 +78,7 @@ vector<JSONImage> FileManager::GetImages(char* path)
 
         // search & get files
         //cout << "Searching in \"" << path << "\"" << endl;
-        FileManager::GetFilesInDirectory(path, IMAGE_TYPE, files);
+        FileManager::GetFilesInDirectory(path, image_type, files);
 
         /*cout << "\nFound the following JPG Files:" << endl;
         for(vector<string>::iterator it = files->begin(); it != files->end(); ++it)
@@ -212,6 +212,34 @@ void FileManager::ShuffleImages(vector<JSONImage> &images)
     }
 
     cout << endl;
+}
+
+vector<string> FileManager::GetImageFilesFromDirectory(char* path)
+{
+    vector<string> files[MAX_NUMBER_FILES];
+    vector<string> imageFiles;
+
+    if(path != NULL)
+    {
+        // search for directory
+        if(!FileManager::IsValidDirectory(path))
+        {
+            cerr << "Error: \"" << path <<"\" is not a valid directory, error code " << DIR_INVAL << endl;
+        }
+
+        // search & get files
+        //cout << "Searching in \"" << path << "\"" << endl;
+        FileManager::GetFilesInDirectory(path, IMAGE_jpg, files);
+
+        //cout << "\nFound the following MP4 Files:" << endl;
+        for(vector<string>::iterator it = files->begin(); it != files->end(); ++it)
+        {
+            //cout << "\tFile: " << *it << endl;
+            imageFiles.push_back(*it);
+        }
+    }
+
+    return imageFiles;
 }
 
 vector<string> FileManager::GetVideosFromDirectory(char* path)

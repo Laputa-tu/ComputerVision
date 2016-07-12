@@ -24,7 +24,8 @@
 //definitions
 #define SLOTH_ZEBRA "zebra.json"
 #define SLOTH_SIGN "sign.json"
-#define IMAGE_TYPE ".JPG"
+#define IMAGE_JPG ".JPG"
+#define IMAGE_jpg ".jpg"
 #define VIDEO_TYPE ".MP4"
 #define MAX_NUMBER_FILES 100000
 
@@ -42,13 +43,14 @@ class FileManager
         static void GetFilesInDirectory(char *, const char*, int, vector<string> *);
         static void GetFilesInDirectory(char *, const char*, vector<string> *);
         static vector<JSONImage> GetJSONImages(char* path);
-	static vector<JSONImage> GetImages(char* path);
+        static vector<JSONImage> GetImages(char* path, const char* image_type);
         static bool IsValidDirectory(char *path);
-	static vector<string> GetVideosFromDirectory(char* path);
+        static vector<string> GetVideosFromDirectory(char* path);
+        static vector<string> GetImageFilesFromDirectory(char* path);
 
-	static void ShuffleImages(vector<JSONImage> &images);
-	void StartNCrossValid();
-	void StopNCrossValid();
-	int GetNFoldCrossValid(vector<JSONImage>& trainingSet, vector<JSONImage>& validationSet);
+        static void ShuffleImages(vector<JSONImage> &images);
+        void StartNCrossValid();
+        void StopNCrossValid();
+        int GetNFoldCrossValid(vector<JSONImage>& trainingSet, vector<JSONImage>& validationSet);
 };
 	

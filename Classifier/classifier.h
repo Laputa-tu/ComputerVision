@@ -91,7 +91,7 @@ public:
 	void printEvaluation(bool saveResult);
 	void showROC(bool saveROC);	
 	void generateTaggedResultImage(const cv::Mat& img, string imgName, bool showResult, bool saveResult);
-	void evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Path labelPolygon, string imgName, bool showResult, bool saveResult);
+    void evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Path labelPolygon, string imgName, bool showResult, bool saveResult, string dir = "./ClassificationResults/");
 	void loadSVM(string path);
 	void saveSVM(string path);
 };
