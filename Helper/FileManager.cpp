@@ -67,7 +67,8 @@ vector<JSONImage> FileManager::GetImages(char* path, const char *image_type)
     vector<string> files[MAX_NUMBER_FILES];
     vector<JSONImage> imageList;
 
-    if(path != NULL)
+    // check null
+    if ((path != NULL))
     {
         // search for directory
         if(!FileManager::IsValidDirectory(path))
@@ -109,84 +110,88 @@ vector<JSONImage> FileManager::GetJSONImages(char* path)
     vector<string> files[MAX_NUMBER_FILES];
     vector<JSONImage> imageList;
 
-    // search for directory
-    if(!FileManager::IsValidDirectory(path))
+    // check null
+    if ((path != NULL))
     {
-        cerr << "Error: \"" << path <<"\" is not a valid directory, error code " << DIR_INVAL << endl;
-        return imageList;
-    }
-
-    // search & get files
-    //cout << "Searching in \"" << path << "\"" << endl;
-    FileManager::GetFilesInDirectory(path, SLOTH_ZEBRA, files);
-
-    /*cout << "\nFound the following JSON files:" << endl;
-    for(vector<string>::iterator it = files->begin(); it != files->end(); ++it)
-    {
-        cout << "\tFile: " << *it << endl;
-    }*/
-
-    // collect images for each json file
-    for(vector<string>::iterator it = files->begin(); it != files->end(); ++it)
-    {
-        // get directory
-        string file_path = *it;
-        int index = file_path.find(SLOTH_ZEBRA);
-        string file_directory = file_path.substr(0, index);
-
-        try
+        // search for directory
+        if(!FileManager::IsValidDirectory(path))
         {
-            boost::property_tree::ptree pt;
-            boost::property_tree::read_json(*it, pt);
+            cerr << "Error: \"" << path <<"\" is not a valid directory, error code " << DIR_INVAL << endl;
+            return imageList;
+        }
 
-            BOOST_FOREACH(boost::property_tree::ptree::value_type& v, pt)
+        // search & get files
+        //cout << "Searching in \"" << path << "\"" << endl;
+        FileManager::GetFilesInDirectory(path, SLOTH_ZEBRA, files);
+
+        /*cout << "\nFound the following JSON files:" << endl;
+        for(vector<string>::iterator it = files->begin(); it != files->end(); ++it)
+        {
+            cout << "\tFile: " << *it << endl;
+        }*/
+
+        // collect images for each json file
+        for(vector<string>::iterator it = files->begin(); it != files->end(); ++it)
+        {
+            // get directory
+            string file_path = *it;
+            int index = file_path.find(SLOTH_ZEBRA);
+            string file_directory = file_path.substr(0, index);
+
+            try
             {
-                JSONImage currentImage;
-                BOOST_FOREACH(boost::property_tree::ptree::value_type& i, v.second)
+                boost::property_tree::ptree pt;
+                boost::property_tree::read_json(*it, pt);
+
+                BOOST_FOREACH(boost::property_tree::ptree::value_type& v, pt)
                 {
-                    if(i.first == "filename")
+                    JSONImage currentImage;
+                    BOOST_FOREACH(boost::property_tree::ptree::value_type& i, v.second)
                     {
-                        string name = i.second.get_value<string>();
-                        currentImage.setName(name);
-                        currentImage.setPath(file_directory + name);
-                    }
-
-                    if(i.first == "annotations")
-                    {
-                        BOOST_FOREACH(boost::property_tree::ptree::value_type& j, i.second)
+                        if(i.first == "filename")
                         {
-                            BOOST_FOREACH(boost::property_tree::ptree::value_type& h, j.second)
+                            string name = i.second.get_value<string>();
+                            currentImage.setName(name);
+                            currentImage.setPath(file_directory + name);
+                        }
+
+                        if(i.first == "annotations")
+                        {
+                            BOOST_FOREACH(boost::property_tree::ptree::value_type& j, i.second)
                             {
-
-                                if(h.first == "xn")
+                                BOOST_FOREACH(boost::property_tree::ptree::value_type& h, j.second)
                                 {
-                                    string xn = h.second.get_value<string>();
 
-                                    if(!xn.empty())
-                                        currentImage.setXn(xn);
-                                }
+                                    if(h.first == "xn")
+                                    {
+                                        string xn = h.second.get_value<string>();
 
-                                if(h.first == "yn")
-                                {
-                                    string yn = h.second.get_value<string>();
+                                        if(!xn.empty())
+                                            currentImage.setXn(xn);
+                                    }
 
-                                    if(!yn.empty())
-                                        currentImage.setYn(yn);
+                                    if(h.first == "yn")
+                                    {
+                                        string yn = h.second.get_value<string>();
+
+                                        if(!yn.empty())
+                                            currentImage.setYn(yn);
+                                    }
                                 }
                             }
                         }
                     }
-                }
 
-                if(currentImage.hasPolygon())
-                {
-                    imageList.push_back(currentImage);
+                    if(currentImage.hasPolygon())
+                    {
+                        imageList.push_back(currentImage);
+                    }
                 }
             }
-        }
-        catch (std::exception const& e)
-        {
-            std::cerr << e.what() << std::endl;
+            catch (std::exception const& e)
+            {
+                std::cerr << e.what() << std::endl;
+            }
         }
     }
 
@@ -195,7 +200,6 @@ vector<JSONImage> FileManager::GetJSONImages(char* path)
 
 void FileManager::ShuffleImages(vector<JSONImage> &images)
 {
-
     cout << "Shuffle images..." << endl;
     srand ( unsigned ( std::time(0) ) );
 
@@ -219,7 +223,8 @@ vector<string> FileManager::GetImageFilesFromDirectory(char* path)
     vector<string> files[MAX_NUMBER_FILES];
     vector<string> imageFiles;
 
-    if(path != NULL)
+    // check null
+    if ((path != NULL))
     {
         // search for directory
         if(!FileManager::IsValidDirectory(path))
@@ -247,7 +252,8 @@ vector<string> FileManager::GetVideosFromDirectory(char* path)
     vector<string> files[MAX_NUMBER_FILES];
     vector<string> videoFiles;
 
-    if(path != NULL)
+    // check null
+    if ((path != NULL))
     {
         // search for directory
         if(!FileManager::IsValidDirectory(path))
@@ -268,6 +274,68 @@ vector<string> FileManager::GetVideosFromDirectory(char* path)
     }
 
     return videoFiles;
+}
+
+int FileManager::RemoveDirectory(const char *path)
+{
+   DIR *d = opendir(path);
+   size_t path_len = strlen(path);
+   int r = -1;
+
+   if (d)
+   {
+      struct dirent *p;
+
+      r = 0;
+
+      while (!r && (p=readdir(d)))
+      {
+          int r2 = -1;
+          char *buf;
+          size_t len;
+
+          /* Skip the names "." and ".." as we don't want to recurse on them. */
+          if (!strcmp(p->d_name, ".") || !strcmp(p->d_name, ".."))
+          {
+             continue;
+          }
+
+          len = path_len + strlen(p->d_name) + 2;
+          buf = (char*)malloc(len);
+
+          if (buf)
+          {
+             struct stat statbuf;
+
+             snprintf(buf, len, "%s/%s", path, p->d_name);
+
+             if (!stat(buf, &statbuf))
+             {
+                if (S_ISDIR(statbuf.st_mode))
+                {
+                   r2 = FileManager::RemoveDirectory(buf);
+                }
+                else
+                {
+                   r2 = unlink(buf);
+                }
+             }
+
+             free(buf);
+          }
+
+          r = r2;
+      }
+
+      closedir(d);
+   }
+
+   if (!r)
+   {
+      r = rmdir(path);
+   }
+
+   return r;
 }
 
 void FileManager::StartNCrossValid(){}

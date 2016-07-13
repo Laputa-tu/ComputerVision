@@ -35,6 +35,7 @@ vector<JSONImage> getTrainingSet(char *trainingPath);
 vector<JSONImage> getValidationSet(char *validationPath);
 vector<JSONImage> getTestSet(char *testPath);
 vector<string> getTestVideos(char *testPath);
+vector<JSONImage> getNegativeSet(char *negativePath);
 
 int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale_n, float scale_factor, float initial_scale, int w_rows,
                        int w_cols, int step_rows, int step_cols, const int operation, int originalImageHeight, string dir = "./ClassificationResults/");

@@ -47,10 +47,12 @@ class FileManager
         static bool IsValidDirectory(char *path);
         static vector<string> GetVideosFromDirectory(char* path);
         static vector<string> GetImageFilesFromDirectory(char* path);
+        static int RemoveDirectory(const char *path);
 
         static void ShuffleImages(vector<JSONImage> &images);
         void StartNCrossValid();
         void StopNCrossValid();
         int GetNFoldCrossValid(vector<JSONImage>& trainingSet, vector<JSONImage>& validationSet);
+
 };
 	

@@ -50,19 +50,29 @@ void loadHOGConfiguration()
 int main(int argc, char* argv[])
 {
     bool loadSVMFromFile = true;
-    //string svm_loadpath = "./SVM_Savings/svm_nice_5_08_015_width128_jitter3_anglestep8.xml"; //_hardnegative
     string svm_loadpath = "./SVM_Savings/svm_2016_7_11__11_57_6.xml"; // lbp
     string svm_savepath = "./SVM_Savings/svm_" + getTimeString() + ".xml";
-
-    char* trainingPath = argv[1];
-    char* validationPath = argv[2];
-    char* testPath = argv[3];
-    vector<JSONImage> trainingSet, validationSet, testSet;
-    vector<string> testVideos;
     string videoPath = "./ClassificationResults/Videos/";
+
+    char* trainingPath = (argc >= 2) ? argv[1] : NULL;
+    char* validationPath = (argc >= 3) ? argv[2] : NULL;
+    char* testPath = (argc >= 4) ? argv[3] : NULL;
+    char* negativePath = (argc >= 5) ? argv[4] : NULL;
+
+    vector<JSONImage> trainingSet, validationSet, testSet, negativeSet;
+    vector<string> testVideos;
     cnt_TrainingImages = 0;
     cnt_DiscardedTrainingImages = 0;
     imageCounter = 0;
+
+    // check the number of parameters
+    if(argc < 2)
+    {
+        cerr << "Usage: " << argv[0] << " <DirTrainingImages zebra.json> "
+             <<"[<DirValidationImages zebra.json> <DirTestSet .JPG or .MP4>"
+            <<"DirNegativeSet .jpg>]" << endl;
+        return WRONG_ARG;
+    }
 
     //load lbp parameters
     loadLBPConfiguration();
@@ -70,18 +80,12 @@ int main(int argc, char* argv[])
     // create model
     Classifier model(overlapThreshold, predictionThreshold, overlapThreshold2, FEATURE_LBPH);
 
-    // check the number of parameters
-    if (argc < 2)
-    {
-        cerr << "Usage: " << argv[0] << " <DirTrainingImages zebra.json> [<DirValidationImages zebra.json> <DirTestSet JPG or MP4>]" << endl;
-        return WRONG_ARG;
-    }
-
     //get data
     trainingSet = getTrainingSet(trainingPath);
     validationSet = getValidationSet(validationPath);
     testSet = getTestSet(testPath);
     testVideos = getTestVideos(testPath);
+    negativeSet = getNegativeSet(negativePath);
 
     printScaleSteps();
     calculateBestSlidingWindow(trainingSet, false, initial_scale, windows_n_rows, windows_n_cols);
@@ -110,7 +114,9 @@ int main(int argc, char* argv[])
     // finish
     if(testVideos.size() > 0)
     {
-        createVideo(videoPath+getTimeString());
+        string path = videoPath+getTimeString();
+        createVideo(path);
+        FileManager::RemoveDirectory(path.c_str());
     }
 
     model.printEvaluation(true);
@@ -178,7 +184,6 @@ int validate(Classifier &model, vector<JSONImage> validationSet)
 
 int classify(Classifier &model, vector<JSONImage> testSet, string dir)
 {
-    cout << "Running Classification..." << endl;
     int res_test = doSlidingOperation(model, testSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
                                        windows_n_cols, step_slide_row, step_slide_col, OPERATE_CLASSIFY, originalImageHeight, dir);
     if(res_test != 0)
@@ -210,7 +215,7 @@ int classify(Classifier &model, vector<string> testVideos, string dir)
         s_video_output = Size((int) cap.get(CV_CAP_PROP_FRAME_WIDTH),    // Acquire input size
                         (int) cap.get(CV_CAP_PROP_FRAME_HEIGHT));
 
-        cout << "Frame per seconds : " << fps_video_output << endl;
+        //cout << "Frame per seconds : " << fps_video_output << endl;
         int frameCount = 0;
 
         while(1)
@@ -225,19 +230,11 @@ int classify(Classifier &model, vector<string> testVideos, string dir)
 
             ClipperLib::Path emptyPolygon;
 
-            if((frameCount++ % 1) == 0)
+            if((frameCount++ % 50) == 0)
             {
                 int res_test = doSlidingImageOperation(model, frame, emptyPolygon, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
                                                    windows_n_cols, step_slide_row, step_slide_col, OPERATE_CLASSIFY, originalImageHeight, dir);
             }
-
-            /*
-            if(waitKey(30) == 27) //wait for 'esc' key press for 30 ms. If 'esc' key is pressed, break loop
-            {
-                cout << "esc key is pressed by user" << endl;
-                break;
-            }*/
-
         }
     }
 
@@ -246,7 +243,7 @@ int classify(Classifier &model, vector<string> testVideos, string dir)
 
 int classify(Classifier &model, vector<JSONImage> testSet, vector<string> testVideos, string dir)
 {
-
+    cout << "Running Classification..." << endl;
     int res_pic, res_vid;/*
     res_pic = classify(model, testSet);
     if(res_pic != 0)
@@ -492,6 +489,20 @@ vector<JSONImage> getTestSet(char *testPath)
     }
     return testSet;
 }
+vector<JSONImage> getNegativeSet(char *negativePath)
+{
+    // get test images
+    vector<JSONImage> negativeSet = FileManager::GetImages(negativePath, IMAGE_jpg);
+    if(negativeSet.empty())
+    {
+        cerr << "No (additional) negative images found." << endl;
+    }
+    else
+    {
+        cout << "Found " << negativeSet.size() << " test images." << endl;
+    }
+    return negativeSet;
+}
 vector<string> getTestVideos(char *testPath)
 {
     // get test videos from dir
@@ -579,6 +590,7 @@ string getTimeString()
 
 void createVideo(string dir)
 {
+    cout << "Creating output video ..." << endl;
     Mat image;
     JSONImage jsonImage;
 
@@ -594,8 +606,8 @@ void createVideo(string dir)
     char EXT[] = {(char)(ex_video_output & 0XFF) , (char)((ex_video_output & 0XFF00) >> 8),
                   (char)((ex_video_output & 0XFF0000) >> 16),(char)((ex_video_output & 0XFF000000) >> 24), 0};
 
-    cout << "Output frame resolution: Width=" << s_video_output.width << "  Height=" << s_video_output.height << endl;
-    cout << "Output codec type: " << EXT << endl;
+    cout << "\tOutput frame resolution: Width=" << s_video_output.width << "  Height=" << s_video_output.height << endl;
+    cout << "\tOutput codec type: " << EXT << endl;
 
     if (!outputVideo.isOpened())
     {
@@ -603,15 +615,18 @@ void createVideo(string dir)
         return;
     }
 
+    string file_path;
+    size_t found;
+    string file_name;
+
     std::sort(images.begin(), images.end());
     for(vector<string>::iterator it = images.begin(); it != images.end(); ++it)
     {
         // get directory
-        string file_path = *it;
-        size_t found = file_path.find_last_of("/\\");
-        string file_name = file_path.substr(found+1);
+        file_path = *it;
+        found = file_path.find_last_of("/\\");
+        file_name = file_path.substr(found+1);
 
-        cout << "Processing frame " << file_name << endl;
         image = imread(file_path, CV_LOAD_IMAGE_COLOR);
         outputVideo.write(image);
         image.release();

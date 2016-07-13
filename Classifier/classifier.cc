@@ -512,9 +512,6 @@ void Classifier::shuffleTrainingData(cv::Mat1f  predictionsMatrix, cv::Mat1f lab
 
 void Classifier::showROC(bool saveROC)
 {
-	cout << endl << endl;
-	cout << "ROC:" << endl;
-
 	int rocSize = 500;
 	int TP, TN, FP, FN;
 	std::ofstream out;

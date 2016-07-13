@@ -24,15 +24,7 @@
          <Option type="1" />
          <Option compiler="gcc" />
          <Compiler>
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/4.8" />
-            <Add directory="/usr/include/c++/4.8/backward" />
             <Add directory="/usr/include/opencv" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/4.8" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/4.8/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/4.8/include-fixed" />
-            <Add directory="/usr/local/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 Main" />
@@ -48,15 +40,7 @@
          <Option type="1" />
          <Option compiler="gcc" />
          <Compiler>
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/4.8" />
-            <Add directory="/usr/include/c++/4.8/backward" />
             <Add directory="/usr/include/opencv" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/4.8" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/4.8/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/4.8/include-fixed" />
-            <Add directory="/usr/local/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 Main/fast" />
@@ -92,15 +76,7 @@
          <Option type="2" />
          <Option compiler="gcc" />
          <Compiler>
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/4.8" />
-            <Add directory="/usr/include/c++/4.8/backward" />
             <Add directory="/usr/include/opencv" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/4.8" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/4.8/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/4.8/include-fixed" />
-            <Add directory="/usr/local/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 vlfeat_slic" />
@@ -116,15 +92,7 @@
          <Option type="2" />
          <Option compiler="gcc" />
          <Compiler>
-            <Add directory="/usr/include" />
-            <Add directory="/usr/include/c++/4.8" />
-            <Add directory="/usr/include/c++/4.8/backward" />
             <Add directory="/usr/include/opencv" />
-            <Add directory="/usr/include/x86_64-linux-gnu" />
-            <Add directory="/usr/include/x86_64-linux-gnu/c++/4.8" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/4.8/include" />
-            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/4.8/include-fixed" />
-            <Add directory="/usr/local/include" />
          </Compiler>
          <MakeCommands>
             <Build command="/usr/bin/make -f &quot;/home/kevin/ComputerVision/Makefile&quot;  VERBOSE=1 vlfeat_slic/fast" />
