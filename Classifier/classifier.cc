@@ -215,7 +215,7 @@ void Classifier::train(const cv::Mat& img_gray, const cv::Mat& img_color, Clippe
 		else 
 		{
             //if( (1.0 * rand() / RAND_MAX) < 0.2) // is statistically every 5th time true -> reduce negative training samples
-            if(((negativeTrainingWindows+discardedTrainingWindows)%7) == 0 )
+            if(((negativeTrainingWindows+discardedTrainingWindows)%3) == 0 )
             {
 				labels.push_back(cv::Mat1f(1, 1, svmLabel));
 				descriptors.push_back(descriptor);  
@@ -228,6 +228,26 @@ void Classifier::train(const cv::Mat& img_gray, const cv::Mat& img_color, Clippe
 		}			
     }
     
+    img_crop_gray.release();
+    img_crop_color.release();
+}
+
+void Classifier::trainNegativeSample(const cv::Mat& img_gray, const cv::Mat& img_color, cv::Rect slidingWindow)
+{
+    //extract slidingWindow and convert to grayscale
+    cv::Mat img_crop_gray = img_gray(slidingWindow);
+    cv::Mat img_crop_color = img_color(slidingWindow);
+
+    //calculate Feature-Descriptor
+    cv::Mat1f descriptor = computeFeatureDescriptor(img_crop_gray, img_crop_color);
+
+    //calculate Label
+    float svmLabel = -1.0;
+
+    labels.push_back(cv::Mat1f(1, 1, svmLabel));
+    descriptors.push_back(descriptor);
+    negativeTrainingWindows++;
+
     img_crop_gray.release();
     img_crop_color.release();
 }

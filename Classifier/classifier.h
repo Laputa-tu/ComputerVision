@@ -83,6 +83,7 @@ public:
     ~Classifier();
     void startTraining(string StartTime);
     void train(const cv::Mat& img_gray, const cv::Mat& img_color, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor, bool doJittering, bool showImage);
+    void trainNegativeSample(const cv::Mat& img_gray, const cv::Mat& img_color, cv::Rect slidingWindow);
     void finishTraining();
     void hardNegativeMine(const cv::Mat& img_gray, const cv::Mat& img_color, ClipperLib::Path labelPolygon, cv::Rect slidingWindow, float imageScaleFactor);
 	void finishHardNegativeMining();

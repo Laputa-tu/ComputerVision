@@ -1,8 +1,5 @@
 #include "./Main.h"
 
-#define NUM_THREADS 5
-
-
 void loadLBPConfiguration()
 {
     // training parameters
@@ -49,7 +46,7 @@ void loadHOGConfiguration()
 
 int main(int argc, char* argv[])
 {
-    bool loadSVMFromFile = true;
+    bool loadSVMFromFile = false;
     string svm_loadpath = "./SVM_Savings/svm_2016_7_11__11_57_6.xml"; // lbp
     string svm_savepath = "./SVM_Savings/svm_" + getTimeString() + ".xml";
     string videoPath = "./ClassificationResults/Videos/";
@@ -69,8 +66,8 @@ int main(int argc, char* argv[])
     if(argc < 2)
     {
         cerr << "Usage: " << argv[0] << " <DirTrainingImages zebra.json> "
-             <<"[<DirValidationImages zebra.json> <DirTestSet .JPG or .MP4>"
-            <<"DirNegativeSet .jpg>]" << endl;
+             <<"[<DirValidationImages zebra.json> <DirTestSet .JPG or .MP4> "
+             <<"<DirNegativeSet .jpg>]" << endl;
         return WRONG_ARG;
     }
 
@@ -91,7 +88,7 @@ int main(int argc, char* argv[])
     calculateBestSlidingWindow(trainingSet, false, initial_scale, windows_n_rows, windows_n_cols);
 
     //train
-    int trainingResult = train(model, loadSVMFromFile, svm_loadpath, svm_savepath, trainingSet);
+    int trainingResult = train(model, loadSVMFromFile, svm_loadpath, svm_savepath, trainingSet, negativeSet);
     if(trainingResult != 0)
     {
         return trainingResult;
@@ -124,7 +121,7 @@ int main(int argc, char* argv[])
     return 0;
 }
 
-int train(Classifier &model, bool loadSVMFromFile, string svm_loadpath, string svm_savepath, vector<JSONImage> trainingSet)
+int train(Classifier &model, bool loadSVMFromFile, string svm_loadpath, string svm_savepath, vector<JSONImage> trainingSet, vector<JSONImage> negativeSet)
 {
     cout << "\nStarting training..." << endl;
     model.startTraining(TimeString);
@@ -143,13 +140,23 @@ int train(Classifier &model, bool loadSVMFromFile, string svm_loadpath, string s
             cerr << "Error occured during training, errorcode: " << res_train;
             return res_train;
         }
+
+        // train add. negative samples
+        int res_train_neg = doSlidingOperation(model, negativeSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
+                                               windows_n_cols, step_slide_row, step_slide_col, OPERATE_TRAIN_NEG, originalImageHeight);
+        if(res_train_neg != 0)
+        {
+            cerr << "Error occured during training, errorcode: " << res_train_neg;
+            return res_train_neg;
+        }
+
         cout << "\nFinishing Training ..." << endl;
         model.finishTraining();
 
         if(doHardNegativeMining)
         {
             int res_train_neg = doSlidingOperation(model, trainingSet, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
-                                                windows_n_cols, step_slide_row, step_slide_col, OPERATE_TRAIN_NEG, originalImageHeight);
+                                                windows_n_cols, step_slide_row, step_slide_col, OPERATE_TRAIN_HARDNEG, originalImageHeight);
             if(res_train_neg != 0)
             {
                 cerr << "Error occured during training, errorcode: " << res_train;
@@ -230,7 +237,7 @@ int classify(Classifier &model, vector<string> testVideos, string dir)
 
             ClipperLib::Path emptyPolygon;
 
-            if((frameCount++ % 50) == 0)
+            if((frameCount++ % 1) == 0)
             {
                 int res_test = doSlidingImageOperation(model, frame, emptyPolygon, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
                                                    windows_n_cols, step_slide_row, step_slide_col, OPERATE_CLASSIFY, originalImageHeight, dir);
@@ -385,6 +392,11 @@ int doSlidingImageOperation(Classifier &model, Mat frame, ClipperLib::Path label
                         break;
                     }
                     case OPERATE_TRAIN_NEG:
+                    {
+                        model.trainNegativeSample(rescaled_gray, rescaled, windows);
+                        break;
+                    }
+                    case OPERATE_TRAIN_HARDNEG:
                         model.hardNegativeMine(rescaled_gray, rescaled, labelPolygon, windows, current_scaling);
                         break;
                     case OPERATE_VALIDATE:
@@ -492,14 +504,14 @@ vector<JSONImage> getTestSet(char *testPath)
 vector<JSONImage> getNegativeSet(char *negativePath)
 {
     // get test images
-    vector<JSONImage> negativeSet = FileManager::GetImages(negativePath, IMAGE_jpg);
+    vector<JSONImage> negativeSet = FileManager::GetImages(negativePath, IMAGE_JPG);
     if(negativeSet.empty())
     {
         cerr << "No (additional) negative images found." << endl;
     }
     else
     {
-        cout << "Found " << negativeSet.size() << " test images." << endl;
+        cout << "Found " << negativeSet.size() << " negative training images." << endl;
     }
     return negativeSet;
 }

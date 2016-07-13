@@ -24,7 +24,8 @@ extern "C" {
 #define OPERATE_TRAIN 1
 #define OPERATE_CLASSIFY 2
 #define OPERATE_VALIDATE 3
-#define OPERATE_TRAIN_NEG 4
+#define OPERATE_TRAIN_HARDNEG 4
+#define OPERATE_TRAIN_NEG 5
 
 using namespace std;
 using namespace cv;
@@ -52,7 +53,7 @@ static string getTimeString();
 static string TimeString;
 static int imageCounter;
 
-int train(Classifier &model, bool loadSVMFromFile, string svm_loadpath, string svm_savepath, vector<JSONImage> trainingSet);
+int train(Classifier &model, bool loadSVMFromFile, string svm_loadpath, string svm_savepath, vector<JSONImage> trainingSet, vector<JSONImage> negativeSet);
 int validate(Classifier &model, vector<JSONImage> validationSet);
 int classify(Classifier &model, vector<JSONImage> testSet, vector<string> testVideos, string dir = "./ClassificationResults/");
 int classify(Classifier &model, vector<JSONImage> testSet, string dir = "./ClassificationResults/");
