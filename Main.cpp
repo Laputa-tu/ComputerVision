@@ -46,8 +46,8 @@ void loadHOGConfiguration()
 
 int main(int argc, char* argv[])
 {
-    bool loadSVMFromFile = false;
-    string svm_loadpath = "./SVM_Savings/svm_2016_7_11__11_57_6.xml"; // lbp
+    bool loadSVMFromFile = true;
+    string svm_loadpath = "./SVM_Savings/svm_lbp_negative.xml"; // lbp
     string svm_savepath = "./SVM_Savings/svm_" + getTimeString() + ".xml";
     string videoPath = "./ClassificationResults/Videos/";
 

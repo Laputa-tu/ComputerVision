@@ -215,7 +215,7 @@ void Classifier::train(const cv::Mat& img_gray, const cv::Mat& img_color, Clippe
 		else 
 		{
             //if( (1.0 * rand() / RAND_MAX) < 0.2) // is statistically every 5th time true -> reduce negative training samples
-            if(((negativeTrainingWindows+discardedTrainingWindows)%3) == 0 )
+            if(((negativeTrainingWindows+discardedTrainingWindows)%7) == 0 )
             {
 				labels.push_back(cv::Mat1f(1, 1, svmLabel));
 				descriptors.push_back(descriptor);  
@@ -725,7 +725,7 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 		{		
 			continue;
 		}		
-        rectangle( img_show, predictedSlidingWindows[i], cv::Scalar( 0, 255, 0 ), 1, CV_AA, 0 );      // you need to add a parameter here to set it
+        //rectangle( img_show, predictedSlidingWindows[i], cv::Scalar( 0, 255, 0 ), 1, CV_AA, 0 );      // you need to add a parameter here to set it
 		heatmap(predictedSlidingWindows[i]) += (double) 1.0 * predictedSlidingWindowWeights[i];
 
 		// count number of windows
@@ -752,11 +752,11 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 		labelContours.push_back(labelContour);
 
 		// draw labelPolygon		
-		//drawContours(img_show, labelContours, -1, cv::Scalar( 255, 0, 0 ), 2, CV_AA);                     // you need to add a parameter here to set it
+        drawContours(img_show, labelContours, -1, cv::Scalar( 255, 0, 0 ), 2, CV_AA);                     // you need to add a parameter here to set it
 
 		// draw bounding rect of labelPolygon
 		labelBoundRect = boundingRect(Mat(labelContour));
-		rectangle(img_show, labelBoundRect.tl(), labelBoundRect.br(), cv::Scalar( 255, 0, 0 ), 2, 8, 0 );
+        //rectangle(img_show, labelBoundRect.tl(), labelBoundRect.br(), cv::Scalar( 255, 0, 0 ), 2, 8, 0 ); // you need to add a parameter here to set it
 	}
 
 	for (int i = 0; i < contours.size(); i++)
@@ -787,7 +787,6 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 		//draw contours on tagged image
         //drawContours(img_show, contours_thresh, -1, cv::Scalar( 0, 0, 255 ), 2, CV_AA);                   // you need to add a parameter here to set it
 
-
 		if (contours_thresh.size() > 0)
 		{
 			// draw bounding rect (detected)
@@ -800,10 +799,24 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 			}
 			rectangle(img_show, boundRect.tl(), boundRect.br(), cv::Scalar( 0, 0, 255 ), 2, 8, 0 );
 
-            // draw Direction
+            // draw direction arrow
+            int lineType = 8;
+            Point arrow_points[1][3];
+            arrow_points[0][0] = Point( rect_center.x, img_show.rows-img_show.rows/15);
+            arrow_points[0][1] = Point( boundRect.x, img_show.rows);
+            arrow_points[0][2] = Point( boundRect.x+boundRect.width, img_show.rows);
+            const Point* ppt[1] = { arrow_points[0] };
+            int npt[] = { 3 };
+            fillPoly( img_show, ppt, npt, 1, Scalar( 0, 0, 255 ), lineType );
+
+            // draw Direction label
+            int baseline=0;
+            Size textSize = getTextSize(DirectionStrings[getDirection(boundRect, img.cols)],
+                    cv::FONT_HERSHEY_DUPLEX, 1.1, 1, &baseline);
             ostringstream oss;
-            oss << "Direction: " << DirectionStrings[getDirection(boundRect, img.cols)];
-            putText(img_show, oss.str(), cv::Point(10, 120), cv::FONT_HERSHEY_DUPLEX, 1.3, cv::Scalar( 0, 0, 255 ), 2, CV_AA);
+            oss << DirectionStrings[getDirection(boundRect, img.cols)];
+            putText(img_show, oss.str(), cv::Point((boundRect.x+boundRect.width/2)-textSize.width/2, img_show.rows-12),
+                    cv::FONT_HERSHEY_DUPLEX, 1.1, cv::Scalar( 255, 255, 255 ), 1, CV_AA);
 
 			//draw center point of bounding rect (detected)			
 			circle( img_show, rect_center, 10, Scalar( 0, 0, 255 ), -1, 8);  
@@ -823,7 +836,7 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 				weightSum += predictedSlidingWindowWeights[k];
 			}
 			averageCenterPoint *= (1.0 / weightSum);
- 			circle( img_show, averageCenterPoint, 10, Scalar( 0, 255, 0 ), -1, 8); 
+            //circle( img_show, averageCenterPoint, 10, Scalar( 0, 255, 0 ), -1, 8);  // you need to add a parameter here to set it
 
 
 			double pred = 1.0 * heatmap_max / rectCount;
@@ -909,6 +922,10 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 			}
 		}
 	}
+
+    //draw direction decision grid
+    line(img_show,Point(img_show.cols/3, 0), Point(img_show.cols/3, img_show.rows), cv::Scalar(255, 255, 255), 1);
+    line(img_show,Point(img_show.cols/3*2, 0), Point(img_show.cols/3*2, img_show.rows), cv::Scalar(255,255,255), 1);
 
 	if(!labelPolygon.empty())
 	{
