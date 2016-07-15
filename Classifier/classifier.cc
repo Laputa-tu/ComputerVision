@@ -844,7 +844,7 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 			//draw text on image
 			ostringstream s;
 			s << "Prediction: " << pred << "   (Heatmap-Max: " << heatmap_max << " Rect-Count: " << rectCount << ")";
-			putText(img_show, s.str(), cv::Point(10, 40 + i * 80), cv::FONT_HERSHEY_DUPLEX, 1.3, cv::Scalar( 0, 0, 255 ), 2, CV_AA);
+            putText(img_show, s.str(), cv::Point(10, 40 + i * 80), cv::FONT_HERSHEY_DUPLEX, 1.1, cv::Scalar( 0, 0, 255 ), 2, CV_AA);
 			s.str(""); 
 
 
@@ -889,7 +889,7 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 				//draw Text
 				ostringstream s;				
 				s << "IoU: " << overlap << " (-> Label: " << (overlap >= detectionOverlapThreshold) << ")" ;
-				putText(img_show, s.str(), cv::Point(10, 80 + i * 80), cv::FONT_HERSHEY_DUPLEX, 1.3, cv::Scalar( 0, 0, 255 ), 2, CV_AA);
+                putText(img_show, s.str(), cv::Point(10, 80 + i * 80), cv::FONT_HERSHEY_DUPLEX, 1.1, cv::Scalar( 0, 0, 255 ), 2, CV_AA);
 				s.str("");
 
 
@@ -1061,7 +1061,7 @@ void Classifier::showTaggedOverlapImage(const cv::Mat& img, ClipperLib::Path lab
 	//draw Text
 	ostringstream s;
 	s << "Overlap: " << (floor(overlap * 10000.0) / 100.0) << " %";
-	putText(img_show, s.str(), cv::Point(10, 35), cv::FONT_HERSHEY_DUPLEX, 1.3, cv::Scalar( 0, 0, 255 ), 2, CV_AA);
+    putText(img_show, s.str(), cv::Point(10, 35), cv::FONT_HERSHEY_DUPLEX, 1.1, cv::Scalar( 0, 0, 255 ), 2, CV_AA);
 
 
 	//Print information to console

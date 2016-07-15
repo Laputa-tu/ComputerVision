@@ -35,14 +35,14 @@ int cnt_TrainingImages, cnt_DiscardedTrainingImages;
 vector<JSONImage> getTrainingSet(char *trainingPath);
 vector<JSONImage> getValidationSet(char *validationPath);
 vector<JSONImage> getTestSet(char *testPath);
-vector<string> getTestVideos(char *testPath);
+vector<string> getTestVideos(char *testPath, bool isVideoToMerge = false);
 vector<JSONImage> getNegativeSet(char *negativePath);
 
 int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale_n, float scale_factor, float initial_scale, int w_rows,
                        int w_cols, int step_rows, int step_cols, const int operation, int originalImageHeight, string dir = "./ClassificationResults/");
 
 int doSlidingImageOperation(Classifier &model, Mat frame, ClipperLib::Path labelPolygon, int scale_n, float scale_factor, float initial_scale, int w_rows,
-                            int w_cols, int step_rows, int step_cols, const int operation, int originalImageHeight, string dir = "./ClassificationResults/");
+                            int w_cols, int step_rows, int step_cols, const int operation, int originalImageHeight, string dir = "./ClassificationResults/", bool mergeVideo = false);
 
 int calculateBestSlidingWindow(vector<JSONImage> &imageSet, bool showResult, float initial_scale, int w_rows, int w_cols);
 
@@ -83,7 +83,8 @@ float overlapThreshold2;
 
 //video output
 int ex_video_output;
-Size s_video_output;
 double fps_video_output;
+vector<string> outputVideoToMerge;
+Mat frameToMerge;
 
 

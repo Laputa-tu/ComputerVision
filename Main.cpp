@@ -55,6 +55,7 @@ int main(int argc, char* argv[])
     char* validationPath = (argc >= 3) ? argv[2] : NULL;
     char* testPath = (argc >= 4) ? argv[3] : NULL;
     char* negativePath = (argc >= 5) ? argv[4] : NULL;
+    char* outputVideoPath = (argc >= 6) ? argv[5] : NULL;
 
     vector<JSONImage> trainingSet, validationSet, testSet, negativeSet;
     vector<string> testVideos;
@@ -67,7 +68,7 @@ int main(int argc, char* argv[])
     {
         cerr << "Usage: " << argv[0] << " <DirTrainingImages zebra.json> "
              <<"[<DirValidationImages zebra.json> <DirTestSet .JPG or .MP4> "
-             <<"<DirNegativeSet .jpg>]" << endl;
+             <<"<DirNegativeSet .jpg> <OutputVideoToMerge .MP4>]" << endl;
         return WRONG_ARG;
     }
 
@@ -83,6 +84,7 @@ int main(int argc, char* argv[])
     testSet = getTestSet(testPath);
     testVideos = getTestVideos(testPath);
     negativeSet = getNegativeSet(negativePath);
+    outputVideoToMerge = getTestVideos(outputVideoPath, true);
 
     printScaleSteps();
     calculateBestSlidingWindow(trainingSet, false, initial_scale, windows_n_rows, windows_n_cols);
@@ -204,6 +206,8 @@ int classify(Classifier &model, vector<JSONImage> testSet, string dir)
 
 int classify(Classifier &model, vector<string> testVideos, string dir)
 {
+    bool mergeVideo = (!outputVideoToMerge.empty()) ? true : false;
+
     // run classification on videos
     for(int it=0; it<testVideos.size(); it++)
     {
@@ -219,11 +223,20 @@ int classify(Classifier &model, vector<string> testVideos, string dir)
         //save video codec, size and fps for output
         ex_video_output = static_cast<int>(cap.get(CV_CAP_PROP_FOURCC));        // Get Codec Type- Int form
         fps_video_output = cap.get(CV_CAP_PROP_FPS); //get the frames per seconds of the video
-        s_video_output = Size((int) cap.get(CV_CAP_PROP_FRAME_WIDTH),    // Acquire input size
-                        (int) cap.get(CV_CAP_PROP_FRAME_HEIGHT));
-
-        //cout << "Frame per seconds : " << fps_video_output << endl;
         int frameCount = 0;
+
+        VideoCapture capToMerge;
+        if(mergeVideo)
+        {
+            capToMerge = VideoCapture(outputVideoToMerge.at(it));
+            if(!capToMerge.isOpened())
+            {
+                cout << "Cannot open the video file (to merge)." << endl;
+                return IMG_INVAL;
+            }
+
+            capToMerge.set(CV_CAP_PROP_POS_MSEC, 1); //start the video at 300ms
+        }
 
         while(1)
         {
@@ -235,12 +248,22 @@ int classify(Classifier &model, vector<string> testVideos, string dir)
                break;
             }
 
+            if(mergeVideo)
+            {
+                bSuccess = capToMerge.read(frameToMerge);
+                if (!bSuccess) //if not success, break loop
+                {
+                   cout << "Cannot read the frame from video file (to merge)." << endl;
+                   break;
+                }
+            }
+
             ClipperLib::Path emptyPolygon;
 
-            if((frameCount++ % 1) == 0)
+            if((frameCount++ % 30) == 0)
             {
                 int res_test = doSlidingImageOperation(model, frame, emptyPolygon, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
-                                                   windows_n_cols, step_slide_row, step_slide_col, OPERATE_CLASSIFY, originalImageHeight, dir);
+                                                   windows_n_cols, step_slide_row, step_slide_col, OPERATE_CLASSIFY, originalImageHeight, dir, mergeVideo);
             }
         }
     }
@@ -311,7 +334,7 @@ int doSlidingOperation(Classifier &model, vector<JSONImage> &imageSet, int scale
 
 
 int doSlidingImageOperation(Classifier &model, Mat frame, ClipperLib::Path labelPolygon, int scale_n, float scale_factor, float initial_scale, int w_rows,
-                            int w_cols, int step_rows, int step_cols, const int operation, int originalImageHeight, string dir)
+                            int w_cols, int step_rows, int step_cols, const int operation, int originalImageHeight, string dir, bool mergeVideo)
 {
     Mat image, rescaled, rescaled_gray;
     string result_tag;
@@ -444,9 +467,21 @@ int doSlidingImageOperation(Classifier &model, Mat frame, ClipperLib::Path label
             //model.evaluateMergedSlidingWindows(image, labelPolygon, result_tag + oss.str(), showResult, saveResult);
             break;
         case OPERATE_CLASSIFY:
+        {
             result_tag = "c_";
+            if(mergeVideo)
+            {
+                image = frameToMerge;
+                //scale image to defaultHeight
+                if(image.rows != originalImageHeight)
+                {
+                    float defaultScale = 1.0 * originalImageHeight / image.rows;
+                    resize(image, image, Size(), defaultScale, defaultScale, INTER_CUBIC);
+                }
+            }
             model.evaluateMergedSlidingWindows(image, labelPolygon, result_tag + oss.str(), showResult, saveResult, dir);
             break;
+        }
         case OPERATE_VALIDATE:
             result_tag = "v_";
             model.evaluateMergedSlidingWindows(image, labelPolygon, result_tag + oss.str(), showResult, saveResult);
@@ -515,17 +550,33 @@ vector<JSONImage> getNegativeSet(char *negativePath)
     }
     return negativeSet;
 }
-vector<string> getTestVideos(char *testPath)
+
+vector<string> getTestVideos(char *testPath, bool isVideoToMerge)
 {
     // get test videos from dir
     vector<string> testVideos = FileManager::GetVideosFromDirectory(testPath);
     if(testVideos.empty())
     {
-        cerr << "No test videos found." << endl;
+        if(isVideoToMerge)
+        {
+             cout << "No video found to merge." << endl;
+        }
+        else
+        {
+             cout << "No test videos found." << endl;
+        }
     }
     else
     {
-        cout << "Found " << testVideos.size() << " test videos." << endl;
+        if(isVideoToMerge)
+        {
+             cout << "Found video to merge." << endl;
+        }
+        else
+        {
+             cout << "Found " << testVideos.size() << " test videos." << endl;
+        }
+
     }
     return testVideos;
 }
@@ -604,21 +655,39 @@ void createVideo(string dir)
 {
     cout << "Creating output video ..." << endl;
     Mat image;
-    JSONImage jsonImage;
+    Size s_video;
 
     char * path = const_cast<char*> ( dir.c_str() );
     vector<string> images = FileManager::GetImageFilesFromDirectory(path);
 
+    string file_path;
+    size_t found;
+    string file_name;
+    for(vector<string>::iterator it = images.begin(); it != images.end(); ++it)
+    {
+        // get directory
+        file_path = *it;
+        found = file_path.find_last_of("/\\");
+        file_name = file_path.substr(found+1);
+
+        image = imread(file_path, CV_LOAD_IMAGE_COLOR);
+        if(!image.empty())
+        {
+            s_video = Size(image.cols, image.rows);
+            break;
+        }
+    }
+
     // write video
     VideoWriter outputVideo;
     string name = dir+getTimeString()+".avi";
-    outputVideo.open(name.c_str(),CV_FOURCC('M', 'P', '4', '2') , fps_video_output, s_video_output, true);
+    outputVideo.open(name.c_str(),CV_FOURCC('M', 'P', '4', '2') , fps_video_output, s_video, true);
 
     // Transform from int to char via Bitwise operators
     char EXT[] = {(char)(ex_video_output & 0XFF) , (char)((ex_video_output & 0XFF00) >> 8),
                   (char)((ex_video_output & 0XFF0000) >> 16),(char)((ex_video_output & 0XFF000000) >> 24), 0};
 
-    cout << "\tOutput frame resolution: Width=" << s_video_output.width << "  Height=" << s_video_output.height << endl;
+    cout << "\tOutput frame resolution: Width=" << s_video.width << "  Height=" << s_video.height << endl;
     cout << "\tOutput codec type: " << EXT << endl;
 
     if (!outputVideo.isOpened())
@@ -626,10 +695,6 @@ void createVideo(string dir)
         cerr  << "Could not open the output video for write: " << name.c_str() << endl;
         return;
     }
-
-    string file_path;
-    size_t found;
-    string file_name;
 
     std::sort(images.begin(), images.end());
     for(vector<string>::iterator it = images.begin(); it != images.end(); ++it)
