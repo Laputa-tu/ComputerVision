@@ -700,7 +700,7 @@ void Classifier::generateTaggedResultImage(const cv::Mat& img, string imgName, b
 
 void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Path labelPolygon, string imgName, bool showResult, bool saveResult, string dir)
 {
-    double heatmap_threshold = 0.55;
+    double heatmap_threshold = 0.8;
 	double area_clippedContourPolygon, area_contourPolygon, area_labelPolygon, TP, FP, overlap, heatmap_max;
 	bool targetObjectDetected = false;
 	bool targetObjectDetected2 = false;

@@ -16,7 +16,7 @@ void loadLBPConfiguration()
     step_slide_col = windows_n_cols / 4;
 
     // classification
-    overlapThreshold = 0.5;
+    overlapThreshold = 0.8;
     predictionThreshold = 0.5;
     overlapThreshold2 = 0.06;
 }
