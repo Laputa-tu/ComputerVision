@@ -700,7 +700,7 @@ void Classifier::generateTaggedResultImage(const cv::Mat& img, string imgName, b
 
 void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Path labelPolygon, string imgName, bool showResult, bool saveResult, string dir)
 {
-    double heatmap_threshold = 1.1;
+    double heatmap_threshold = 0.55;
 	double area_clippedContourPolygon, area_contourPolygon, area_labelPolygon, TP, FP, overlap, heatmap_max;
 	bool targetObjectDetected = false;
 	bool targetObjectDetected2 = false;
@@ -843,7 +843,7 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 
 			//draw text on image
 			ostringstream s;
-			s << "Prediction: " << pred << "   (Heatmap-Max: " << heatmap_max << " Rect-Count: " << rectCount << ")";
+            s << "Prediction: " << pred;//"   (Heatmap-Max: " << heatmap_max << " Rect-Count: " << rectCount << ")";
             putText(img_show, s.str(), cv::Point(10, 40 + i * 80), cv::FONT_HERSHEY_DUPLEX, 1.1, cv::Scalar( 0, 0, 255 ), 2, CV_AA);
 			s.str(""); 
 
@@ -887,10 +887,10 @@ void Classifier::evaluateMergedSlidingWindows(const cv::Mat& img, ClipperLib::Pa
 				
 
 				//draw Text
-				ostringstream s;				
-				s << "IoU: " << overlap << " (-> Label: " << (overlap >= detectionOverlapThreshold) << ")" ;
-                putText(img_show, s.str(), cv::Point(10, 80 + i * 80), cv::FONT_HERSHEY_DUPLEX, 1.1, cv::Scalar( 0, 0, 255 ), 2, CV_AA);
-				s.str("");
+                //ostringstream s;
+                //s << "IoU: " << overlap << " (-> Label: " << (overlap >= detectionOverlapThreshold) << ")" ;
+                //putText(img_show, s.str(), cv::Point(10, 80 + i * 80), cv::FONT_HERSHEY_DUPLEX, 1.1, cv::Scalar( 0, 0, 255 ), 2, CV_AA);
+                //s.str("");
 
 
 				// detection 1

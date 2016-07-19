@@ -17,7 +17,7 @@ void loadLBPConfiguration()
 
     // classification
     overlapThreshold = 0.5;
-    predictionThreshold = 1.0;
+    predictionThreshold = 0.5;
     overlapThreshold2 = 0.06;
 }
 
@@ -47,7 +47,7 @@ void loadHOGConfiguration()
 int main(int argc, char* argv[])
 {
     bool loadSVMFromFile = true;
-    string svm_loadpath = "./SVM_Savings/svm_lbp_negative.xml"; // lbp
+    string svm_loadpath = "./SVM_Savings/svm_final.xml"; // lbp
     string svm_savepath = "./SVM_Savings/svm_" + getTimeString() + ".xml";
     string videoPath = "./ClassificationResults/Videos/";
 
@@ -218,7 +218,7 @@ int classify(Classifier &model, vector<string> testVideos, string dir)
             return IMG_INVAL;
         }
 
-        cap.set(CV_CAP_PROP_POS_MSEC, 1); //start the video at 300ms
+        cap.set(CV_CAP_PROP_POS_MSEC, 0); //start the video at 300ms
 
         //save video codec, size and fps for output
         ex_video_output = static_cast<int>(cap.get(CV_CAP_PROP_FOURCC));        // Get Codec Type- Int form
@@ -235,7 +235,7 @@ int classify(Classifier &model, vector<string> testVideos, string dir)
                 return IMG_INVAL;
             }
 
-            capToMerge.set(CV_CAP_PROP_POS_MSEC, 1); //start the video at 300ms
+            capToMerge.set(CV_CAP_PROP_POS_MSEC, 0); //start the video at 300ms
         }
 
         while(1)
@@ -260,7 +260,7 @@ int classify(Classifier &model, vector<string> testVideos, string dir)
 
             ClipperLib::Path emptyPolygon;
 
-            if((frameCount++ % 30) == 0)
+            if((frameCount++ % 1) == 0)
             {
                 int res_test = doSlidingImageOperation(model, frame, emptyPolygon, scale_n_times, scaling_factor, initial_scale, windows_n_rows,
                                                    windows_n_cols, step_slide_row, step_slide_col, OPERATE_CLASSIFY, originalImageHeight, dir, mergeVideo);
